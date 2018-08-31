@@ -3,7 +3,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 import Web3 from 'web3';
-import TruffleContract from 'truffle-contract';
+import ContractLoader from "./contractLoader";
 
 const DEFAULT_GAS = 300000;
 
@@ -19,18 +19,9 @@ export default class OceanKeeper {
         var _this = this;
 
         return _asyncToGenerator(function* () {
-            const OceanToken = require(`@oceanprotocol/keeper-contracts/artifacts/OceanToken.${_this.network}`);
-            const oceanToken = TruffleContract(OceanToken);
-            const OceanMarket = require(`@oceanprotocol/keeper-contracts/artifacts/OceanMarket.${_this.network}`);
-            const oceanMarket = TruffleContract(OceanMarket);
-            const OceanAuth = require(`@oceanprotocol/keeper-contracts/artifacts/OceanAuth.${_this.network}`);
-            const oceanAuth = TruffleContract(OceanAuth);
-            oceanToken.setProvider(_this.web3.currentProvider);
-            oceanMarket.setProvider(_this.web3.currentProvider);
-            oceanAuth.setProvider(_this.web3.currentProvider);
-            _this.oceanToken = yield oceanToken.at(OceanToken.address);
-            _this.oceanMarket = yield oceanMarket.at(OceanMarket.address);
-            _this.oceanAuth = yield oceanAuth.at(OceanAuth.address);
+            _this.oceanToken = yield ContractLoader.load('OceanToken', _this.network, _this.web3.currentProvider);
+            _this.oceanMarket = yield ContractLoader.load('OceanMarket', _this.network, _this.web3.currentProvider);
+            _this.oceanAuth = yield ContractLoader.load('OceanAuth', _this.network, _this.web3.currentProvider);
 
             return {
                 oceanToken: _this.oceanToken,

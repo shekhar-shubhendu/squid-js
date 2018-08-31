@@ -1,5 +1,5 @@
 import Web3 from 'web3'
-import TruffleContract from 'truffle-contract'
+import ContractLoader from "./contractLoader";
 
 const DEFAULT_GAS = 300000
 
@@ -12,18 +12,9 @@ export default class OceanKeeper {
     }
 
     async initContracts() {
-        const OceanToken = require(`@oceanprotocol/keeper-contracts/artifacts/OceanToken.${this.network}`)
-        const oceanToken = TruffleContract(OceanToken)
-        const OceanMarket = require(`@oceanprotocol/keeper-contracts/artifacts/OceanMarket.${this.network}`)
-        const oceanMarket = TruffleContract(OceanMarket)
-        const OceanAuth = require(`@oceanprotocol/keeper-contracts/artifacts/OceanAuth.${this.network}`)
-        const oceanAuth = TruffleContract(OceanAuth)
-        oceanToken.setProvider(this.web3.currentProvider)
-        oceanMarket.setProvider(this.web3.currentProvider)
-        oceanAuth.setProvider(this.web3.currentProvider)
-        this.oceanToken = await oceanToken.at(OceanToken.address)
-        this.oceanMarket = await oceanMarket.at(OceanMarket.address)
-        this.oceanAuth = await oceanAuth.at(OceanAuth.address)
+        this.oceanToken = await ContractLoader.load('OceanToken', this.network, this.web3.currentProvider)
+        this.oceanMarket = await ContractLoader.load('OceanMarket', this.network, this.web3.currentProvider)
+        this.oceanAuth = await ContractLoader.load('OceanAuth', this.network, this.web3.currentProvider)
 
         return {
             oceanToken: this.oceanToken,
