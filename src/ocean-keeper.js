@@ -1,5 +1,5 @@
 import Web3 from 'web3'
-import ContractLoader from "./contractLoader";
+import ContractLoader from './contractLoader'
 
 const DEFAULT_GAS = 300000
 
