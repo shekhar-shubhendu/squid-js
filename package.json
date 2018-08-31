@@ -1,6 +1,6 @@
 {
   "name": "@oceanprotocol/keeper-js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Ocean Javascript Client",
   "main": "dist/squid.js",
   "scripts": {
