@@ -16,10 +16,19 @@
 
 ## Table of Contents
 
-  - [License](#license)
+  - [Get Started](##Get Started)
+  - [License](##license)
 
 ---
     
+## Get Started
+To start develppment you need to:
+```batch
+npm i
+npm run start:dev
+```
+
+This will start a watcher for changes of the code.
 
 ## License
 
