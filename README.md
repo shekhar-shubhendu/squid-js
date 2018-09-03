@@ -5,8 +5,8 @@
 > 🐋 JavaScript implementation of ocean protocol keeper
 > [oceanprotocol.com](https://oceanprotocol.com)
 
-[![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/keeper-js.svg)](https://travis-ci.com/oceanprotocol/keeper-js)
-[![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/keeper-js.svg)](https://github.com/oceanprotocol/provider/graphs/keeper-js)
+[![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/ocean-client-js.svg)](https://travis-ci.com/oceanprotocol/ocean-client-js)
+[![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/ocean-client-js.svg)](https://github.com/oceanprotocol/ocean-client-js/graphs/contributors)
 
 ---
 
