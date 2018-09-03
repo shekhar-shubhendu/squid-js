@@ -1,0 +1,25 @@
+dist: trusty
+sudo: required
+group: beta
+language: node_js
+node_js:
+- "8"
+
+services:
+- docker
+
+cache:
+  directories:
+  - node_modules
+
+matrix:
+  fast_finish: true
+
+before_install:
+- npm install -g npm
+
+script:
+- npm run build
+
+notifications:
+  email: false
