@@ -10,14 +10,14 @@
 
 ---
 
-**🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/keeper-js/issues). 🦑🐲**
+**🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/ocean-client-js/issues). 🦑🐲**
 
 ---
 
 ## Table of Contents
 
-  - [Get Started](##Get Started)
-  - [License](##license)
+  - [Get Started](#get-started)
+  - [License](#license)
 
 ---
     
