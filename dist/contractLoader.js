@@ -1,81 +1,74 @@
-'use strict';
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
+exports.default = void 0;
 
-var _regenerator = require('babel-runtime/regenerator');
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
-var _regenerator2 = _interopRequireDefault(_regenerator);
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-var _truffleContract = require('truffle-contract');
-
-var _truffleContract2 = _interopRequireDefault(_truffleContract);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _truffleContract = _interopRequireDefault(require("truffle-contract"));
 
 var contracts = [];
 
-var ContractLoader = function () {
-    function ContractLoader() {
-        (0, _classCallCheck3.default)(this, ContractLoader);
-    }
+var ContractLoader =
+/*#__PURE__*/
+function () {
+  function ContractLoader() {
+    (0, _classCallCheck2.default)(this, ContractLoader);
+  }
 
-    (0, _createClass3.default)(ContractLoader, null, [{
-        key: '_doLoad',
-        value: function () {
-            var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(what, where, provider) {
-                var artifact, contract;
-                return _regenerator2.default.wrap(function _callee$(_context) {
-                    while (1) {
-                        switch (_context.prev = _context.next) {
-                            case 0:
-                                // console.log("Loading", what, "from", where)
-                                /* eslint-disable-next-line */
-                                artifact = require('@oceanprotocol/keeper-contracts/artifacts/' + what + '.' + where);
-                                contract = (0, _truffleContract2.default)(artifact);
+  (0, _createClass2.default)(ContractLoader, null, [{
+    key: "_doLoad",
+    value: function () {
+      var _doLoad2 = (0, _asyncToGenerator2.default)(
+      /*#__PURE__*/
+      _regenerator.default.mark(function _callee(what, where, provider) {
+        var artifact, contract;
+        return _regenerator.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                // console.log("Loading", what, "from", where)
 
-                                contract.setProvider(provider);
-                                _context.next = 5;
-                                return contract.at(artifact.address);
+                /* eslint-disable-next-line */
+                artifact = require("@oceanprotocol/keeper-contracts/artifacts/".concat(what, ".").concat(where));
+                contract = (0, _truffleContract.default)(artifact);
+                contract.setProvider(provider);
+                _context.next = 5;
+                return contract.at(artifact.address);
 
-                            case 5:
-                                contracts[what] = _context.sent;
-                                return _context.abrupt('return', contracts[what]);
+              case 5:
+                contracts[what] = _context.sent;
+                return _context.abrupt("return", contracts[what]);
 
-                            case 7:
-                            case 'end':
-                                return _context.stop();
-                        }
-                    }
-                }, _callee, this);
-            }));
-
-            function _doLoad(_x, _x2, _x3) {
-                return _ref.apply(this, arguments);
+              case 7:
+              case "end":
+                return _context.stop();
             }
+          }
+        }, _callee, this);
+      }));
 
-            return _doLoad;
-        }()
-    }, {
-        key: 'load',
-        value: function load(what, where, provider) {
-            return contracts[what] || ContractLoader._doLoad(what, where, provider);
-        }
-    }]);
-    return ContractLoader;
+      return function _doLoad(_x, _x2, _x3) {
+        return _doLoad2.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "load",
+    value: function load(what, where, provider) {
+      return contracts[what] || ContractLoader._doLoad(what, where, provider);
+    }
+  }]);
+  return ContractLoader;
 }();
 
 exports.default = ContractLoader;

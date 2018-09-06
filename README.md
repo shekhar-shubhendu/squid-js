@@ -2,7 +2,7 @@
 
 # squid-js
 
-> 🐋 JavaScript implementation of ocean protocol keeper
+> 🦑 JavaScript implementation of Ocean Protocol Keeper
 > [oceanprotocol.com](https://oceanprotocol.com)
 
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-js.svg)](https://travis-ci.com/oceanprotocol/squid-js)
@@ -17,15 +17,24 @@
 ## Table of Contents
 
   - [Get Started](#get-started)
+  - [Production Build](#production-build)
   - [License](#license)
 
 ---
-    
+
 ## Get Started
+
 To start develppment you need to:
+
 ```batch
 npm i
-npm run start:dev
+npm start
+```
+
+## Production Build
+
+```bash
+npm run build
 ```
 
 This will start a watcher for changes of the code.
