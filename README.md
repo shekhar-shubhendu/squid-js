@@ -1,16 +1,16 @@
 [![banner](https://raw.githubusercontent.com/oceanprotocol/art/master/github/repo-banner%402x.png)](https://oceanprotocol.com)
 
-# keeper-js
+# squid-js
 
 > 🐋 JavaScript implementation of ocean protocol keeper
 > [oceanprotocol.com](https://oceanprotocol.com)
 
-[![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/ocean-client-js.svg)](https://travis-ci.com/oceanprotocol/ocean-client-js)
-[![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/ocean-client-js.svg)](https://github.com/oceanprotocol/ocean-client-js/graphs/contributors)
+[![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-js.svg)](https://travis-ci.com/oceanprotocol/squid-js)
+[![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/squid-js.svg)](https://github.com/oceanprotocol/squid-js/graphs/contributors)
 
 ---
 
-**🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/ocean-client-js/issues). 🦑🐲**
+**🐲🦑 THERE BE DRAGONS AND SQUIDS. This is in alpha state and you can expect running into problems. If you run into them, please open up [a new issue](https://github.com/oceanprotocol/squid-js/issues). 🦑🐲**
 
 ---
 
