@@ -25,20 +25,20 @@
 
 ## Get Started
 
-To start develppment you need to:
+To start development you need to:
 
 ```batch
 npm i
 npm start
 ```
 
+This will start a watcher for changes of the code.
+
 ## Production Build
 
 ```bash
 npm run build
 ```
-
-This will start a watcher for changes of the code.
 
 ## License
 
