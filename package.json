@@ -1,6 +1,6 @@
 {
   "name": "@oceanprotocol/squid-js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Ocean JavaScript Library",
   "main": "dist/squid.js",
   "scripts": {
