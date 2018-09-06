@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import Web3 from 'web3'
 import ContractLoader from './contractLoader'
 
@@ -167,7 +169,7 @@ export default class OceanKeeper {
 
     // Helper functions (private)
     _listenOnce(event, eventName, callback) {
-        event.watch((error, result) => {
+        event.watch((error, result) => { // eslint-disable-line security/detect-non-literal-fs-filename
             event.stopWatching()
             if (error) {
                 console.log(`Error in keeper ${eventName} event: `, error)

@@ -13,10 +13,11 @@ matrix:
   fast_finish: true
 
 before_install:
-- npm install -g npm
+  - npm install -g npm
 
 script:
-- npm run build
+  - npm test
+  - npm run build
 
 notifications:
   email: false
