@@ -1,7 +1,7 @@
 {
-  "name": "@oceanprotocol/keeper-js",
-  "version": "0.0.3",
-  "description": "Ocean Javascript Client",
+  "name": "@oceanprotocol/squid",
+  "version": "0.0.4",
+  "description": "Ocean JavaScript Library",
   "main": "dist/squid.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,19 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oceanprotocol/ocean-client-js.git"
+    "url": "git+https://github.com/oceanprotocol/squid-js.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oceanprotocol/ocean-client-js/issues"
+    "url": "https://github.com/oceanprotocol/squid-js/issues"
   },
-  "homepage": "https://github.com/oceanprotocol/ocean-client-js#readme",
+  "homepage": "https://github.com/oceanprotocol/squid-js#readme",
   "dependencies": {
     "@oceanprotocol/keeper-contracts": "^0.1.0",
     "truffle-contract": "^3.0.6",
-    "web3": "^0.20.6"
+    "web3": "0.20.6"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
