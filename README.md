@@ -2,7 +2,7 @@
 
 # squid-js
 
-> 🦑 JavaScript implementation of Ocean Protocol Keeper
+> 🦑 JavaScript client library for Ocean Protocol
 > [oceanprotocol.com](https://oceanprotocol.com)
 
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-js.svg)](https://travis-ci.com/oceanprotocol/squid-js)
