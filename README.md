@@ -2,11 +2,12 @@
 
 # squid-js
 
-> 🐋 JavaScript implementation of ocean protocol keeper
+> 🦑 JavaScript client library for Ocean Protocol
 > [oceanprotocol.com](https://oceanprotocol.com)
 
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-js.svg)](https://travis-ci.com/oceanprotocol/squid-js)
 [![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/squid-js.svg)](https://github.com/oceanprotocol/squid-js/graphs/contributors)
+[![js oceanprotocol](https://img.shields.io/badge/js-oceanprotocol-7b1173.svg)](https://github.com/oceanprotocol/eslint-config-oceanprotocol)
 
 ---
 
@@ -17,18 +18,27 @@
 ## Table of Contents
 
   - [Get Started](#get-started)
+  - [Production Build](#production-build)
   - [License](#license)
 
 ---
-    
+
 ## Get Started
-To start develppment you need to:
+
+To start development you need to:
+
 ```batch
 npm i
-npm run start:dev
+npm start
 ```
 
 This will start a watcher for changes of the code.
+
+## Production Build
+
+```bash
+npm run build
+```
 
 ## License
 

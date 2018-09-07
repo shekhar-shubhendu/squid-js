@@ -1,18 +1,13 @@
 {
   "presets": [
-    "es2015",
-    [
-      "env", { "useBuiltIns": true }
-    ],
-    "stage-2"
+    ["@babel/preset-env", { "useBuiltIns": "entry" }]
   ],
   "plugins": [
-    [
-      "transform-runtime",
+    ["@babel/plugin-transform-runtime",
       {
-        "polyfill": false,
         "regenerator": true
       }
-    ]
+    ],
+    ["@babel/plugin-proposal-object-rest-spread", { "useBuiltIns": true }]
   ]
 }
