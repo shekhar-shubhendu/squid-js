@@ -19,7 +19,7 @@
 
   - [Get Started](#get-started)
   - [Production Build](#production-build)
-  - [npm releases](#nopm-releases)
+  - [npm releases](#npm-releases)
   - [License](#license)
 
 ---
