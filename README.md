@@ -5,6 +5,7 @@
 > 🦑 JavaScript client library for Ocean Protocol
 > [oceanprotocol.com](https://oceanprotocol.com)
 
+[![npm](https://img.shields.io/npm/v/@oceanprotocol/squid.svg)](https://www.npmjs.com/package/@oceanprotocol/squid)
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-js.svg)](https://travis-ci.com/oceanprotocol/squid-js)
 [![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/squid-js.svg)](https://github.com/oceanprotocol/squid-js/graphs/contributors)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8508313231b44b0997ec84898cd6f9db)](https://app.codacy.com/app/ocean-protocol/squid-js?utm_source=github.com&utm_medium=referral&utm_content=oceanprotocol/squid-js&utm_campaign=Badge_Grade_Settings)
@@ -19,31 +20,57 @@
 
 ## Table of Contents
 
-  - [Get Started](#get-started)
-  - [Production Build](#production-build)
-  - [npm releases](#npm-releases)
+  - [Get started](#get-started)
+  - [Development](#development)
+    - [Production build](#production-build)
+    - [npm releases](#npm-releases)
   - [License](#license)
 
 ---
 
-## Get Started
+## Get started
+
+Start by adding the package to your dependencies:
+
+```bash
+npm i @oceanprotocol/squid
+```
+
+The package exposes `OceanAgent` and `OceanKeeper` which you can import in your code like so:
+
+```js
+// ES6
+import { OceanAgent, OceanKeeper } from '@oceanprotocol/squid'
+
+// ES2015
+const { OceanAgent, OceanKeeper } = require('@oceanprotocol/squid')
+```
+
+You can then connect to a running [Keeper](https://github.com/oceanprotocol/keeper-contracts) & [Provider](https://github.com/oceanprotocol/provider) instance, e.g.:
+
+```js
+const oceanKeeper = new OceanKeeper('http://localhost:8545', 'development')
+const oceanAgent = new OceanAgent('http://localhost:5000/api/v1/provider')
+```
+
+## Development
 
 To start development you need to:
 
-```batch
+```bash
 npm i
 npm start
 ```
 
 This will start a watcher for changes of the code.
 
-## Production Build
+### Production build
 
 ```bash
 npm run build
 ```
 
-## npm releases
+### npm releases
 
 For a new **patch release**, execute on the machine where you're logged into your npm account:
 
