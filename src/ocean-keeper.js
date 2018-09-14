@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
-
 import Web3 from 'web3'
 import ContractLoader from './contractLoader'
+import Logger from './logger'
 
 const DEFAULT_GAS = 300000
 
@@ -94,7 +93,7 @@ export default class OceanKeeper {
                 paid: await this.verifyOrderPayment(event.args._id).then((received) => received),
                 key: null
             }))
-        console.debug('got orders: ', orders)
+        Logger.debug('got orders: ', orders)
         return orders
     }
 
@@ -110,7 +109,7 @@ export default class OceanKeeper {
             price,
             { from: publisherAddress, gas: this.defaultGas }
         )
-        console.log('registered: ', result)
+        Logger.log('registered: ', result)
         return assetId
     }
 
@@ -172,7 +171,7 @@ export default class OceanKeeper {
         event.watch((error, result) => { // eslint-disable-line security/detect-non-literal-fs-filename
             event.stopWatching()
             if (error) {
-                console.log(`Error in keeper ${eventName} event: `, error)
+                Logger.log(`Error in keeper ${eventName} event: `, error)
             }
             callback(result, error)
         })
