@@ -12,6 +12,10 @@ export default class Logger {
         Logger.dispatch('debug', ...args)
     }
 
+    static warn(...args) {
+        Logger.dispatch('warn', ...args)
+    }
+
     static error(...args) {
         Logger.dispatch('error', ...args)
     }

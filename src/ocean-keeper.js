@@ -1,6 +1,6 @@
 import Web3 from 'web3'
-import ContractLoader from './contractLoader'
-import Logger from './logger'
+import ContractLoader from './keeper/contractLoader'
+import Logger from './utils/logger'
 
 const DEFAULT_GAS = 300000
 
@@ -10,12 +10,14 @@ export default class OceanKeeper {
         this.web3 = new Web3(web3Provider)
         this.defaultGas = DEFAULT_GAS
         this.network = network || 'development'
+
+        Logger.warn('OceanKeeper is deprecated use the Ocean object from squid instead')
     }
 
     async initContracts() {
-        this.oceanToken = await ContractLoader.load('OceanToken', this.network, this.web3.currentProvider)
-        this.oceanMarket = await ContractLoader.load('OceanMarket', this.network, this.web3.currentProvider)
-        this.oceanAuth = await ContractLoader.load('OceanAuth', this.network, this.web3.currentProvider)
+        this.oceanToken = await ContractLoader.load('OceanToken', this.network, this.web3)
+        this.oceanMarket = await ContractLoader.load('OceanMarket', this.network, this.web3)
+        this.oceanAuth = await ContractLoader.load('OceanAuth', this.network, this.web3)
 
         return {
             oceanToken: this.oceanToken,

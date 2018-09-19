@@ -1,5 +1,5 @@
 /* global fetch */
-import Logger from 'logger'
+import Logger from './utils/logger'
 
 export default class OceanAgent {
     constructor(connectionUrl) {
