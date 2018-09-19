@@ -30,7 +30,7 @@ export default class Ocean {
     }
 
     async getOrdersByConsumer(consumerAddress) {
-        let accessConsentEvent = this.auth.AccessConsentRequested({ _consumer: consumerAddress }, {
+        let accessConsentEvent = this.auth.contract.AccessConsentRequested({ _consumer: consumerAddress }, {
             fromBlock: 0,
             toBlock: 'latest'
         })
