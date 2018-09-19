@@ -9,7 +9,7 @@ export default class OceanAuth extends KeeperBase {
 
         return {
             async getInstance() {
-                instance.contract = ContractLoader.load('OceanAuth', instance._network, instance._web3)
+                instance.contract = await ContractLoader.load('OceanAuth', instance._network, instance._web3)
                 return instance
             }
         }
