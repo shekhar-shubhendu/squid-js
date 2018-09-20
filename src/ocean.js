@@ -29,6 +29,20 @@ export default class Ocean {
         }
     }
 
+    async getAccounts() {
+        return Promise.all(this.helper.getAccounts().map(async (account) => {
+            // await ocean.market.requestTokens(account, 1000)
+
+            return {
+                name: account,
+                balance: {
+                    ocn: await this.token.getTokenBalance(account),
+                    eth: await this.token.getEthBalance(account)
+                }
+            }
+        }))
+    }
+
     async getOrdersByConsumer(consumerAddress) {
         let accessConsentEvent = this.auth.contract.AccessConsentRequested({ _consumer: consumerAddress }, {
             fromBlock: 0,
