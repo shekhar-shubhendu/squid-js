@@ -21,7 +21,7 @@ export default class OceanToken extends KeeperBase {
         return this.contract.balanceOf.call(accountAddress)
     }
 
-    getEthBalance(account) {
+    async getEthBalance(account) {
         return new Promise((resolve, reject) => {
             Logger.log('getting balance for', account)
             this._web3.eth.getBalance(account, 'latest', (err, balance) => {
