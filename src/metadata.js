@@ -1,9 +1,9 @@
 /* global fetch */
-/* eslint-disable no-console */
+import Logger from './utils/logger'
 
-export default class OceanAgent {
-    constructor(connectionUrl) {
-        this.assetsUrl = connectionUrl + '/assets'
+export default class MetaData {
+    constructor(providerUri) {
+        this.assetsUrl = providerUri + '/assets'
     }
 
     getAssetsMetadata() {
@@ -20,17 +20,17 @@ export default class OceanAgent {
                 headers: { 'Content-type': 'application/json' }
             })
             .then(response => {
-                console.log('Success:', response)
+                Logger.log('Success:', response)
                 if (response.ok) {
-                    console.log('Success:', response)
+                    Logger.log('Success:', response)
                     return true
                 }
-                console.log('Failed: ', response.status, response.statusText)
+                Logger.log('Failed: ', response.status, response.statusText)
                 return false
                 // throw new Error(response.statusText ? response.statusText : `publish asset failed with status ${response.status}`)
             })
             .catch(error => {
-                console.log(`Publish asset to ocean database could not be completed: ${error.message()}`)
+                Logger.log(`Publish asset to ocean database could not be completed: ${error.message()}`)
                 return false
             })
     }

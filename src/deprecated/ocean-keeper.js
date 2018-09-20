@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
-
 import Web3 from 'web3'
-import ContractLoader from './contractLoader'
+import ContractLoader from '../keeper/contractLoader'
+import Logger from '../utils/logger'
 
 const DEFAULT_GAS = 300000
 
@@ -11,12 +10,14 @@ export default class OceanKeeper {
         this.web3 = new Web3(web3Provider)
         this.defaultGas = DEFAULT_GAS
         this.network = network || 'development'
+
+        Logger.warn('OceanKeeper is deprecated use the Ocean object from squid instead')
     }
 
     async initContracts() {
-        this.oceanToken = await ContractLoader.load('OceanToken', this.network, this.web3.currentProvider)
-        this.oceanMarket = await ContractLoader.load('OceanMarket', this.network, this.web3.currentProvider)
-        this.oceanAuth = await ContractLoader.load('OceanAuth', this.network, this.web3.currentProvider)
+        this.oceanToken = await ContractLoader.load('OceanToken', this.network, this.web3)
+        this.oceanMarket = await ContractLoader.load('OceanMarket', this.network, this.web3)
+        this.oceanAuth = await ContractLoader.load('OceanAuth', this.network, this.web3)
 
         return {
             oceanToken: this.oceanToken,
@@ -94,7 +95,7 @@ export default class OceanKeeper {
                 paid: await this.verifyOrderPayment(event.args._id).then((received) => received),
                 key: null
             }))
-        console.debug('got orders: ', orders)
+        Logger.debug('got orders: ', orders)
         return orders
     }
 
@@ -110,7 +111,7 @@ export default class OceanKeeper {
             price,
             { from: publisherAddress, gas: this.defaultGas }
         )
-        console.log('registered: ', result)
+        Logger.log('registered: ', result)
         return assetId
     }
 
@@ -172,7 +173,7 @@ export default class OceanKeeper {
         event.watch((error, result) => { // eslint-disable-line security/detect-non-literal-fs-filename
             event.stopWatching()
             if (error) {
-                console.log(`Error in keeper ${eventName} event: `, error)
+                Logger.log(`Error in keeper ${eventName} event: `, error)
             }
             callback(result, error)
         })

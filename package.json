@@ -1,12 +1,12 @@
 {
   "name": "@oceanprotocol/squid",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "JavaScript client library for Ocean Protocol",
   "main": "dist/squid.js",
   "scripts": {
     "test": "eslint ./src",
-    "start": "babel src --watch --out-dir dist",
-    "build": "babel src --out-dir dist",
+    "start": "babel ./src/ --watch --out-dir ./dist/",
+    "build": "babel ./src/ --out-dir ./dist/",
     "release": "./node_modules/release-it/bin/release-it.js --src.tagName='v%s' --github.release --npm.publish --non-interactive",
     "release-minor": "./node_modules/release-it/bin/release-it.js minor --src.tagName='v%s' --github.release --npm.publish --non-interactive",
     "release-major": "./node_modules/release-it/bin/release-it.js major --src.tagName='v%s' --github.release --npm.publish --non-interactive",

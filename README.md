@@ -36,21 +36,20 @@ Start by adding the package to your dependencies:
 npm i @oceanprotocol/squid
 ```
 
-The package exposes `OceanAgent` and `OceanKeeper` which you can import in your code like so:
+The package exposes `Ocean` and `Logger` which you can import in your code like this:
 
 ```js
 // ES6
-import { OceanAgent, OceanKeeper } from '@oceanprotocol/squid'
+import { Ocean, Logger } from '@oceanprotocol/squid'
 
 // ES2015
-const { OceanAgent, OceanKeeper } = require('@oceanprotocol/squid')
+const { Ocean, Logger } = require('@oceanprotocol/squid')
 ```
 
 You can then connect to a running [Keeper](https://github.com/oceanprotocol/keeper-contracts) & [Provider](https://github.com/oceanprotocol/provider) instance, e.g.:
 
 ```js
-const oceanKeeper = new OceanKeeper('http://localhost:8545', 'development')
-const oceanAgent = new OceanAgent('http://localhost:5000/api/v1/provider')
+const ocean = await new Ocean({nodeUri: 'http://localhost:8545', network: 'development', providerUri: 'http://localhost:5000'})
 ```
 
 ## Development

@@ -1,7 +1,11 @@
-import OceanAgent from './ocean-agent'
-import OceanKeeper from './ocean-keeper'
+import OceanAgent from './deprecated/ocean-agent'
+import OceanKeeper from './deprecated/ocean-keeper'
+import Ocean from './ocean'
+import Logger from './utils/logger'
 
 export {
-    OceanAgent,
-    OceanKeeper
+    Ocean,
+    OceanAgent, // deprecated
+    OceanKeeper, // deprecated
+    Logger
 }
