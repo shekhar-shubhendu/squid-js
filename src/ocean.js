@@ -16,17 +16,13 @@ export default class Ocean {
 
         this.helper = new Web3Helper(this._web3)
 
-        const instance = this
+        return (async () => {
+            this.market = await new OceanMarket(this._web3, this._network)
+            this.auth = await new OceanAuth(this._web3, this._network)
+            this.token = await new OceanToken(this._web3, this._network)
 
-        return {
-            async getInstance() {
-                instance.market = await new OceanMarket(instance._web3, instance._network).getInstance()
-                instance.auth = await new OceanAuth(instance._web3, instance._network).getInstance()
-                instance.token = await new OceanToken(instance._web3, instance._network).getInstance()
-
-                return instance
-            }
-        }
+            return this
+        })()
     }
 
     async getAccounts() {

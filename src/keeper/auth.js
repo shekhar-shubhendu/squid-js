@@ -5,14 +5,10 @@ export default class OceanAuth extends KeeperBase {
     constructor(web3, network) {
         super(web3, network)
 
-        const instance = this
-
-        return {
-            async getInstance() {
-                instance.contract = await ContractLoader.load('OceanAuth', instance._network, instance._web3)
-                return instance
-            }
-        }
+        return (async () => {
+            this.contract = await ContractLoader.load('OceanAuth', this._network, this._web3)
+            return this
+        })()
     }
 
     cancelAccessRequest(orderId, senderAddress) {

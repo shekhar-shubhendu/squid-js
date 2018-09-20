@@ -7,15 +7,10 @@ export default class OceanMarket extends KeeperBase {
     constructor(web3, network) {
         super(web3, network)
 
-        const instance = this
-
-        return {
-            async getInstance() {
-                instance.contract = await ContractLoader.load('OceanMarket', instance._network, instance._web3)
-
-                return instance
-            }
-        }
+        return (async () => {
+            this.contract = await ContractLoader.load('OceanMarket', this._network, this._web3)
+            return this
+        })()
     }
 
     // call functions (costs no gas)
@@ -33,8 +28,8 @@ export default class OceanMarket extends KeeperBase {
     }
 
     // Transactions with gas cost
-    requestTokens(senderAddress, numTokens) {
-        return this.contract.requestTokens(numTokens, { from: senderAddress })
+    requestTokens(amount, address) {
+        return this.contract.requestTokens(amount, { from: address })
     }
 
     async registerAsset(name, description, price, publisherAddress) {

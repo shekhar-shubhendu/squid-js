@@ -6,15 +6,11 @@ export default class OceanToken extends KeeperBase {
     constructor(web3, network) {
         super(web3, network)
 
-        const instance = this
+        return (async () => {
+            this.contract = await ContractLoader.load('OceanToken', this._network, this._web3)
 
-        return {
-            async getInstance() {
-                instance.contract = await ContractLoader.load('OceanToken', instance._network, instance._web3)
-
-                return instance
-            }
-        }
+            return this
+        })()
     }
 
     getTokenBalance(accountAddress) {
