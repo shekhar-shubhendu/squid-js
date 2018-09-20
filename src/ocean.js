@@ -4,17 +4,20 @@ import OceanAuth from './keeper/auth'
 import OceanToken from './keeper/token'
 import Logger from './utils/logger'
 import Web3Helper from './utils/Web3Helper'
+import MetaData from './metadata'
 
 const DEFAULT_GAS = 300000
 
 export default class Ocean {
     constructor(config) {
-        const web3Provider = config.web3Provider || new Web3.providers.HttpProvider(config.uri)
+        const web3Provider = config.web3Provider || new Web3.providers.HttpProvider(config.nodeUri)
         this._web3 = new Web3(web3Provider)
         this._defaultGas = config.gas || DEFAULT_GAS
         this._network = config.network || 'development'
+        this._providerUri = config.providerUri || null
 
         this.helper = new Web3Helper(this._web3)
+        this.metadata = new MetaData(this._providerUri)
 
         return (async () => {
             this.market = await new OceanMarket(this._web3, this._network)

@@ -1,6 +1,6 @@
 import Web3 from 'web3'
-import ContractLoader from './keeper/contractLoader'
-import Logger from './utils/logger'
+import ContractLoader from '../keeper/contractLoader'
+import Logger from '../utils/logger'
 
 const DEFAULT_GAS = 300000
 

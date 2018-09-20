@@ -1,9 +1,9 @@
 /* global fetch */
 import Logger from './utils/logger'
 
-export default class OceanAgent {
-    constructor(connectionUrl) {
-        this.assetsUrl = connectionUrl + '/assets'
+export default class MetaData {
+    constructor(providerUri) {
+        this.assetsUrl = providerUri + '/assets'
     }
 
     getAssetsMetadata() {
