@@ -18,9 +18,9 @@ export default class Ocean {
         this.helper = new Web3Helper(this._web3)
         this.metadata = new MetaData(this._providerUri)
 
-        this._network = config.network || this.helper.getNetworkName().toLowerCase() || 'development'
-
         return (async () => {
+            this._network = config.network || (await this.helper.getNetworkName()).toLowerCase() || 'development'
+
             this.market = await new OceanMarket(this.helper)
             this.auth = await new OceanAuth(this.helper)
             this.token = await new OceanToken(this.helper)
@@ -30,7 +30,7 @@ export default class Ocean {
     }
 
     async getAccounts() {
-        return Promise.all(this.helper.getAccounts().map(async (account) => {
+        return Promise.all((await this.helper.getAccounts()).map(async (account) => {
             // await ocean.market.requestTokens(account, 1000)
 
             return {
@@ -74,7 +74,7 @@ export default class Ocean {
             .map(async (event) => ({
                 ...event.args,
                 timeout: event.args._timeout.toNumber(),
-                status: await this.market.getOrderStatus(event.args._id).then((status) => status.toNumber()),
+                status: await this.auth.getOrderStatus(event.args._id).then((status) => status.toNumber()),
                 paid: await this.market.verifyOrderPayment(event.args._id).then((received) => received),
                 key: null
             }))

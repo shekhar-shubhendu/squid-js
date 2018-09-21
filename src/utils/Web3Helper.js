@@ -1,34 +1,51 @@
+import Logger from './logger'
+
 export default class Web3Helper {
     constructor(web3) {
         this.web3 = web3
     }
 
-    getAccounts() {
-        return this.web3.eth.accounts
+    async getAccounts() {
+        return new Promise((resolve, reject) => {
+            this.web3.eth.getAccounts((err, accounts) => {
+                if (err) {
+                    throw err
+                }
+                resolve(accounts)
+            })
+        })
     }
 
-    getNetworkName() {
-        let network = 'unknown'
-        switch (this.web3.version.network) {
-            case '1':
-                network = 'Main'
-                break
-            case '2':
-                network = 'Morden'
-                break
-            case '3':
-                network = 'Ropsten'
-                break
-            case '4':
-                network = 'Rinkeby'
-                break
-            case '42':
-                network = 'Kovan'
-                break
-            default:
-                network = 'development'
-        }
-        return network
+    async getNetworkName() {
+        return new Promise((resolve, reject) => {
+            let network = 'unknown'
+            this.web3.version.getNetwork((err, networkId) => {
+                Logger.log('networkId', networkId)
+                if (err) {
+                    throw err
+                }
+                switch (networkId) {
+                    case '1':
+                        network = 'Main'
+                        break
+                    case '2':
+                        network = 'Morden'
+                        break
+                    case '3':
+                        network = 'Ropsten'
+                        break
+                    case '4':
+                        network = 'Rinkeby'
+                        break
+                    case '42':
+                        network = 'Kovan'
+                        break
+                    default:
+                        network = 'development'
+                }
+                resolve(network)
+            })
+        })
     }
 
     // web3 wrappers

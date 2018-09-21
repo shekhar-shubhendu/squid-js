@@ -5,7 +5,7 @@ const contracts = []
 
 export default class ContractLoader {
     static async _doLoad(what, web3Helper) {
-        const where = web3Helper.getNetworkName().toLowerCase()
+        const where = (await web3Helper.getNetworkName()).toLowerCase()
         Logger.log('Loading', what, 'from', where)
         try {
             /* eslint-disable-next-line security/detect-non-literal-require */
