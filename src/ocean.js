@@ -89,7 +89,7 @@ export default class Ocean {
         // Allow market contract to transfer funds on the consumer's behalf
         token.contract.approve(market.address, price, { from: senderAddress, gas: 2000000 })
         // Submit the access request
-        auth.initiateAccessRequest(
+        auth.contract.initiateAccessRequest(
             assetId, publisherId, publicKey,
             timeout, { from: senderAddress, gas: 1000000 }
         )
