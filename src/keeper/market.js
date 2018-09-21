@@ -4,11 +4,11 @@ import KeeperBase from './keeper-base'
 import Logger from '../utils/logger'
 
 export default class OceanMarket extends KeeperBase {
-    constructor(web3, network) {
-        super(web3, network)
+    constructor(web3Helper) {
+        super(web3Helper)
 
         return (async () => {
-            this.contract = await ContractLoader.load('OceanMarket', this._network, this._web3)
+            this.contract = await ContractLoader.load('OceanMarket', this._web3Helper)
             return this
         })()
     }

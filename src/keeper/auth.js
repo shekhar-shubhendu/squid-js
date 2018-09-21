@@ -2,11 +2,11 @@ import ContractLoader from './contractLoader'
 import KeeperBase from './keeper-base'
 
 export default class OceanAuth extends KeeperBase {
-    constructor(web3, network) {
-        super(web3, network)
+    constructor(web3Helper) {
+        super(web3Helper)
 
         return (async () => {
-            this.contract = await ContractLoader.load('OceanAuth', this._network, this._web3)
+            this.contract = await ContractLoader.load('OceanAuth', this._web3Helper)
             return this
         })()
     }

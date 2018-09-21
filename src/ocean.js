@@ -13,16 +13,17 @@ export default class Ocean {
         const web3Provider = config.web3Provider || new Web3.providers.HttpProvider(config.nodeUri)
         this._web3 = new Web3(web3Provider)
         this._defaultGas = config.gas || DEFAULT_GAS
-        this._network = config.network || 'development'
         this._providerUri = config.providerUri || null
 
         this.helper = new Web3Helper(this._web3)
         this.metadata = new MetaData(this._providerUri)
 
+        this._network = config.network || this.helper.getNetworkName().toLowerCase() || 'development'
+
         return (async () => {
-            this.market = await new OceanMarket(this._web3, this._network)
-            this.auth = await new OceanAuth(this._web3, this._network)
-            this.token = await new OceanToken(this._web3, this._network)
+            this.market = await new OceanMarket(this.helper)
+            this.auth = await new OceanAuth(this.helper)
+            this.token = await new OceanToken(this.helper)
 
             return this
         })()
@@ -73,8 +74,8 @@ export default class Ocean {
             .map(async (event) => ({
                 ...event.args,
                 timeout: event.args._timeout.toNumber(),
-                status: await this.getOrderStatus(event.args._id).then((status) => status.toNumber()),
-                paid: await this.verifyOrderPayment(event.args._id).then((received) => received),
+                status: await this.market.getOrderStatus(event.args._id).then((status) => status.toNumber()),
+                paid: await this.market.verifyOrderPayment(event.args._id).then((received) => received),
                 key: null
             }))
         Logger.debug('got orders: ', orders)
