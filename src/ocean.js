@@ -87,7 +87,7 @@ export default class Ocean {
         initialRequestEventHandler, accessCommittedEventHandler, tokenPublishedEventHandler) {
         const { token, market, auth } = this
         // Allow market contract to transfer funds on the consumer's behalf
-        token.approve(market.address, price, { from: senderAddress, gas: 2000000 })
+        token.contract.approve(market.address, price, { from: senderAddress, gas: 2000000 })
         // Submit the access request
         auth.initiateAccessRequest(
             assetId, publisherId, publicKey,
