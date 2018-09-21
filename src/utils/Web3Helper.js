@@ -1,5 +1,3 @@
-import Logger from './logger'
-
 export default class Web3Helper {
     constructor(web3) {
         this.web3 = web3
@@ -20,7 +18,6 @@ export default class Web3Helper {
         return new Promise((resolve, reject) => {
             let network = 'unknown'
             this.web3.version.getNetwork((err, networkId) => {
-                Logger.log('networkId', networkId)
                 if (err) {
                     throw err
                 }
