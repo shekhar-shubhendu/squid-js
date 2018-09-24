@@ -82,18 +82,25 @@ export default class Ocean {
         return orders
     }
 
-    purchaseAsset(
+    async purchaseAsset(
         assetId, publisherId, price, privateKey, publicKey, timeout, senderAddress,
         initialRequestEventHandler, accessCommittedEventHandler, tokenPublishedEventHandler) {
         const { token, market, auth } = this
-        // Allow market contract to transfer funds on the consumer's behalf
-        token.contract.approve(market.address, price, { from: senderAddress, gas: 2000000 })
-        // Submit the access request
-        auth.contract.initiateAccessRequest(
-            assetId, publisherId, publicKey,
-            timeout, { from: senderAddress, gas: 1000000 }
-        )
-
+        try {
+            // Allow market contract to transfer funds on the consumer's behalf
+            await token.contract.approve(market.contract.address, price, { from: senderAddress, gas: 2000000 })
+        } catch (err) {
+            Logger.log('token approve', err)
+        }
+        try {
+            // Submit the access request
+            await auth.contract.initiateAccessRequest(
+                assetId, publisherId, publicKey,
+                timeout, { from: senderAddress, gas: 1000000 }
+            )
+        } catch (err) {
+            Logger.log('initiateAccessRequest', err)
+        }
         const resourceFilter = { _resourceId: assetId, _consumer: senderAddress }
         const initRequestEvent = auth.contract.AccessConsentRequested(resourceFilter)
         let order = {}
