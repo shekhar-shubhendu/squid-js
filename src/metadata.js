@@ -6,6 +6,12 @@ export default class MetaData {
         this.assetsUrl = providerUri + '/assets'
     }
 
+    getAssetDDO(assetDID) {
+        return fetch(this.assetsUrl + `/metadata/${assetDID}`, { method: 'GET' })
+            .then(res => res.json())
+            .then(data => JSON.parse(data))
+    }
+
     getAssetsMetadata() {
         return fetch(this.assetsUrl + '/metadata', { method: 'GET' })
             .then(res => res.json())
