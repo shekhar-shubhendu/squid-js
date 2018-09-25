@@ -1,7 +1,7 @@
-import Ocean from './ocean'
-import Logger from './utils/logger'
+import Ocean from "./ocean";
+import Logger from "./utils/logger";
 
 export {
     Ocean,
-    Logger
-}
+    Logger,
+};

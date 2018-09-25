@@ -1,23 +1,22 @@
 export default class Logger {
-    static dispatch(verb: string, ...args: any[]) {
+    public static log(...args: any[]) {
+        Logger.dispatch("log", ...args);
+    }
+
+    public static debug(...args: any[]) {
+        Logger.dispatch("debug", ...args);
+    }
+
+    public static warn(...args: any[]) {
+        Logger.dispatch("warn", ...args);
+    }
+
+    public static error(...args: any[]) {
+        Logger.dispatch("error", ...args);
+    }
+
+    private static dispatch(verb: string, ...args: any[]) {
         /* eslint-disable-next-line no-console */
-        // @ts-ignore
-        console[verb](...args)
-    }
-
-    static log(...args: any[]) {
-        Logger.dispatch('log', ...args)
-    }
-
-    static debug(...args: any[]) {
-        Logger.dispatch('debug', ...args)
-    }
-
-    static warn(...args: any[]) {
-        Logger.dispatch('warn', ...args)
-    }
-
-    static error(...args: any[]) {
-        Logger.dispatch('error', ...args)
+        console[verb](...args);
     }
 }
