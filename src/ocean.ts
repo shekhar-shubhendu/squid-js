@@ -1,4 +1,4 @@
-import BigNumber = require("bn.js");
+import BigNumber from "bignumber.js";
 import OceanAuth from "./keeper/auth";
 import OceanMarket from "./keeper/market";
 import OceanToken from "./keeper/token";
