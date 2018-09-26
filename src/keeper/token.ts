@@ -23,12 +23,12 @@ export default class OceanToken extends KeeperBase {
 
     public async getEthBalance(account: string): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            Logger.log("getting balance for", account);
+            // Logger.log("getting balance for", account);
             this.web3Helper.web3.eth.getBalance(account, "latest", (err: any, balance: number) => {
                 if (err) {
                     return reject(err);
                 }
-                Logger.log("balance", balance);
+                // Logger.log("balance", balance);
                 resolve(balance);
             });
         });

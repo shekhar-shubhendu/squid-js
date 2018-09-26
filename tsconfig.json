@@ -4,6 +4,7 @@
       "es6",
       "es7"
     ],
+    "declaration": true,
     "module": "commonjs",
     "noImplicitAny": false,
     "removeComments": true,
