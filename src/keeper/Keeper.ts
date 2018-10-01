@@ -1,7 +1,7 @@
 import Config from "../models/Config";
-import OceanAuth from "./Auth_";
-import OceanMarket from "./Market_";
-import OceanToken from "./Token_";
+import OceanAuth from "./Auth";
+import OceanMarket from "./Market";
+import OceanToken from "./Token";
 import Web3Helper from "./Web3Helper";
 
 export default class Keeper {
