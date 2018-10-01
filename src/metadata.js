@@ -40,4 +40,23 @@ export default class MetaData {
                 return false
             })
     }
+    async publishDataAsset(assetMetadata, price) {
+        // Register on-chain (in the keeper)
+        const { market } = this.contracts
+        const assetDID = await this.generateDID(assetMetadata)
+        const result = await market.register(
+            assetDID,
+            price,
+            { from: this.getCurrentAccount(), gas: this.defaultGas }
+        )
+        if (!result) {
+            throw Error('Register asset in ocean keeper failed.')
+        }
+        // Register in oceandb
+        const assetDDO = this.createAssetDDO(assetDID, assetMetadata)
+        this.metadata.publishDataAsset(assetDID, assetDDO)
+        return assetDDO
+    }
+
+
 }
