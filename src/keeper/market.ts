@@ -1,61 +1,56 @@
-import BigNumber from "bignumber.js";
-import Config from "../utils/config";
-import Logger from "../utils/logger";
-import Web3Helper from "../utils/Web3Helper";
-import ContractLoader from "./contractLoader";
-import KeeperBase from "./keeper-base";
+import Asset from "../models/Asset";
+import Config from "../models/Config";
+import Order from "../models/Order";
+import Logger from "../utils/Logger";
+import ContractWrapperBase from "./ContractWrapperBase";
+import Web3Helper from "./Web3Helper";
 
-export default class OceanMarket extends KeeperBase {
+export default class OceanMarket extends ContractWrapperBase {
 
     public static async getInstance(config: Config, web3Helper: Web3Helper) {
 
-        const market = new OceanMarket(config, web3Helper);
-        market.contract = await ContractLoader.load("OceanMarket", market.web3Helper);
+        const market = new OceanMarket(config, "OceanMarket", web3Helper);
+        await market.init();
         return market;
     }
 
-    private constructor(config: Config, web3Helper: Web3Helper) {
-        super(config, web3Helper);
-    }
-
     // call functions (costs no gas)
-    public checkAsset(assetId: string) {
-        return this.contract.checkAsset(assetId);
+    public async isAssetActive(assetId: string): Promise<boolean> {
+        return this.contract.methods.checkAsset(assetId).call;
     }
 
-    public verifyOrderPayment(orderId: string): boolean {
-        return this.contract.verifyPaymentReceived(orderId);
+    public async verifyOrderPayment(orderId: string): Promise<boolean> {
+        return this.contract.methods.verifyPaymentReceived(orderId).call;
     }
 
-    public getAssetPrice(assetId: string) {
-        return this.contract.getAssetPrice(assetId)
-            .then((price: BigNumber) => price.toNumber());
+    public async getAssetPrice(assetId: string): Promise<number> {
+        return this.contract.methods.getAssetPrice(assetId).call().then((result) => result.toNumber());
     }
 
-    // Transactions with gas cost
-    public requestTokens(amount: number, address: string) {
-        return this.contract.requestTokens(amount, {from: address});
+    public async requestTokens(amount: number, receiverAddress: string): Promise<boolean> {
+        return this.contract.methods.requestTokens(amount).send({
+            from: receiverAddress,
+        });
     }
 
-    public async registerAsset(name: string, description: string, price: number, publisherAddress: string) {
-        const assetId = await this.contract.generateId(name + description);
-        const result = await this.contract.register(
-            assetId,
-            price, {
+    public async registerAsset(name: string, description: string,
+                               price: number, publisherAddress: string): Promise<string> {
+        const assetId = await this.contract.methods.generateId(name + description).call();
+        Logger.log("Registering: ", assetId);
+        const result = await this.contract.methods.register(assetId, price).send({
                 from: publisherAddress,
                 gas: this.config.defaultGas,
             },
         );
-        Logger.log("registered: ", result);
+        Logger.log("Registered: ", result);
         return assetId;
     }
 
-    public async payAsset(assetId: string, order: any, publisherAddress: string, senderAddress: string) {
-        const assetPrice = await this.contract.getAssetPrice(assetId)
-            .then((price: BigNumber) => price.toNumber());
-        this.contract.sendPayment(order.id, publisherAddress, assetPrice, order.timeout, {
-            from: senderAddress,
-            gas: 2000000,
+    public async payAsset(asset: Asset, order: Order, buyerAddress: string): Promise<boolean> {
+        Logger.log("Sending payment");
+        return this.contract.methods.sendPayment(order.id, asset.publisherId, asset.price, order.timeout).send({
+            from: buyerAddress,
+            gas: this.config.defaultGas,
         });
     }
 }
