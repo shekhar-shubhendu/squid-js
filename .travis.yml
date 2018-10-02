@@ -14,10 +14,11 @@ matrix:
 
 before_install:
   - npm install -g npm
-  - npm install -g release-it greenkeeper-lockfile
+  - npm install -g release-it greenkeeper-lockfile ganache-cli
 
 before_script:
   - greenkeeper-lockfile-update
+  - ganache-cli > ganache-cli.log &
 
 script:
   - npm test
