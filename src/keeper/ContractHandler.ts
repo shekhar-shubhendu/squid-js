@@ -42,7 +42,7 @@ export default class ContractHandler {
         const dispute = await ContractHandler.deployContract(web3, "OceanDispute", deployerAddress, {
             args: [market.options.address, registry.options.address, plcrVoting.options.address],
         })
-        const auth = await ContractHandler.deployContract(web3, "OceanAuth", deployerAddress, {
+        await ContractHandler.deployContract(web3, "OceanAuth", deployerAddress, {
             args: [market.options.address, dispute.options.address],
         })
     }
