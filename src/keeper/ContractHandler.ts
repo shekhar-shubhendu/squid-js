@@ -45,18 +45,6 @@ export default class ContractHandler {
         const auth = await ContractHandler.deployContract(web3, "OceanAuth", deployerAddress, {
             args: [market.options.address, dispute.options.address],
         });
-
-        // now wire up
-        await dispute.methods.init().send({
-            from: deployerAddress,
-        });
-        await auth.methods.init().send({
-            from: deployerAddress,
-        });
-        await market.methods.init().send({
-            from: deployerAddress, gas: 3000000,
-            gasPrice: 10000000000,
-        });
     }
 
     private static async load(what: string, web3Helper: Web3Helper): Promise<object> {
