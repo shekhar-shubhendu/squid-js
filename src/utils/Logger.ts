@@ -16,7 +16,6 @@ export default class Logger {
     }
 
     private static dispatch(verb: string, ...args: any[]) {
-        /* eslint-disable-next-line no-console */
         console[verb](...args);
     }
 }

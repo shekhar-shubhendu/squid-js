@@ -1,7 +1,7 @@
 import Keeper from "./keeper/Keeper";
 import Web3Helper from "./keeper/Web3Helper";
 import MetaData from "./metadata";
-import Config from "./models/config";
+import Config from "./models/Config";
 import Asset from "./ocean/Asset";
 import Order from "./ocean/Order";
 

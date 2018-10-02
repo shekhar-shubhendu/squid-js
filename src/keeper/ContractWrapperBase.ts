@@ -1,4 +1,4 @@
-import Config from "../models/config";
+import Config from "../models/Config";
 import ContractHandler from "./ContractHandler";
 import Web3Helper from "./Web3Helper";
 
