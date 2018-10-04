@@ -2,7 +2,6 @@ import * as EthCrypto from "eth-crypto"
 import EthEcies from "eth-ecies"
 import * as EthjsUtil from "ethereumjs-util"
 import JWT from "jsonwebtoken"
-import EventListener from "../keeper/EventListener"
 import Keeper from "../keeper/Keeper"
 import Asset from "../models/Asset"
 import OrderModel from "../models/Order"
@@ -34,24 +33,30 @@ export default class Order {
 
     public async getOrdersByConsumer(consumerAddress: string) {
         const {auth, market} = this.keeper
-        const accessConsentEvent = auth.getEvent("AccessConsentRequested")({
-            _consumer: consumerAddress,
-        }, {
+
+        const accessConsentRequestedData = await auth.getEventData("AccessConsentRequested", {
+            filter: {
+                _consumer: consumerAddress,
+            },
             fromBlock: 0,
-            toBlock: "latest",
         })
 
-        const events = await EventListener.getEvents(accessConsentEvent)
+        Logger.log("wai", accessConsentRequestedData)
 
-        const orders = await Promise.all(events
-            .filter((event: any) => (event.args._consumer === consumerAddress))
-            .map(async (event: any) => ({
-                ...event.args,
-                timeout: event.args._timeout.toNumber(),
-                status: await auth.getOrderStatus(event.args._id),
-                paid: await market.verifyOrderPayment(event.args._id),
-                key: null,
-            } as Order)))
+        const orders = await Promise.all(
+            accessConsentRequestedData
+                .filter((event: any) => (event.args._consumer === consumerAddress))
+                .map(async (event: any) => ({
+                            ...event.args,
+                            timeout: event.args._timeout.toNumber(),
+                            status: await auth.getOrderStatus(event.args._id),
+                            paid: await market.verifyOrderPayment(event.args._id),
+                            key: null,
+                        } as Order
+                    ),
+                ),
+        )
+
         Logger.log("Got orders: ", orders)
         return orders
     }
@@ -81,36 +86,33 @@ export default class Order {
         } catch (err) {
             Logger.log("initiateAccessRequest", err)
         }
-        const resourceFilter = {
-            _resourceId: asset.assetId,
-            _consumer: buyerAddress,
-        }
-        // todo: Event - implement proper eventing
-        const accessConsentRequestedEvent = auth.getEvent("AccessConsentRequested")(resourceFilter)
+
         let order: OrderModel
-        const finalOrder: OrderModel = await EventListener.listenOnce(
-            accessConsentRequestedEvent,
-            "AccessConsentRequested")
+        const finalOrder: OrderModel = await auth.listenToEventOnce(
+            "AccessConsentRequested", {
+                filter: {
+                    _resourceId: asset.assetId,
+                    _consumer: buyerAddress,
+                },
+            })
             .then((accessConsentRequestedResult) => {
                 order = Order.create(asset, accessConsentRequestedResult.args, key)
-                const requestIdFilter = {
-                    _id: order.id,
-                }
-                // todo: Event - implement proper eventing
-                const accessCommittedEvent = auth.getEvent("AccessRequestCommitted")(requestIdFilter)
 
-                return EventListener.listenOnce(accessCommittedEvent, "AccessRequestCommitted")
+                return auth.listenToEventOnce("AccessRequestCommitted", {
+                    filter: {
+                        _id: order.id,
+                    },
+                })
             })
             .then((accessRequestCommittedResult) => {
                 return this.payAsset(asset, accessRequestCommittedResult.args, order, buyerAddress)
             })
             .then(() => {
-                const requestIdFilter = {
-                    _id: order.id,
-                }
-                // todo: Event - implement proper eventing
-                const tokenPublishedEvent = auth.getEvent("EncryptedTokenPublished")(requestIdFilter)
-                return EventListener.listenOnce(tokenPublishedEvent, "EncryptedTokenPublished")
+                return auth.listenToEventOnce("EncryptedTokenPublished", {
+                    filter: {
+                        _id: order.id,
+                    },
+                })
             })
             .then((result) => {
                 return this.finalizePurchaseAsset(

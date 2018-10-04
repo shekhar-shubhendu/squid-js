@@ -1,5 +1,9 @@
-import Web3 = require("web3")
+import * as Web3 from "web3"
+import * as web3pkg from "../../node_modules/web3/package.json"
 import Config from "../models/Config"
+import Logger from "../utils/Logger"
+
+Logger.log(web3pkg.version)
 
 export default class Web3Helper {
 
@@ -7,7 +11,7 @@ export default class Web3Helper {
 
     public constructor(config: Config) {
         const web3Provider = config.web3Provider || new Web3.providers.HttpProvider(config.nodeUri)
-        this.web3 = new Web3(web3Provider)
+        this.web3 = new Web3(Web3.givenProvider || web3Provider)
     }
 
     public getWeb3() {

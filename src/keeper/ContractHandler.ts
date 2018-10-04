@@ -1,4 +1,4 @@
-import Contract from "web3"
+import {Contract} from "web3-utils"
 import Logger from "../utils/Logger"
 import Web3Helper from "./Web3Helper"
 
