@@ -3,7 +3,7 @@ import * as web3pkg from "../../node_modules/web3/package.json"
 import Config from "../models/Config"
 import Logger from "../utils/Logger"
 
-Logger.log(web3pkg.version)
+Logger.log("using web3", web3pkg.version)
 
 export default class Web3Helper {
 
