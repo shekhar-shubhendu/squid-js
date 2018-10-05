@@ -34,14 +34,10 @@ export default class Web3Helper {
     }
 
     public async getNetworkName(): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            let network: string = "unknown"
+        return this.web3.eth.net.getId()
+            .then((networkId) => {
+                let network: string = "unknown"
 
-            this.web3.eth.net.getId((err, networkId) => {
-                if (err) {
-                    reject(err)
-                    throw err
-                }
                 switch (networkId) {
                     case 1:
                         network = "Main"
@@ -61,9 +57,8 @@ export default class Web3Helper {
                     default:
                         network = "development"
                 }
-                resolve(network)
+                return network
             })
-        })
     }
 
     // web3 wrappers
