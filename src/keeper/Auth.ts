@@ -14,20 +14,20 @@ export default class OceanAuth extends ContractBaseWrapper {
     }
 
     public async getOrderStatus(orderId: string): Promise<number> {
-        return this.contract.statusOfAccessRequest(orderId)
+        return this.contract.methods.statusOfAccessRequest(orderId)
             .call()
             .then((status: BigNumber) => status.toNumber())
     }
 
     public async cancelAccessRequest(orderId: string, senderAddress: string): Promise<Receipt> {
-        return this.contract.cancelAccessRequest(orderId)
+        return this.contract.methods.cancelAccessRequest(orderId)
             .send({
                 from: senderAddress,
             })
     }
 
     public async getEncryptedAccessToken(orderId: string, senderAddress: string): Promise<Receipt> {
-        return this.contract.getEncryptedAccessToken(orderId)
+        return this.contract.methods.getEncryptedAccessToken(orderId)
             .send({
                 from: senderAddress,
             })
@@ -35,7 +35,7 @@ export default class OceanAuth extends ContractBaseWrapper {
 
     public async initiateAccessRequest(asset: Asset, publicKey: string,
                                        timeout, buyerAddress: string): Promise<Receipt> {
-        return this.contract.initiateAccessRequest(asset.assetId, asset.publisherId, publicKey, timeout)
+        return this.contract.methods.initiateAccessRequest(asset.assetId, asset.publisherId, publicKey, timeout)
             .send({
                 from: buyerAddress,
                 gas: this.config.defaultGas,
