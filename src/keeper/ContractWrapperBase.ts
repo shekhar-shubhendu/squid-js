@@ -1,3 +1,4 @@
+import Contract from "web3-eth-contract"
 import Config from "../models/Config"
 import Logger from "../utils/Logger"
 import ContractHandler from "./ContractHandler"
@@ -5,7 +6,7 @@ import Web3Helper from "./Web3Helper"
 
 export default class ContractWrapperBase {
 
-    protected contract: any = null
+    protected contract: Contract = null
     protected config: Config
     protected web3Helper: Web3Helper
 
@@ -53,7 +54,7 @@ export default class ContractWrapperBase {
     }
 
     public getAddress() {
-        return this.contract.address
+        return this.contract.options.address
     }
 
 }

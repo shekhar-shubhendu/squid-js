@@ -1,12 +1,12 @@
-import {Contract} from "web3-utils"
+import Contract from "web3-eth-contract"
 import Logger from "../utils/Logger"
 import Web3Helper from "./Web3Helper"
 
-const contracts: Map<string, object> = new Map<string, object>()
+const contracts: Map<string, Contract> = new Map<string, Contract>()
 
 export default class ContractHandler {
 
-    public static async get(what: string, web3Helper: Web3Helper) {
+    public static async get(what: string, web3Helper: Web3Helper): Contract {
         return contracts.get(what) || await ContractHandler.load(what, web3Helper)
     }
 
@@ -47,7 +47,7 @@ export default class ContractHandler {
         })
     }
 
-    private static async load(what: string, web3Helper: Web3Helper): Promise<object> {
+    private static async load(what: string, web3Helper: Web3Helper): Promise<Contract> {
         const where = (await web3Helper.getNetworkName()).toLowerCase()
         Logger.log("Loading", what, "from", where)
         try {
@@ -79,7 +79,12 @@ export default class ContractHandler {
 
     private static async deployContract(web3, name, from, params?): Promise<Contract> {
 
-        let contractInstance
+        // dont redeploy if there is already something loaded
+        if (contracts.has(name)) {
+            return contracts.get(name)
+        }
+
+        let contractInstance: Contract
         try {
             Logger.log("Deploying", name)
 

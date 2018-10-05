@@ -1,4 +1,4 @@
-import Web3Helper from "./keeper/Web3Helper"
+import Web3Helper from "../keeper/Web3Helper"
 
 export default class Tribe {
 

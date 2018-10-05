@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js"
+import {Receipt} from "web3-utils"
 import Asset from "../models/Asset"
 import Config from "../models/Config"
 import ContractBaseWrapper from "./ContractWrapperBase"
@@ -13,26 +14,31 @@ export default class OceanAuth extends ContractBaseWrapper {
     }
 
     public async getOrderStatus(orderId: string): Promise<number> {
-        return this.contract.statusOfAccessRequest.call(orderId)
+        return this.contract.statusOfAccessRequest(orderId)
+            .call()
             .then((status: BigNumber) => status.toNumber())
     }
 
-    public async cancelAccessRequest(orderId: string, senderAddress: string) {
-        return this.contract.cancelAccessRequest.send(orderId, {
-            from: senderAddress,
-        })
+    public async cancelAccessRequest(orderId: string, senderAddress: string): Promise<Receipt> {
+        return this.contract.cancelAccessRequest(orderId)
+            .send({
+                from: senderAddress,
+            })
     }
 
-    public async getEncryptedAccessToken(orderId: string, senderAddress: string) {
-        return this.contract.getEncryptedAccessToken.send(orderId, {
-            from: senderAddress,
-        })
+    public async getEncryptedAccessToken(orderId: string, senderAddress: string): Promise<Receipt> {
+        return this.contract.getEncryptedAccessToken(orderId)
+            .send({
+                from: senderAddress,
+            })
     }
 
-    public async initiateAccessRequest(asset: Asset, publicKey: string, timeout, buyerAddress: string) {
-        return this.contract.initiateAccessRequest.send(
-            asset.assetId, asset.publisherId, publicKey, timeout, {
-                from: buyerAddress, gas: this.config.defaultGas,
+    public async initiateAccessRequest(asset: Asset, publicKey: string,
+                                       timeout, buyerAddress: string): Promise<Receipt> {
+        return this.contract.initiateAccessRequest(asset.assetId, asset.publisherId, publicKey, timeout)
+            .send({
+                from: buyerAddress,
+                gas: this.config.defaultGas,
             })
     }
 }

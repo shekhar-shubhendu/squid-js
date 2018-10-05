@@ -1,5 +1,5 @@
-import Config from "./models/Config"
-import Logger from "./utils/Logger"
+import Config from "../models/Config"
+import Logger from "../utils/Logger"
 
 declare var fetch
 
