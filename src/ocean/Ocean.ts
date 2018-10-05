@@ -3,7 +3,7 @@ import Web3Helper from "../keeper/Web3Helper"
 import Config from "../models/Config"
 import Account from "./Account"
 import Asset from "./Asset"
-import MetaData from "./metadata"
+import MetaData from "./MetaData"
 import Order from "./Order"
 import Tribe from "./Tribe"
 
