@@ -2,17 +2,16 @@ import * as EthCrypto from "eth-crypto"
 import EthEcies from "eth-ecies"
 import * as EthjsUtil from "ethereumjs-util"
 import JWT from "jsonwebtoken"
-import Keeper from "../keeper/Keeper"
 import Asset from "../models/Asset"
 import OrderModel from "../models/Order"
 import Logger from "../utils/Logger"
+import OceanBase from "./OceanBase"
 
 declare var fetch
 
-export default class Order {
+export default class Order extends OceanBase {
 
     private static create(asset: Asset, args, key): OrderModel {
-        Logger.log("keeper AccessConsentRequested event received on asset: ", asset.assetId, "\nevent:", args)
         const accessId = args._id
         Logger.log("got new access request id: ", accessId)
         return {
@@ -25,39 +24,39 @@ export default class Order {
         } as OrderModel
     }
 
-    private keeper: Keeper
-
-    constructor(keeper: Keeper) {
-        this.keeper = keeper
-    }
-
     public async getOrdersByConsumer(consumerAddress: string) {
         const {auth, market} = this.keeper
 
-        const accessConsentRequestedData = await auth.getEventData("AccessConsentRequested", {
-            filter: {
-                _consumer: consumerAddress,
-            },
-            fromBlock: 0,
-        })
+        Logger.log("Getting orders")
 
-        Logger.log("wai", accessConsentRequestedData)
+        const accessConsentRequestedData = await auth.getEventData(
+            "AccessConsentRequested", {
+                filter: {
+                    _consumer: consumerAddress,
+                },
+                fromBlock: 0,
+                toBlock: "latest",
+            })
 
         const orders = await Promise.all(
             accessConsentRequestedData
-                .filter((event: any) => (event.args._consumer === consumerAddress))
+                .filter((event: any) => {
+                    return event.returnValues._consumer === consumerAddress
+                })
                 .map(async (event: any) => ({
-                            ...event.args,
-                            timeout: event.args._timeout.toNumber(),
-                            status: await auth.getOrderStatus(event.args._id),
-                            paid: await market.verifyOrderPayment(event.args._id),
+                            ...event.returnValues,
+                            timeout: parseInt(event.returnValues._timeout, 10),
+                            status: await auth.getOrderStatus(event.returnValues._id),
+                            paid: await market.verifyOrderPayment(event.returnValues._id),
                             key: null,
                         } as Order
                     ),
                 ),
         )
 
-        Logger.log("Got orders: ", orders)
+        // Logger.log("Got orders:", JSON.stringify(orders, null, 2))
+        Logger.log(`Got ${Object.keys(orders).length} orders`)
+
         return orders
     }
 
@@ -78,49 +77,53 @@ export default class Order {
             // Allow market contract to transfer funds on the consumer"s behalf
             await token.approve(market.getAddress(), price, buyerAddress)
         } catch (err) {
-            Logger.log("token approve", err)
+            Logger.error("token.approve failed", err)
         }
+        let order: OrderModel
         try {
             // Submit the access request
-            await auth.initiateAccessRequest(asset, publicKey, timeout, buyerAddress)
+            const initiateAccessRequestReceipt = await auth.initiateAccessRequest(asset,
+                publicKey, timeout, buyerAddress)
+
+            const args = initiateAccessRequestReceipt.events.AccessConsentRequested.returnValues
+            Logger.log("keeper AccessConsentRequested event received on asset: ", asset.assetId, "\nevent:", args)
+            order = Order.create(asset, args, key)
+            Logger.log("Created order", order)
+
         } catch (err) {
-            Logger.log("initiateAccessRequest", err)
+            Logger.error("auth.initiateAccessRequest failed", err)
         }
 
-        let order: OrderModel
-        const finalOrder: OrderModel = await auth.listenToEventOnce(
-            "AccessConsentRequested", {
-                filter: {
-                    _resourceId: asset.assetId,
-                    _consumer: buyerAddress,
-                },
-            })
-            .then((accessConsentRequestedResult) => {
-                order = Order.create(asset, accessConsentRequestedResult.args, key)
-
-                return auth.listenToEventOnce("AccessRequestCommitted", {
+        return order
+        if (false) {
+            // todo: AccessRequestCommitted event is not emitted in this flow
+            const finalOrder: OrderModel = await auth.listenToEventOnce(
+                "AccessRequestCommitted", {
                     filter: {
                         _id: order.id,
                     },
                 })
-            })
-            .then((accessRequestCommittedResult) => {
-                return this.payAsset(asset, accessRequestCommittedResult.args, order, buyerAddress)
-            })
-            .then(() => {
-                return auth.listenToEventOnce("EncryptedTokenPublished", {
-                    filter: {
-                        _id: order.id,
-                    },
-                })
-            })
-            .then((result) => {
-                return this.finalizePurchaseAsset(
-                    result, order, key, buyerAddress,
-                )
-            })
+                .then((accessRequestCommittedResult) => {
+                    Logger.log("Got AccessRequestCommitted Event")
 
-        return finalOrder
+                    return this.payAsset(asset, accessRequestCommittedResult.returnValues, order, buyerAddress)
+                })
+                .then((payAssetReceipt) => {
+                    return auth.listenToEventOnce(
+                        "EncryptedTokenPublished", {
+                            filter: {
+                                _id: order.id,
+                            },
+                        })
+                })
+                .then((result) => {
+                    Logger.log("Got EncryptedTokenPublished Event")
+
+                    return this.finalizePurchaseAsset(
+                        result, order, key, buyerAddress,
+                    )
+                })
+        }
     }
 
     private async payAsset(asset: Asset, args, order, buyerAddress) {
@@ -133,8 +136,6 @@ export default class Order {
 
     private async finalizePurchaseAsset(args, order, key, buyerAddress): Promise<OrderModel> {
         const {auth, web3Helper} = this.keeper
-
-        // Logger.log('keeper EncryptedTokenPublished event received: ', order.id, eventResult.args)
 
         const encryptedAccessToken = await auth.getEncryptedAccessToken(args._id, buyerAddress)
 

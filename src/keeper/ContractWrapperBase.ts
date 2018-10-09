@@ -1,3 +1,4 @@
+import Event from "web3"
 import Contract from "web3-eth-contract"
 import Config from "../models/Config"
 import Logger from "../utils/Logger"
@@ -5,6 +6,10 @@ import ContractHandler from "./ContractHandler"
 import Web3Helper from "./Web3Helper"
 
 export default class ContractWrapperBase {
+
+    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<any> {
+        // stub
+    }
 
     protected contract: Contract = null
     protected config: Config
@@ -23,38 +28,28 @@ export default class ContractWrapperBase {
             if (!this.contract.events[eventName]) {
                 throw new Error(`Event ${eventName} not found on contract ${this.contractName}`)
             }
-            this.contract.once(eventName, options, (error: any, eventData: any) => {
-                if (error) {
-                    Logger.log(`Error in keeper ${eventName} event: `, error)
-                    return reject(error)
-                }
-                resolve(eventData)
+            this.contract.events[eventName](options, (err) => {
+                reject(err)
             })
-        })
-    }
-
-    public async getEventData(eventName: any, options: any): Promise<any[]> {
-        return new Promise<any>((resolve, reject) => {
-            if (!this.contract.events[eventName]) {
-                throw new Error(`Event ${eventName} not found on contract ${this.contractName}`)
-            }
-            this.contract.events[eventName](options)
-                .on("data", (eventData: any[]) => {
-                    Logger.log(eventData)
+                .on("data", (eventData: any) => {
                     resolve(eventData)
                 })
-                .on("error", (error) => {
-                    return reject(error)
-                })
         })
     }
 
-    public async init() {
-        this.contract = await ContractHandler.get(this.contractName, this.web3Helper)
+    public async getEventData(eventName: any, options: any): Promise<Event[]> {
+        if (!this.contract.events[eventName]) {
+            throw new Error(`Event ${eventName} not found on contract ${this.contractName}`)
+        }
+        return this.contract.getPastEvents(eventName, options)
     }
 
     public getAddress() {
         return this.contract.options.address
+    }
+
+    protected async init() {
+        this.contract = await ContractHandler.get(this.contractName, this.web3Helper)
     }
 
 }

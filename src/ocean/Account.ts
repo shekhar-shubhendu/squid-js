@@ -1,14 +1,8 @@
 import BigNumber from "bignumber.js"
 import Keeper from "../keeper/Keeper"
-import Web3Helper from "../keeper/Web3Helper"
+import OceanBase from "./OceanBase"
 
-export default class Account {
-
-    private keeper: Keeper
-
-    constructor(keeper: Keeper) {
-        this.keeper = keeper
-    }
+export default class Account extends OceanBase {
 
     public async getTokenBalance(accountAddress: string): Promise<number> {
         return this.keeper.token.balanceOf(accountAddress)

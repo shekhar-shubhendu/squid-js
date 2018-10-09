@@ -1,13 +1,8 @@
 import Keeper from "../keeper/Keeper"
 import Logger from "../utils/Logger"
+import OceanBase from "./OceanBase"
 
-export default class Asset {
-
-    private keeper: Keeper
-
-    constructor(keeper: Keeper) {
-        this.keeper = keeper
-    }
+export default class Asset extends OceanBase {
 
     public async isAssetActive(assetId: string): Promise<boolean> {
         const {market} = this.keeper

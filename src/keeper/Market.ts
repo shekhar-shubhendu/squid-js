@@ -9,9 +9,8 @@ import Web3Helper from "./Web3Helper"
 
 export default class OceanMarket extends ContractWrapperBase {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper) {
-
-        const market = new OceanMarket(config, "OceanMarket", web3Helper)
+    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanMarket> {
+        const market: OceanMarket = new OceanMarket(config, "OceanMarket", web3Helper)
         await market.init()
         return market
     }

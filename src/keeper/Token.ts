@@ -6,8 +6,8 @@ import Web3Helper from "./Web3Helper"
 
 export default class OceanToken extends ContractBaseWrapper {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper) {
-        const token = new OceanToken(config, "OceanToken", web3Helper)
+    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanToken> {
+        const token: OceanToken = new OceanToken(config, "OceanToken", web3Helper)
         await token.init()
         return token
     }

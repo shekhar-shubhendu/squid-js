@@ -53,7 +53,7 @@ export default class ContractHandler {
         try {
             const artifact = require(`@oceanprotocol/keeper-contracts/artifacts/${what}.${where}`)
             // Logger.log('Loaded artifact', artifact)
-            Logger.log("Getting instance of", what, "from", where, "at", artifact.address)
+            // Logger.log("Getting instance of", what, "from", where, "at", artifact.address)
             const web3 = web3Helper.getWeb3()
             const contract = new web3.eth.Contract(artifact.abi, artifact.address)
             Logger.log("Loaded", what, "from", where)

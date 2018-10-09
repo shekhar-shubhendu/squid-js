@@ -1,4 +1,3 @@
-import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
 import Asset from "../models/Asset"
 import Config from "../models/Config"
@@ -7,8 +6,8 @@ import Web3Helper from "./Web3Helper"
 
 export default class OceanAuth extends ContractBaseWrapper {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper) {
-        const auth = new OceanAuth(config, "OceanAuth", web3Helper)
+    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanAuth> {
+        const auth: OceanAuth = new OceanAuth(config, "OceanAuth", web3Helper)
         await auth.init()
         return auth
     }
@@ -16,7 +15,7 @@ export default class OceanAuth extends ContractBaseWrapper {
     public async getOrderStatus(orderId: string): Promise<number> {
         return this.contract.methods.statusOfAccessRequest(orderId)
             .call()
-            .then((status: BigNumber) => status.toNumber())
+            .then((status: string) => parseInt(status, 10))
     }
 
     public async cancelAccessRequest(orderId: string, senderAddress: string): Promise<Receipt> {
