@@ -8,7 +8,9 @@ import Logger from "../../src/utils/Logger"
 let ocean: Ocean
 
 before(async () => {
-    const config: Config = {nodeUri: "http://localhost:8545"} as Config
+    const config: Config = {
+        nodeUri: "http://localhost:8545",
+    } as Config
     const web3Helper = new Web3Helper(config)
     await ContractHandler.deployContracts(web3Helper)
     ocean = await Ocean.getInstance(config)

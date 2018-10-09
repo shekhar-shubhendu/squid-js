@@ -8,7 +8,9 @@ import Logger from "../../src/utils/Logger"
 let keeper: Keeper
 
 before(async () => {
-    const config: Config = {nodeUri: "http://localhost:8545"} as Config
+    const config: Config = {
+        nodeUri: "http://localhost:8545",
+    } as Config
     const web3Helper = new Web3Helper(config)
     await ContractHandler.deployContracts(web3Helper)
     keeper = await Keeper.getInstance(config, web3Helper)

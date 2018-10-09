@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js"
-import Keeper from "../keeper/Keeper"
+import AccountModel from "../models/Account"
 import OceanBase from "./OceanBase"
 
 export default class Account extends OceanBase {
@@ -21,16 +21,18 @@ export default class Account extends OceanBase {
     public async list() {
         const {web3Helper} = this.keeper
 
-        return Promise.all((await web3Helper.getAccounts()).map(async (account: string) => {
-            // await ocean.market.requestTokens(account, 1000)
-            return {
-                name: account,
-                balance: {
-                    eth: await this.getEthBalance(account),
-                    ocn: await this.getTokenBalance(account),
-                },
-            }
-        }))
+        const ethAccounts = await web3Helper.getAccounts()
+        return Promise.all(ethAccounts
+            .map(async (account: string) => {
+                // await ocean.market.requestTokens(account, 1000)
+                return {
+                    name: account,
+                    balance: {
+                        eth: await this.getEthBalance(account),
+                        ocn: await this.getTokenBalance(account),
+                    },
+                } as AccountModel
+            }))
     }
 
     // Transactions with gas cost

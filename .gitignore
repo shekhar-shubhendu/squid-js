@@ -2,3 +2,5 @@ node_modules/
 dist/
 test/**/*.js
 src/**/*.js
+.nyc_output/
+coverage/
