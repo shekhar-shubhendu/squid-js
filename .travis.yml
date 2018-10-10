@@ -22,9 +22,9 @@ before_script:
 - sleep 2
 
 script:
-- npm test:cover
+- npm run test:cover
 - npm run build
-- npm doc
+- npm run doc
 
 after_script:
 - greenkeeper-lockfile-upload
