@@ -4,7 +4,9 @@ export default class Order {
     public id: string
     public asset: Asset
     public assetId: string
-    public timeout: any
+    public timeout: number
     public pubkey: string
     public key: any
+    public paid: boolean
+    public status: number
 }

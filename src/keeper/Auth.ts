@@ -33,11 +33,16 @@ export default class OceanAuth extends ContractBaseWrapper {
     }
 
     public async initiateAccessRequest(asset: Asset, publicKey: string,
-                                       timeout, buyerAddress: string): Promise<Receipt> {
-        return this.contract.methods.initiateAccessRequest(asset.assetId, asset.publisherId, publicKey, timeout)
-            .send({
-                from: buyerAddress,
-                gas: this.config.defaultGas,
-            })
+                                       timeout: number, buyerAddress: string): Promise<Receipt> {
+
+        const args = [asset.assetId, asset.publisherId, publicKey, timeout]
+        const tx = this.contract.methods.initiateAccessRequest(...args)
+        const gas = await tx.estimateGas(args, {
+            from: buyerAddress,
+        })
+        return tx.send({
+            from: buyerAddress,
+            gas,
+        })
     }
 }

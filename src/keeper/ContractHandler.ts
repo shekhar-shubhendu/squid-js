@@ -11,7 +11,7 @@ export default class ContractHandler {
     }
 
     public static async deployContracts(web3Helper: Web3Helper) {
-        Logger.log("Deploying contracts")
+        Logger.log("Trying to deploy contracts")
 
         const web3 = web3Helper.getWeb3()
 
@@ -72,7 +72,7 @@ export default class ContractHandler {
                 new RegExp(`_+${token.name}_+`, "g"),
                 token.address.replace("0x", ""))
         }
-        // Logger.log(bytecode);
+        // Logger.log(bytecode)
 
         return bytecode.toString()
     }

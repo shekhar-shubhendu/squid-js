@@ -13,18 +13,21 @@ export default class Order extends OceanBase {
 
     private static create(asset: Asset, args, key): OrderModel {
         const accessId = args._id
-        Logger.log("got new access request id: ", accessId)
-        return {
+        Logger.log(`got new access request id: ${accessId}`)
+        const order: OrderModel = {
             id: accessId,
             assetId: asset.assetId,
             asset,
-            timeout: args._timeout,
+            timeout: parseInt(args._timeout, 10),
             pubkey: args._pubKey,
             key,
         } as OrderModel
+        // Logger.log("Created order", order)
+
+        return order
     }
 
-    public async getOrdersByConsumer(consumerAddress: string) {
+    public async getOrdersByConsumer(consumerAddress: string): Promise<OrderModel[]> {
         const {auth, market} = this.keeper
 
         Logger.log("Getting orders")
@@ -43,13 +46,17 @@ export default class Order extends OceanBase {
                 .filter((event: any) => {
                     return event.returnValues._consumer === consumerAddress
                 })
+                // todo: this is not orders model maybe? lacking proper typing here
                 .map(async (event: any) => ({
-                            ...event.returnValues,
+                            id: event.returnValues._id,
+                            asset: null,
+                            assetId: event.returnValues._resourceId,
                             timeout: parseInt(event.returnValues._timeout, 10),
+                            pubkey: null,
+                            key: null,
                             status: await auth.getOrderStatus(event.returnValues._id),
                             paid: await market.verifyOrderPayment(event.returnValues._id),
-                            key: null,
-                        } as Order
+                        } as OrderModel
                     ),
                 ),
         )
@@ -71,11 +78,13 @@ export default class Order extends OceanBase {
         Logger.log("The asset:", asset.assetId, "is it valid?", isValid, "it's price is:", price)
 
         if (!isValid) {
-            throw new Error("asset not valid")
+            throw new Error("The Asset is not valid!")
         }
         try {
+            const marketAddr = market.getAddress()
             // Allow market contract to transfer funds on the consumer"s behalf
-            await token.approve(market.getAddress(), price, buyerAddress)
+            await token.approve(marketAddr, price, buyerAddress)
+            Logger.log(`${price} tokens approved on market with id: ${marketAddr}`)
         } catch (err) {
             Logger.error("token.approve failed", err)
         }
@@ -86,10 +95,8 @@ export default class Order extends OceanBase {
                 publicKey, timeout, buyerAddress)
 
             const args = initiateAccessRequestReceipt.events.AccessConsentRequested.returnValues
-            Logger.log("keeper AccessConsentRequested event received on asset: ", asset.assetId, "\nevent:", args)
+            Logger.log(`keeper AccessConsentRequested event received on asset: ${asset.assetId}`)
             order = Order.create(asset, args, key)
-            Logger.log("Created order", order)
-
         } catch (err) {
             Logger.error("auth.initiateAccessRequest failed", err)
         }
