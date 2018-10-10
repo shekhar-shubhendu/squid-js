@@ -1,6 +1,7 @@
 node_modules/
 dist/
-test/**/*.js
-src/**/*.js
 .nyc_output/
 coverage/
+doc/
+test/**/*.js
+src/**/*.js
