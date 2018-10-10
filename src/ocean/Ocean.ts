@@ -27,11 +27,8 @@ export default class Ocean {
     public metadata: MetaData
 
     private keeper: Keeper
-    private config: Config
 
     private constructor(config: Config) {
-
-        this.config = config
 
         this.helper = new Web3Helper(config)
         this.metadata = new MetaData(config)
