@@ -1,5 +1,4 @@
 import * as assert from "assert"
-import BigNumber from "bignumber.js"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Keeper from "../../src/keeper/Keeper"
 import Web3Helper from "../../src/keeper/Web3Helper"

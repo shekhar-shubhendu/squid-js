@@ -64,10 +64,6 @@ describe("Asset", () => {
 
         it("should return false on unknown asset", async () => {
 
-            const account = new Account(keeper)
-            const accounts = await account.list()
-            const addr = accounts[0].name
-
             const asset = new Asset(keeper)
 
             const isAssetActive = await asset.isAssetActive("0x0000")
