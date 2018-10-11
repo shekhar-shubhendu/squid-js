@@ -8,7 +8,6 @@ import OrderModel from "../../src/models/Order"
 import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
 import Order from "../../src/ocean/Order"
-import Logger from "../../src/utils/Logger";
 
 let keeper: Keeper
 let testAsset: AssetModel

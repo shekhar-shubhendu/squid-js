@@ -3,7 +3,6 @@ import ContractHandler from "../../src/keeper/ContractHandler"
 import Keeper from "../../src/keeper/Keeper"
 import Web3Helper from "../../src/keeper/Web3Helper"
 import Config from "../../src/models/Config"
-import Logger from "../../src/utils/Logger"
 
 let keeper: Keeper
 

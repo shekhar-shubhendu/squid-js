@@ -3,7 +3,6 @@ import ContractHandler from "../../src/keeper/ContractHandler"
 import Web3Helper from "../../src/keeper/Web3Helper"
 import Config from "../../src/models/Config"
 import Ocean from "../../src/ocean/Ocean"
-import Logger from "../../src/utils/Logger"
 
 let ocean: Ocean
 

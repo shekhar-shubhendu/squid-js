@@ -104,7 +104,7 @@ export default class Order extends OceanBase {
         return order
         if (false) {
             // todo: AccessRequestCommitted event is not emitted in this flow
-            const finalOrder: OrderModel = await auth.listenToEventOnce(
+            await auth.listenToEventOnce(
                 "AccessRequestCommitted", {
                     filter: {
                         _id: order.id,

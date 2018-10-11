@@ -3,7 +3,6 @@ import {Receipt} from "web3-utils"
 import Asset from "../models/Asset"
 import Config from "../models/Config"
 import Order from "../models/Order"
-import Logger from "../utils/Logger"
 import ContractWrapperBase from "./ContractWrapperBase"
 import Web3Helper from "./Web3Helper"
 

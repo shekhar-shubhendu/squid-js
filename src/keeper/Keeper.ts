@@ -8,7 +8,7 @@ export default class Keeper {
 
     public static async getInstance(config: Config, helper: Web3Helper) {
 
-        const contracts = new Keeper(config, helper)
+        const contracts = new Keeper(helper)
 
         contracts.market = await OceanMarket.getInstance(config, helper)
         contracts.auth = await OceanAuth.getInstance(config, helper)
@@ -22,10 +22,7 @@ export default class Keeper {
     public market: OceanMarket
     public auth: OceanAuth
 
-    private config: Config
-
-    private constructor(config: Config, helper: Web3Helper) {
-        this.config = config
+    private constructor(helper: Web3Helper) {
         this.web3Helper = helper
     }
 }

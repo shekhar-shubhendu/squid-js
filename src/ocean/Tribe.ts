@@ -7,11 +7,8 @@ export default class Tribe {
         return new Tribe(web3Helper)
     }
 
-    private web3Helper: Web3Helper
-
     private constructor(web3Helper: Web3Helper) {
 
-        this.web3Helper = web3Helper
     }
 
     // did ddo for tribes/marketplaces

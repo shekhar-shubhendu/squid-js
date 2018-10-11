@@ -1,7 +1,6 @@
 import Event from "web3"
 import Contract from "web3-eth-contract"
 import Config from "../models/Config"
-import Logger from "../utils/Logger"
 import ContractHandler from "./ContractHandler"
 import Web3Helper from "./Web3Helper"
 

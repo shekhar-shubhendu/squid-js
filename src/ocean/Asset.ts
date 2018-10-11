@@ -1,4 +1,3 @@
-import Keeper from "../keeper/Keeper"
 import AssetModel from "../models/Asset"
 import Logger from "../utils/Logger"
 import OceanBase from "./OceanBase"
