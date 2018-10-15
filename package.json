@@ -5,6 +5,7 @@
   "main": "dist/squid.js",
   "scripts": {
     "test": "mocha",
+    "test:watch": "mocha -w --watch-extensions js,ts",
     "test:cover": "nyc mocha",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start": "npm link @oceanprotocol/keeper-contracts && npm run build:watch",
