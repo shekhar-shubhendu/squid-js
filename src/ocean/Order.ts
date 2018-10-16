@@ -1,8 +1,8 @@
 import Keeper from "../keeper/Keeper"
 import Logger from "../utils/Logger"
+import Account from "./Account"
 import Asset from "./Asset"
 import OceanBase from "./OceanBase"
-import Account from "./Account"
 
 export default class Order extends OceanBase {
 
