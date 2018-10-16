@@ -1,36 +1,86 @@
+import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
-import Web3Helper from "../keeper/Web3Helper"
-import Config from "../models/Config"
+import Web3Provider from "../keeper/Web3Provider"
+import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
-import MetaData from "./MetaData"
 import Order from "./Order"
-import Tribe from "./Tribe"
 
 export default class Ocean {
 
     public static async getInstance(config) {
-        const ocean = new Ocean(config)
-        ocean.keeper = await Keeper.getInstance(config, ocean.helper)
-        ocean.tribe = await Tribe.getInstance(ocean.helper)
-        ocean.order = new Order(ocean.keeper)
-        ocean.account = new Account(ocean.keeper)
-        ocean.asset = new Asset(ocean.keeper)
-        return ocean
+
+        if (!Ocean.instance) {
+            ConfigProvider.configure(config)
+            Ocean.instance = new Ocean()
+        }
+
+        return Ocean.instance
     }
 
-    public account: Account
-    public order: Order
-    public tribe: Tribe
-    public asset: Asset
-    public helper: Web3Helper
-    public metadata: MetaData
+    private static instance = null
 
-    private keeper: Keeper
+    public async getAccounts(): Promise<Account[]> {
 
-    private constructor(config: Config) {
+        // retrieve eth accounts
+        const ethAccounts = await Web3Provider.getWeb3().eth.getAccounts()
 
-        this.helper = new Web3Helper(config)
-        this.metadata = new MetaData(config)
+        return ethAccounts
+            .map((address: string) => {
+                return new Account(address)
+            })
+    }
+
+    public async register(asset: Asset): Promise<Asset> {
+        const {market} = await Keeper.getInstance()
+
+        // generate an id
+        const assetId = await market.generateId(asset.name + asset.description)
+        Logger.log(`Registering: ${assetId} with price ${asset.price}`)
+        asset.setId(assetId)
+        // register asset in the market
+        const result = await market.register(asset.getId(), asset.price, asset.publisher.getId())
+        Logger.log("Registered:", assetId, "in block", result.blockNumber)
+
+        return asset
+    }
+
+    public async getOrdersByConsumer(consumer: Account): Promise<Order[]> {
+        const {auth, market} = await Keeper.getInstance()
+
+        Logger.log("Getting orders")
+
+        const accessConsentRequestedData = await auth.getEventData(
+            "AccessConsentRequested", {
+                filter: {
+                    _consumer: consumer.getId(),
+                },
+                fromBlock: 0,
+                toBlock: "latest",
+            })
+
+        const orders = await Promise.all(
+            accessConsentRequestedData
+                .map(async (event: any) => {
+
+                    const {returnValues} = event
+
+                    const order: Order = new Order(
+                        await Asset.load(returnValues._resourceId),
+                        parseInt(returnValues._timeout, 10),
+                        null, null)
+
+                    order.setId(returnValues._id)
+                    order.setStatus(await auth.getOrderStatus(returnValues._id))
+                    order.setPaid(await market.verifyOrderPayment(returnValues._id))
+
+                    return order
+                }),
+        )
+
+        // Logger.log("Got orders:", JSON.stringify(orders, null, 2))
+        Logger.log(`Got ${Object.keys(orders).length} orders`)
+
+        return orders
     }
 }

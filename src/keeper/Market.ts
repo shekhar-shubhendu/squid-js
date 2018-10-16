@@ -1,15 +1,13 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import Asset from "../models/Asset"
-import Config from "../models/Config"
-import Order from "../models/Order"
+import ConfigProvider from "../ConfigProvider"
+import Order from "../ocean/Order"
 import ContractWrapperBase from "./ContractWrapperBase"
-import Web3Helper from "./Web3Helper"
 
 export default class OceanMarket extends ContractWrapperBase {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanMarket> {
-        const market: OceanMarket = new OceanMarket(config, "OceanMarket", web3Helper)
+    public static async getInstance(): Promise<OceanMarket> {
+        const market: OceanMarket = new OceanMarket("OceanMarket")
         await market.init()
         return market
     }
@@ -44,15 +42,22 @@ export default class OceanMarket extends ContractWrapperBase {
         return await this.contract.methods.register(assetId, price)
             .send({
                 from: publisherAddress,
-                gas: this.config.defaultGas,
+                gas: ConfigProvider.getConfig().defaultGas,
             })
     }
 
-    public async payAsset(asset: Asset, order: Order, buyerAddress: string): Promise<Receipt> {
-        return this.contract.methods.sendPayment(order.id, asset.publisherId, asset.price, order.timeout)
-            .send({
-                from: buyerAddress,
-                gas: this.config.defaultGas,
-            })
+    public async payOrder(order: Order, payerAddreess: string): Promise<Receipt> {
+
+        const args = [
+            order.getId(), order.getAsset().publisher.getId(),
+            order.getAsset().price, order.getTimeout(),
+        ]
+
+        return this.sendTransaction("sendPayment", payerAddreess, args)
+    }
+
+    public getAssetPublisher(assetId: string): Promise<string> {
+        return this.contract.methods.getAssetPublisher(assetId)
+            .call()
     }
 }

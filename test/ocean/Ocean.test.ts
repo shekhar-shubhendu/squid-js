@@ -1,43 +1,67 @@
 import * as assert from "assert"
+import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
-import Web3Helper from "../../src/keeper/Web3Helper"
-import Config from "../../src/models/Config"
+import Account from "../../src/ocean/Account"
+import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
+import Logger from "../../src/utils/Logger"
+import config from "../config"
 
 let ocean: Ocean
+let accounts: Account[]
 
 before(async () => {
-    const config: Config = {
-        nodeUri: "http://localhost:8545",
-    } as Config
-    const web3Helper = new Web3Helper(config)
-    await ContractHandler.deployContracts(web3Helper)
+    ConfigProvider.configure(config)
+    await ContractHandler.deployContracts()
     ocean = await Ocean.getInstance(config)
+    accounts = await ocean.getAccounts()
 })
 
 describe("Ocean", () => {
 
-    describe("public interface", () => {
+    describe("#getAccounts()", () => {
 
-        it("should have tribe", async () => {
+        it("should list accounts", async () => {
 
-            assert(ocean.tribe !== null)
+            const accs: Account[] = await ocean.getAccounts()
+
+            assert(10 === accs.length)
+            assert(0 === (await accs[5].getBalance()).ocn)
+            assert("string" === typeof accs[0].getId())
         })
 
-        it("should have account", async () => {
+    })
 
-            assert(ocean.account !== null)
+    describe("#register()", () => {
+
+        it("should register an asset", async () => {
+
+            const publisher: Account = accounts[0]
+
+            const name = "Test Asset 3"
+            const description = "This asset is pure owange"
+            const price = 100
+
+            const asset = new Asset(name, description, price, publisher)
+
+            const finalAsset: Asset = await ocean.register(asset)
+
+            assert(finalAsset.getId().length === 66)
+            assert(finalAsset.getId().startsWith("0x"))
+            assert(finalAsset.publisher === publisher)
+            assert(finalAsset.price === price)
+        })
+    })
+
+    describe("#getOrdersByConsumer()", () => {
+
+        it("should list orders", async () => {
+
+            // todo
+            const orders = await ocean.getOrdersByConsumer(accounts[1])
+            Logger.log(orders)
         })
 
-        it("should have order", async () => {
-
-            assert(ocean.order !== null)
-        })
-
-        it("should have asset", async () => {
-
-            assert(ocean.asset !== null)
-        })
     })
 
 })

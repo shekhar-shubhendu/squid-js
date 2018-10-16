@@ -1,44 +1,39 @@
 import * as assert from "assert"
+import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
-import Keeper from "../../src/keeper/Keeper"
-import Web3Helper from "../../src/keeper/Web3Helper"
-import Config from "../../src/models/Config"
+import Web3Provider from "../../src/keeper/Web3Provider"
 import Account from "../../src/ocean/Account"
+import Ocean from "../../src/ocean/Ocean"
+import config from "../config"
 
-let keeper: Keeper
-
-const config: Config = {
-    nodeUri: "http://localhost:8545",
-} as Config
-const web3Helper = new Web3Helper(config)
+let ocean: Ocean
+let accounts: Account[]
 
 before(async () => {
-    await ContractHandler.deployContracts(web3Helper)
-    keeper = await Keeper.getInstance(config, web3Helper)
+    ConfigProvider.configure(config)
+    await ContractHandler.deployContracts()
+    ocean = await Ocean.getInstance(config)
+
+    accounts = await ocean.getAccounts()
 })
 
 describe("Account", () => {
 
-    describe("#getTokenBalance()", () => {
+    describe("#getOceanBalance()", () => {
 
-        it("should get initial balance", async () => {
+        it("should get initial ocean balance", async () => {
 
-            const account = new Account(keeper)
-            const accounts = await account.list()
-            const addr = accounts[1].name
-            const balance = await account.getTokenBalance(addr)
+            const balance = await accounts[0].getOceanBalance()
 
             assert(0 === balance)
         })
 
-        it("should get balance the correct balance", async () => {
+        it("should get the correct balance", async () => {
 
-            const account = new Account(keeper)
             const amount: number = 100
-            const accounts = await account.list()
-            const addr = accounts[0].name
-            await account.requestTokens(amount, addr)
-            const balance = await account.getTokenBalance(addr)
+            const account: Account = accounts[0]
+            await account.requestTokens(amount)
+            const balance = await account.getOceanBalance()
 
             assert(amount === balance)
         })
@@ -48,27 +43,24 @@ describe("Account", () => {
 
         it("should get initial balance", async () => {
 
-            const account = new Account(keeper)
-            const accounts = await account.list()
-            const addr = accounts[5].name
-            const balance = await account.getEthBalance(addr)
-            const web3 = web3Helper.getWeb3()
+            const account: Account = accounts[1]
+            const balance = await account.getEthBalance()
+            const web3 = Web3Provider.getWeb3()
+
             assert(Number(web3.utils.toWei("100", "ether")) === balance)
         })
     })
 
-    describe("#list()", () => {
+    describe("#getBalance()", () => {
 
-        it("should list accounts", async () => {
+        it("should get initial balance", async () => {
 
-            const account = new Account(keeper)
-            const accounts = await account.list()
+            const account: Account = accounts[1]
+            const balance = await account.getBalance()
+            const web3 = Web3Provider.getWeb3()
 
-            assert(10 === accounts.length)
-            assert(0 === accounts[5].balance.ocn)
-            assert("string" === typeof accounts[0].name)
+            assert(Number(web3.utils.toWei("100", "ether")) === balance.eth)
+            assert(0 === balance.ocn)
         })
-
     })
-
 })

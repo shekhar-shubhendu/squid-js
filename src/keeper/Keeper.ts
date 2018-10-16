@@ -1,28 +1,53 @@
-import Config from "../models/Config"
 import OceanAuth from "./Auth"
 import OceanMarket from "./Market"
 import OceanToken from "./Token"
-import Web3Helper from "./Web3Helper"
+import Web3Provider from "./Web3Provider"
 
 export default class Keeper {
 
-    public static async getInstance(config: Config, helper: Web3Helper) {
+    public static async getInstance() {
 
-        const contracts = new Keeper(helper)
+        if (Keeper.instance === null) {
+            Keeper.instance = new Keeper()
 
-        contracts.market = await OceanMarket.getInstance(config, helper)
-        contracts.auth = await OceanAuth.getInstance(config, helper)
-        contracts.token = await OceanToken.getInstance(config, helper)
-
-        return contracts
+            Keeper.instance.market = await OceanMarket.getInstance()
+            Keeper.instance.auth = await OceanAuth.getInstance()
+            Keeper.instance.token = await OceanToken.getInstance()
+        }
+        return Keeper.instance
     }
 
-    public web3Helper: Web3Helper
+    private static instance: Keeper = null
+
     public token: OceanToken
     public market: OceanMarket
     public auth: OceanAuth
 
-    private constructor(helper: Web3Helper) {
-        this.web3Helper = helper
+    public async getNetworkName(): Promise<string> {
+        return Web3Provider.getWeb3().eth.net.getId()
+            .then((networkId) => {
+                let network: string = "unknown"
+
+                switch (networkId) {
+                    case 1:
+                        network = "Main"
+                        break
+                    case 2:
+                        network = "Morden"
+                        break
+                    case 3:
+                        network = "Ropsten"
+                        break
+                    case 4:
+                        network = "Rinkeby"
+                        break
+                    case 42:
+                        network = "Kovan"
+                        break
+                    default:
+                        network = "development"
+                }
+                return network
+            })
     }
 }

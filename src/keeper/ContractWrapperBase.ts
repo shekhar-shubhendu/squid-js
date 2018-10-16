@@ -1,25 +1,16 @@
 import Event from "web3"
 import Contract from "web3-eth-contract"
-import Config from "../models/Config"
 import ContractHandler from "./ContractHandler"
-import Web3Helper from "./Web3Helper"
 
-export default class ContractWrapperBase {
+export default abstract class ContractWrapperBase {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<any> {
-        // stub
-    }
+    protected static instance = null
 
     protected contract: Contract = null
-    protected config: Config
-    protected web3Helper: Web3Helper
-
     private contractName: string
 
-    constructor(config: Config, contractName: string, web3Helper: Web3Helper) {
-        this.config = config
+    constructor(contractName) {
         this.contractName = contractName
-        this.web3Helper = web3Helper
     }
 
     public async listenToEventOnce(eventName: string, options: any): Promise<any> {
@@ -48,7 +39,21 @@ export default class ContractWrapperBase {
     }
 
     protected async init() {
-        this.contract = await ContractHandler.get(this.contractName, this.web3Helper)
+        this.contract = await ContractHandler.get(this.contractName)
+    }
+
+    protected async sendTransaction(name: string, from: string, args: any[]) {
+        if (!this.contract.methods[name]) {
+            throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
+        }
+        const tx = this.contract.methods[name](...args)
+        const gas = await tx.estimateGas(args, {
+            from,
+        })
+        return tx.send({
+            from,
+            gas,
+        })
     }
 
 }

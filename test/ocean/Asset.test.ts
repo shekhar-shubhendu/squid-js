@@ -1,73 +1,63 @@
 import * as assert from "assert"
+import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
-import Keeper from "../../src/keeper/Keeper"
-import Web3Helper from "../../src/keeper/Web3Helper"
-import AssetModel from "../../src/models/Asset"
-import Config from "../../src/models/Config"
 import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
+import Ocean from "../../src/ocean/Ocean"
+import config from "../config"
 
-let keeper: Keeper
+const testName = "Test Asset 2"
+const testDescription = "This asset is pure owange"
+const testPrice = 100
 
-const config: Config = {
-    nodeUri: "http://localhost:8545",
-} as Config
-const web3Helper = new Web3Helper(config)
+let ocean: Ocean
+let testAsset: Asset
+let accounts: Account[]
+let testPublisher: Account
 
 before(async () => {
-    await ContractHandler.deployContracts(web3Helper)
-    keeper = await Keeper.getInstance(config, web3Helper)
+    ConfigProvider.configure(config)
+    await ContractHandler.deployContracts()
+    ocean = await Ocean.getInstance(config)
+    accounts = await ocean.getAccounts()
+    testPublisher = accounts[0]
+    testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
+
+    await ocean.register(testAsset)
 })
 
 describe("Asset", () => {
 
-    describe("#register()", () => {
-
-        it("should register asset", async () => {
-
-            const account = new Account(keeper)
-            const accounts = await account.list()
-            const addr = accounts[0].name
-
-            const name = "Test Asset"
-            const description = "This asset is pure owange"
-            const price = 100
-
-            const asset = new Asset(keeper)
-            const finalAsset: AssetModel = await asset.registerAsset(name, description, price, addr)
-
-            assert(finalAsset.assetId.length === 66)
-            assert(finalAsset.assetId.startsWith("0x"))
-            assert(finalAsset.publisherId === addr)
-            assert(finalAsset.price === price)
-        })
-    })
-
-    describe("#isAssetActive()", () => {
+    describe("#isActive()", () => {
 
         it("should return true on new asset", async () => {
 
-            const account = new Account(keeper)
-            const accounts = await account.list()
-            const addr = accounts[0].name
-
-            const name = "Test Asset 2"
-            const description = "This asset is pure owange"
-            const price = 100
-
-            const asset = new Asset(keeper)
-            const finalAsset = await asset.registerAsset(name, description, price, addr)
-
-            const isAssetActive = await asset.isAssetActive(finalAsset.assetId)
+            const isAssetActive = await testAsset.isActive()
             assert(true === isAssetActive)
         })
 
         it("should return false on unknown asset", async () => {
 
-            const asset = new Asset(keeper)
-
-            const isAssetActive = await asset.isAssetActive("0x0000")
+            const isAssetActive = await new Asset(testName, testDescription, testPrice, testPublisher)
+                .isActive()
             assert(false === isAssetActive)
+        })
+    })
+
+    describe("#purchase()", () => {
+
+        it("should purchase an asset", async () => {
+
+            // todo
+            await testAsset.purchase(accounts[5], 10000)
+        })
+    })
+
+    describe("#purchase()", () => {
+
+        it("should purchase an asset", async () => {
+            // todo
+            // await testAsset.finalizePurchaseAsset()
         })
     })
 })

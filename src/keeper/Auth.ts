@@ -1,13 +1,11 @@
 import {Receipt} from "web3-utils"
-import Asset from "../models/Asset"
-import Config from "../models/Config"
+import Asset from "../ocean/Asset"
 import ContractBaseWrapper from "./ContractWrapperBase"
-import Web3Helper from "./Web3Helper"
 
 export default class OceanAuth extends ContractBaseWrapper {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanAuth> {
-        const auth: OceanAuth = new OceanAuth(config, "OceanAuth", web3Helper)
+    public static async getInstance(): Promise<OceanAuth> {
+        const auth: OceanAuth = new OceanAuth("OceanAuth")
         await auth.init()
         return auth
     }
@@ -35,14 +33,11 @@ export default class OceanAuth extends ContractBaseWrapper {
     public async initiateAccessRequest(asset: Asset, publicKey: string,
                                        timeout: number, buyerAddress: string): Promise<Receipt> {
 
-        const args = [asset.assetId, asset.publisherId, publicKey, timeout]
-        const tx = this.contract.methods.initiateAccessRequest(...args)
-        const gas = await tx.estimateGas(args, {
-            from: buyerAddress,
-        })
-        return tx.send({
-            from: buyerAddress,
-            gas,
-        })
+        const args = [asset.getId(), asset.publisher.getId(), publicKey, timeout]
+        return this.sendTransaction("initiateAccessRequest", buyerAddress, args)
+    }
+
+    public async commitAccessRequest() {
+        // todo
     }
 }

@@ -1,10 +1,18 @@
-import Keeper from "../keeper/Keeper"
+export default abstract class OceanBase {
 
-export default class OceanBase {
+    protected id = "0x00"
 
-    protected keeper: Keeper
+    constructor(id?) {
+        if (id) {
+            this.id = id
+        }
+    }
 
-    constructor(keeper: Keeper) {
-        this.keeper = keeper
+    public getId() {
+        return this.id
+    }
+
+    public setId(id) {
+        this.id = id
     }
 }

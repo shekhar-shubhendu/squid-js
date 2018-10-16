@@ -1,13 +1,12 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import Config from "../models/Config"
+import ConfigProvider from "../ConfigProvider"
 import ContractBaseWrapper from "./ContractWrapperBase"
-import Web3Helper from "./Web3Helper"
 
 export default class OceanToken extends ContractBaseWrapper {
 
-    public static async getInstance(config: Config, web3Helper: Web3Helper): Promise<OceanToken> {
-        const token: OceanToken = new OceanToken(config, "OceanToken", web3Helper)
+    public static async getInstance(): Promise<OceanToken> {
+        const token: OceanToken = new OceanToken("OceanToken")
         await token.init()
         return token
     }
@@ -16,7 +15,7 @@ export default class OceanToken extends ContractBaseWrapper {
         return this.contract.methods.approve(marketAddress, price)
             .send({
                 from: buyerAddress,
-                gas: this.config.defaultGas,
+                gas: ConfigProvider.getConfig().defaultGas,
             })
     }
 

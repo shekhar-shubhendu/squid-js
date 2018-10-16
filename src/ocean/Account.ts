@@ -1,42 +1,40 @@
 import BigNumber from "bignumber.js"
-import AccountModel from "../models/Account"
+import Keeper from "../keeper/Keeper"
+import Web3Provider from "../keeper/Web3Provider"
+import Balance from "../models/Balance"
 import OceanBase from "./OceanBase"
 
 export default class Account extends OceanBase {
+    private balance: Balance
 
-    public async getTokenBalance(accountAddress: string): Promise<number> {
-        return this.keeper.token.balanceOf(accountAddress)
+    public async getOceanBalance(): Promise<number> {
+        return (await Keeper.getInstance()).token.balanceOf(this.id)
     }
 
-    public async getEthBalance(account: string): Promise<number> {
-        const {web3Helper} = this.keeper
+    public async getEthBalance(): Promise<number> {
         // Logger.log("getting balance for", account);
-        return web3Helper.getWeb3().eth.getBalance(account, "latest")
-            .then((balance: string) => {
+        return Web3Provider.getWeb3().eth
+            .getBalance(this.id, "latest")
+            .then((balance: string): number => {
                 // Logger.log("balance", balance);
                 return new BigNumber(balance).toNumber()
             })
     }
 
-    public async list() {
-        const {web3Helper} = this.keeper
+    public async getBalance(): Promise<Balance> {
 
-        const ethAccounts = await web3Helper.getAccounts()
-        return Promise.all(ethAccounts
-            .map(async (account: string) => {
-                // await ocean.market.requestTokens(account, 1000)
-                return {
-                    name: account,
-                    balance: {
-                        eth: await this.getEthBalance(account),
-                        ocn: await this.getTokenBalance(account),
-                    },
-                } as AccountModel
-            }))
+        if (!this.balance) {
+            this.balance = {
+                eth: await this.getEthBalance(),
+                ocn: await this.getOceanBalance(),
+            } as Balance
+        }
+
+        return this.balance
     }
 
     // Transactions with gas cost
-    public async requestTokens(amount: number, receiver: string): Promise<boolean> {
-        return this.keeper.market.requestTokens(amount, receiver)
+    public async requestTokens(amount: number): Promise<boolean> {
+        return (await Keeper.getInstance()).market.requestTokens(amount, this.id)
     }
 }
