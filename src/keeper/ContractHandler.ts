@@ -1,7 +1,7 @@
 import Contract from "web3-eth-contract"
 import Logger from "../utils/Logger"
-import Web3Provider from "./Web3Provider"
 import Keeper from "./Keeper"
+import Web3Provider from "./Web3Provider"
 
 const contracts: Map<string, Contract> = new Map<string, Contract>()
 
