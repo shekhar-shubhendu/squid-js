@@ -33,7 +33,7 @@ export default class Ocean {
         return ethAccounts.map((address: string) => new Account(address))
     }
 
-    public async register(asset: Asset): Promise<Asset> {
+    public async register(asset: Asset): Promise<string> {
         const {market} = this.keeper
 
         // generate an id
@@ -44,7 +44,7 @@ export default class Ocean {
         const result = await market.register(asset.getId(), asset.price, asset.publisher.getId())
         Logger.log("Registered:", assetId, "in block", result.blockNumber)
 
-        return asset
+        return assetId
     }
 
     public async getOrdersByConsumer(consumer: Account): Promise<Order[]> {

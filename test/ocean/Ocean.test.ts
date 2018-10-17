@@ -44,12 +44,10 @@ describe("Ocean", () => {
 
             const asset = new Asset(name, description, price, publisher)
 
-            const finalAsset: Asset = await ocean.register(asset)
+            const assetId: string = await ocean.register(asset)
 
-            assert(finalAsset.getId().length === 66)
-            assert(finalAsset.getId().startsWith("0x"))
-            assert(finalAsset.publisher === publisher)
-            assert(finalAsset.price === price)
+            assert(assetId.length === 66)
+            assert(assetId.startsWith("0x"))
         })
     })
 
