@@ -29,7 +29,6 @@ export default class Order extends OceanBase {
     }
 
     public setAccessId(accessId: string) {
-        Logger.log("accessId", accessId)
         this.accessId = accessId
     }
 
@@ -61,11 +60,12 @@ export default class Order extends OceanBase {
         return this.key
     }
 
-    public async pay(account: Account) {
+    public async pay(account: Account): Promise<string> {
         const {market} = await Keeper.getInstance()
-        // send payment
-        Logger.log("Sending payment: ", this.getId(), this.accessId,
-            this.asset.publisher.getId(), this.asset.price, this.timeout)
-        return market.payOrder(this, account.getId())
+        Logger.log(`Sending payment: ${this.getId()} ${this.accessId}
+            ${this.asset.publisher.getId()} ${this.asset.price} ${this.timeout}`)
+        const payReceipt = await market.payOrder(this, account.getId())
+
+        return payReceipt.events.PaymentReceived.returnValues._paymentId
     }
 }

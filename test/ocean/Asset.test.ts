@@ -4,6 +4,7 @@ import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
+import Order from "../../src/ocean/Order"
 import config from "../config"
 
 const testName = "Test Asset 2"
@@ -49,7 +50,8 @@ describe("Asset", () => {
         it("should purchase an asset", async () => {
 
             // todo
-            await testAsset.purchase(accounts[5], 10000)
+            const order: Order = await testAsset.purchase(accounts[5], 10000)
+            assert(order)
         })
     })
 

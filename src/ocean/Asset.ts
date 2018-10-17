@@ -65,7 +65,7 @@ export default class Asset extends OceanBase {
                 publicKey, timeout, account.getId())
 
             const {returnValues} = initiateAccessRequestReceipt.events.AccessConsentRequested
-            Logger.log(`Keeper AccessConsentRequested event received on asset: ${this.getId()}`, returnValues)
+            Logger.log(`Keeper AccessConsentRequested event received on asset: ${this.getId()}`)
             order = new Order(this, returnValues._timeout, returnValues._pubKey, key)
             order.setId(returnValues._id)
         } catch (err) {

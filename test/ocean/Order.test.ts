@@ -5,6 +5,7 @@ import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
+import Logger from "../../src/utils/Logger"
 import config from "../config"
 
 const testName = "Test Asset 333"
@@ -36,7 +37,8 @@ describe("Order", () => {
             const order: Order = await testAsset.purchase(accounts[0], 10000)
             assert(order)
 
-            await order.pay(accounts[0])
+            const paymentId: string = await order.pay(accounts[0])
+            Logger.log("paymentId", paymentId)
         })
 
     })

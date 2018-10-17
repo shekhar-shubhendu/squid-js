@@ -12,27 +12,29 @@ export default class Ocean {
 
         if (!Ocean.instance) {
             ConfigProvider.configure(config)
-            Ocean.instance = new Ocean()
+            Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 
         return Ocean.instance
     }
 
     private static instance = null
+    private keeper: Keeper
+
+    private constructor(keeper: Keeper) {
+        this.keeper = keeper
+    }
 
     public async getAccounts(): Promise<Account[]> {
 
         // retrieve eth accounts
         const ethAccounts = await Web3Provider.getWeb3().eth.getAccounts()
 
-        return ethAccounts
-            .map((address: string) => {
-                return new Account(address)
-            })
+        return ethAccounts.map((address: string) => new Account(address))
     }
 
     public async register(asset: Asset): Promise<Asset> {
-        const {market} = await Keeper.getInstance()
+        const {market} = this.keeper
 
         // generate an id
         const assetId = await market.generateId(asset.name + asset.description)
@@ -46,7 +48,7 @@ export default class Ocean {
     }
 
     public async getOrdersByConsumer(consumer: Account): Promise<Order[]> {
-        const {auth, market} = await Keeper.getInstance()
+        const {auth, market} = this.keeper
 
         Logger.log("Getting orders")
 
