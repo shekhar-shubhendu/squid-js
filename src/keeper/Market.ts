@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import ConfigProvider from "../ConfigProvider"
 import Order from "../ocean/Order"
 import ContractWrapperBase from "./ContractWrapperBase"
 
@@ -14,50 +13,34 @@ export default class OceanMarket extends ContractWrapperBase {
 
     // call functions (costs no gas)
     public async isAssetActive(assetId: string): Promise<boolean> {
-        return this.contract.methods.checkAsset(assetId).call()
+        return this.call("checkAsset", [assetId])
     }
 
     public async verifyOrderPayment(orderId: string): Promise<boolean> {
-        return this.contract.methods.verifyPaymentReceived(orderId).call()
+        return this.call("verifyPaymentReceived", [orderId])
     }
 
     public async getAssetPrice(assetId: string): Promise<number> {
-        return this.contract.methods.getAssetPrice(assetId)
-            .call()
+        return this.call("getAssetPrice", [assetId])
             .then((price: string) => new BigNumber(price).toNumber())
     }
 
     public async requestTokens(amount: number, receiverAddress: string): Promise<Receipt> {
-        return this.contract.methods.requestTokens(amount)
-            .send({
-                from: receiverAddress,
-            })
+        return this.sendTransaction("requestTokens", receiverAddress, [amount])
     }
 
     public async generateId(input: string): Promise<string> {
-        return await this.contract.methods.generateId(input).call()
+        return this.call("generateId", [input])
     }
 
     public async register(assetId: string, price: number, publisherAddress: string): Promise<Receipt> {
-        return await this.contract.methods.register(assetId, price)
-            .send({
-                from: publisherAddress,
-                gas: ConfigProvider.getConfig().defaultGas,
-            })
+        return this.sendTransaction("register", publisherAddress, [assetId, price])
     }
 
-    public async payOrder(order: Order, payerAddreess: string): Promise<Receipt> {
-
-        const args = [
-            order.getId(), order.getAsset().publisher.getId(),
-            order.getAsset().price, order.getTimeout(),
-        ]
-
-        return this.sendTransaction("sendPayment", payerAddreess, args)
-    }
-
-    public getAssetPublisher(assetId: string): Promise<string> {
-        return this.contract.methods.getAssetPublisher(assetId)
-            .call()
+    public async payOrder(order: Order, publisherAddress: string,
+                          price: number, consumerAddress: string): Promise<Receipt> {
+        return this.sendTransaction("sendPayment", consumerAddress, [
+            order.getId(), publisherAddress, price, order.getTimeout(),
+        ])
     }
 }

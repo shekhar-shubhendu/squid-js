@@ -41,9 +41,9 @@ describe("Account", () => {
 
     describe("#getEthBalance()", () => {
 
-        it("should get initial balance", async () => {
+        it("should get initial ether balance", async () => {
 
-            const account: Account = accounts[1]
+            const account: Account = accounts[9]
             const balance = await account.getEthBalance()
             const web3 = Web3Provider.getWeb3()
 
@@ -55,7 +55,7 @@ describe("Account", () => {
 
         it("should get initial balance", async () => {
 
-            const account: Account = accounts[1]
+            const account: Account = accounts[9]
             const balance = await account.getBalance()
             const web3 = Web3Provider.getWeb3()
 

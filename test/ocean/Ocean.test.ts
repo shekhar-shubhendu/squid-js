@@ -4,17 +4,27 @@ import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
-import Logger from "../../src/utils/Logger"
+import Order from "../../src/ocean/Order"
 import config from "../config"
 
 let ocean: Ocean
 let accounts: Account[]
+let testAsset: Asset
+let testPublisher: Account
+
+const name = "Test Asset 3"
+const description = "This asset is pure owange"
+const price = 100
+const timeout = 100000000
 
 before(async () => {
     ConfigProvider.configure(config)
     await ContractHandler.deployContracts()
     ocean = await Ocean.getInstance(config)
     accounts = await ocean.getAccounts()
+
+    testPublisher = accounts[0]
+    testAsset = new Asset(name, description, price, testPublisher)
 })
 
 describe("Ocean", () => {
@@ -36,15 +46,7 @@ describe("Ocean", () => {
 
         it("should register an asset", async () => {
 
-            const publisher: Account = accounts[0]
-
-            const name = "Test Asset 3"
-            const description = "This asset is pure owange"
-            const price = 100
-
-            const asset = new Asset(name, description, price, publisher)
-
-            const assetId: string = await ocean.register(asset)
+            const assetId: string = await ocean.register(testAsset)
 
             assert(assetId.length === 66)
             assert(assetId.startsWith("0x"))
@@ -55,9 +57,17 @@ describe("Ocean", () => {
 
         it("should list orders", async () => {
 
-            // todo
-            const orders = await ocean.getOrdersByConsumer(accounts[1])
-            Logger.log(orders)
+            const testConsumer = accounts[1]
+            const asset: Asset = new Asset("getOrdersByConsumer test", description, price, testPublisher)
+
+            await ocean.register(asset)
+
+            const order: Order = await asset.purchase(testConsumer, timeout)
+            const orders = await ocean.getOrdersByConsumer(testConsumer)
+
+            assert(orders.length === 1)
+            assert(orders[0].getId() === order.getId())
+
         })
 
     })

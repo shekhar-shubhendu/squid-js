@@ -1,6 +1,8 @@
 import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
+import Provider from "../provider/Provider"
+import ProviderProvider from "../provider/ProviderProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
@@ -12,6 +14,7 @@ export default class Ocean {
 
         if (!Ocean.instance) {
             ConfigProvider.configure(config)
+            ProviderProvider.setProvider(Provider)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 
@@ -38,12 +41,16 @@ export default class Ocean {
 
         // generate an id
         const assetId = await market.generateId(asset.name + asset.description)
-        Logger.log(`Registering: ${assetId} with price ${asset.price}`)
+        Logger.log(`Registering: ${assetId} with price ${asset.price} for ${asset.publisher.getId()}`)
         asset.setId(assetId)
+        const isAssetActive = await market.isAssetActive(assetId)
         // register asset in the market
-        const result = await market.register(asset.getId(), asset.price, asset.publisher.getId())
-        Logger.log("Registered:", assetId, "in block", result.blockNumber)
-
+        if (!isAssetActive) {
+            const result = await market.register(asset.getId(), asset.price, asset.publisher.getId())
+            Logger.log("Registered:", assetId, "in block", result.blockNumber)
+        } else {
+            throw new Error("Asset already registered")
+        }
         return assetId
     }
 
@@ -68,12 +75,11 @@ export default class Ocean {
                     const {returnValues} = event
 
                     const order: Order = new Order(
-                        await Asset.load(returnValues._resourceId),
+                        null,
                         parseInt(returnValues._timeout, 10),
                         null, null)
 
                     order.setId(returnValues._id)
-                    order.setStatus(await auth.getOrderStatus(returnValues._id))
                     order.setPaid(await market.verifyOrderPayment(returnValues._id))
 
                     return order

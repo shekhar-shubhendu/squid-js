@@ -1,12 +1,13 @@
 import Event from "web3"
 import Contract from "web3-eth-contract"
+import Logger from "../utils/Logger"
 import ContractHandler from "./ContractHandler"
 
 export default abstract class ContractWrapperBase {
 
     protected static instance = null
 
-    protected contract: Contract = null
+    private contract: Contract = null
     private contractName: string
 
     constructor(contractName) {
@@ -46,14 +47,34 @@ export default abstract class ContractWrapperBase {
         if (!this.contract.methods[name]) {
             throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
         }
-        const tx = this.contract.methods[name](...args)
-        const gas = await tx.estimateGas(args, {
-            from,
-        })
-        return tx.send({
-            from,
-            gas,
-        })
+        try {
+            const tx = this.contract.methods[name](...args)
+            const gas = await tx.estimateGas(args, {
+                from,
+            })
+            return tx.send({
+                from,
+                gas,
+            })
+        } catch (err) {
+            const argString = JSON.stringify(args, null, 2)
+            Logger.error(`Sending transaction ${name} on contract ${this.contractName} failed.`)
+            Logger.error(`Args: ${argString} From: ${from}`)
+            throw err
+        }
+    }
+
+    protected async call(name: string, args: any[], from?: string) {
+        if (!this.contract.methods[name]) {
+            throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
+        }
+        try {
+            const method = this.contract.methods[name](...args)
+            return method.call(from ? {from} : null)
+        } catch (err) {
+            Logger.error(`Calling method ${name} on contract ${this.contractName} failed. Args: ${args}`, err)
+            throw err
+        }
     }
 
 }

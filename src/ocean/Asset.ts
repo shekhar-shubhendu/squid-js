@@ -1,29 +1,16 @@
 import * as EthCrypto from "eth-crypto"
-import EthEcies from "eth-ecies"
+import * as EthEcies from "eth-ecies"
 import * as EthjsUtil from "ethereumjs-util"
-import JWT from "jsonwebtoken"
+import * as JWT from "jsonwebtoken"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
+import ProviderProvider from "../provider/ProviderProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import OceanBase from "./OceanBase"
 import Order from "./Order"
 
-declare var fetch
-
 export default class Asset extends OceanBase {
-
-    public static async load(assetId): Promise<Asset> {
-        const {market} = await Keeper.getInstance()
-
-        const asset = new Asset("unknown", "unknown",
-            await market.getAssetPrice(assetId),
-            new Account(await market.getAssetPublisher(assetId)))
-
-        asset.setId(assetId)
-
-        return asset
-    }
 
     constructor(public name: string,
                 public description: string,
@@ -37,7 +24,7 @@ export default class Asset extends OceanBase {
         return market.isAssetActive(this.getId())
     }
 
-    public async purchase(account: Account, timeout: number): Promise<Order> {
+    public async purchase(consumer: Account, timeout: number): Promise<Order> {
         const {token, market, auth} = await Keeper.getInstance()
 
         const key = EthCrypto.createIdentity()
@@ -53,7 +40,7 @@ export default class Asset extends OceanBase {
         try {
             const marketAddr = market.getAddress()
             // Allow market contract to transfer funds on the consumer"s behalf
-            await token.approve(marketAddr, price, account.getId())
+            await token.approve(marketAddr, price, consumer.getId())
             Logger.log(`${price} tokens approved on market with id: ${marketAddr}`)
         } catch (err) {
             Logger.error("token.approve failed", err)
@@ -62,7 +49,7 @@ export default class Asset extends OceanBase {
         try {
             // Submit the access request
             const initiateAccessRequestReceipt = await auth.initiateAccessRequest(this,
-                publicKey, timeout, account.getId())
+                publicKey, timeout, consumer.getId())
 
             const {returnValues} = initiateAccessRequestReceipt.events.AccessConsentRequested
             Logger.log(`Keeper AccessConsentRequested event received on asset: ${this.getId()}`)
@@ -73,91 +60,44 @@ export default class Asset extends OceanBase {
         }
 
         return order
-        if (false) {
-            // todo: AccessRequestCommitted event is not emitted in this flow
-            await auth.listenToEventOnce(
-                "AccessRequestCommitted", {
-                    filter: {
-                        _id: order.getId(),
-                    },
-                })
-                .then((accessRequestCommittedResult) => {
-                    Logger.log("Got AccessRequestCommitted Event")
-
-                    return order.pay(account)
-                })
-                .then((payAssetReceipt) => {
-                    return auth.listenToEventOnce(
-                        "EncryptedTokenPublished", {
-                            filter: {
-                                _id: order.getId(),
-                            },
-                        })
-                })
-                .then((encryptedTokenPublishedResult) => {
-                    Logger.log("Got EncryptedTokenPublished Event")
-
-                    const {returnValues} = encryptedTokenPublishedResult
-
-                    return this.finalizePurchaseAsset(
-                        returnValues._id, order, key, account,
-                    )
-                })
-        }
     }
 
-    public async finalizePurchaseAsset(accessId: string, order: Order, key: any, account: Account): Promise<Order> {
+    public async consume(order: Order, consumer: Account): Promise<string> {
         const {auth} = await Keeper.getInstance()
 
-        const encryptedAccessToken = await auth.getEncryptedAccessToken(accessId, this.getId())
+        const encryptedAccessToken = await auth.getEncryptedAccessToken(order.getId(), consumer.getId())
 
         // grab the access token from acl contract
         const tokenNo0x = encryptedAccessToken.slice(2)
         const encryptedTokenBuffer = Buffer.from(tokenNo0x, "hex")
 
-        const privateKey = key.privateKey.slice(2)
-        const accessTokenEncoded = EthEcies.Decrypt(Buffer.from(privateKey, "hex"), encryptedTokenBuffer)
+        const privateKey = order.getKey().privateKey.slice(2)
+        const accessTokenEncoded: string =
+            EthEcies.decrypt(Buffer.from(privateKey, "hex"), encryptedTokenBuffer).toString()
         const accessToken = JWT.decode(accessTokenEncoded) // Returns a json object
 
-        // sign it
-        const hexEncrToken = `0x${encryptedTokenBuffer.toString("hex")}`
+        if (!accessToken) {
+            throw new Error(`AccessToken is not an jwt: ${accessTokenEncoded}`)
+        }
 
-        const signature = Web3Provider.getWeb3().eth.sign(account.getId(), hexEncrToken)
-        const fixedMsgSha = Web3Provider.getWeb3().utils.sha3(encryptedAccessToken)
+        const signature = Web3Provider.getWeb3().eth.sign(encryptedAccessToken, consumer.getId())
+        const encryptedAccessTokenSha3 = Web3Provider.getWeb3().utils.sha3(encryptedAccessToken)
 
         // Download the data set from the provider using the url in the access token
         // decode the access token, grab the service_endpoint, request_id,
 
         // payload keys: ['consumerId', 'fixed_msg', 'sigEncJWT', 'jwt']
         const payload = JSON.stringify({
-            consumerId: account.getId(),
-            fixed_msg: fixedMsgSha,
+            consumerId: consumer.getId(),
+            fixed_msg: encryptedAccessTokenSha3,
             sigEncJWT: signature,
             jwt: accessTokenEncoded,
         })
-        const accessUrl = await fetch(`${accessToken.service_endpoint}/${accessToken.resource_id}`, {
-            method: "POST",
-            body: payload,
-            headers: {
-                "Content-type": "application/json",
-            },
-        })
-            .then((response: any) => {
-                if (response.ok) {
-                    return response.text()
-                }
-                Logger.log("Failed: ", response.status, response.statusText)
-            })
-            .then((consumptionUrl: string) => {
-                Logger.log("Success accessing consume endpoint: ", consumptionUrl)
-                return consumptionUrl
-            })
-            .catch((error) => {
-                Logger.error("Error fetching the data asset consumption url: ", error)
-            })
-        Logger.log("consume url: ", accessUrl)
-        order.setAccessUrl(accessUrl)
 
-        return order
+        const accessUrl = await ProviderProvider.getProvider().getAccessUrl(accessToken, payload)
+
+        Logger.log("consume url: ", accessUrl)
+
+        return accessUrl
     }
 }

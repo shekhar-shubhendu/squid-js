@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import ConfigProvider from "../ConfigProvider"
 import ContractBaseWrapper from "./ContractWrapperBase"
 
 export default class OceanToken extends ContractBaseWrapper {
@@ -12,16 +11,11 @@ export default class OceanToken extends ContractBaseWrapper {
     }
 
     public async approve(marketAddress: string, price: number, buyerAddress: string): Promise<Receipt> {
-        return this.contract.methods.approve(marketAddress, price)
-            .send({
-                from: buyerAddress,
-                gas: ConfigProvider.getConfig().defaultGas,
-            })
+        return this.sendTransaction("approve", buyerAddress, [marketAddress, price])
     }
 
     public async balanceOf(address: string): Promise<number> {
-        return this.contract.methods.balanceOf(address)
-            .call()
+        return this.call("balanceOf", [address])
             .then((balance: string) => new BigNumber(balance).toNumber())
     }
 }

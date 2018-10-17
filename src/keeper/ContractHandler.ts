@@ -8,7 +8,13 @@ const contracts: Map<string, Contract> = new Map<string, Contract>()
 export default class ContractHandler {
 
     public static async get(what: string): Contract {
-        return contracts.get(what) || await ContractHandler.load(what)
+        const where = (await (await Keeper.getInstance()).getNetworkName()).toLowerCase()
+        try {
+            return contracts.get(what) || await ContractHandler.load(what, where)
+        } catch (err) {
+            Logger.error("Failed to load", what, "from", where, err)
+            throw err
+        }
     }
 
     public static async deployContracts() {
@@ -48,21 +54,21 @@ export default class ContractHandler {
         })
     }
 
-    private static async load(what: string): Promise<Contract> {
+    private static async load(what: string, where: string): Promise<Contract> {
         const web3 = Web3Provider.getWeb3()
-        const where = (await (await Keeper.getInstance()).getNetworkName()).toLowerCase()
-        Logger.log("Loading", what, "from", where)
-        try {
-            const artifact = require(`@oceanprotocol/keeper-contracts/artifacts/${what}.${where}`)
-            // Logger.log('Loaded artifact', artifact)
-            // Logger.log("Getting instance of", what, "from", where, "at", artifact.address)
-            const contract = new web3.eth.Contract(artifact.abi, artifact.address)
-            Logger.log("Loaded", what, "from", where)
-            contracts.set(what, contract)
-            return contracts.get(what)
-        } catch (err) {
-            Logger.error("Failed to load", what, "from", where, err)
+        // Logger.log("Loading", what, "from", where)
+        const artifact = require(`@oceanprotocol/keeper-contracts/artifacts/${what}.${where}`)
+        // Logger.log('Loaded artifact', artifact)
+        const code = await web3.eth.getCode(artifact.address)
+        if (code === "0x0") {
+            // no code in the blockchain dude
+            throw new Error(`No code deployed at address ${artifact.address}, sorry.`)
         }
+        // Logger.log("Getting instance of", what, "from", where, "at", artifact.address)
+        const contract = new web3.eth.Contract(artifact.abi, artifact.address)
+        Logger.log("Loaded", what, "from", where)
+        contracts.set(what, contract)
+        return contracts.get(what)
     }
 
     private static replaceTokens(bytecode: string, tokens: any[]) {

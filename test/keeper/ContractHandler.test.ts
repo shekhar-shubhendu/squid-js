@@ -13,7 +13,7 @@ describe("ContractHandler", () => {
     describe("#get()", () => {
 
         it("should load and get OceanToken correctly", async () => {
-            assert(await ContractHandler.get("OceanTokewn") !== null)
+            assert(await ContractHandler.get("OceanToken") !== null)
         })
 
     })
