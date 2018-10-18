@@ -2,9 +2,9 @@ import {Receipt} from "web3-utils"
 import AccessStatus from "../models/AccessStatus"
 import Asset from "../ocean/Asset"
 import Order from "../ocean/Order"
-import ContractBaseWrapper from "./ContractWrapperBase"
+import ContractBase from "./ContractBase"
 
-export default class OceanAuth extends ContractBaseWrapper {
+export default class OceanAuth extends ContractBase {
 
     public static async getInstance(): Promise<OceanAuth> {
         const auth: OceanAuth = new OceanAuth("OceanAuth")

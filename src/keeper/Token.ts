@@ -1,8 +1,8 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import ContractBaseWrapper from "./ContractWrapperBase"
+import ContractBase from "./ContractBase"
 
-export default class OceanToken extends ContractBaseWrapper {
+export default class OceanToken extends ContractBase {
 
     public static async getInstance(): Promise<OceanToken> {
         const token: OceanToken = new OceanToken("OceanToken")

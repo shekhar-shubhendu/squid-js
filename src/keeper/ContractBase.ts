@@ -3,7 +3,7 @@ import Contract from "web3-eth-contract"
 import Logger from "../utils/Logger"
 import ContractHandler from "./ContractHandler"
 
-export default abstract class ContractWrapperBase {
+export default abstract class ContractBase {
 
     protected static instance = null
 
@@ -14,6 +14,7 @@ export default abstract class ContractWrapperBase {
         this.contractName = contractName
     }
 
+    /*
     public async listenToEventOnce(eventName: string, options: any): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             if (!this.contract.events[eventName]) {
@@ -27,6 +28,7 @@ export default abstract class ContractWrapperBase {
                 })
         })
     }
+    */
 
     public async getEventData(eventName: any, options: any): Promise<Event[]> {
         if (!this.contract.events[eventName]) {

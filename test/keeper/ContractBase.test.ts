@@ -1,9 +1,9 @@
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import config from "../config"
-import ContractWrapperBaseMock from "../mocks/ContractWrapperBase.Mock"
+import ContractBaseMock from "../mocks/ContractBase.Mock"
 
-const wrappedContract = new ContractWrapperBaseMock("OceanToken")
+const wrappedContract = new ContractBaseMock("OceanToken")
 
 before(async () => {
     ConfigProvider.configure(config)

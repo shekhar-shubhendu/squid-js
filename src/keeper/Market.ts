@@ -1,9 +1,9 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
 import Order from "../ocean/Order"
-import ContractWrapperBase from "./ContractWrapperBase"
+import ContractBase from "./ContractBase"
 
-export default class OceanMarket extends ContractWrapperBase {
+export default class OceanMarket extends ContractBase {
 
     public static async getInstance(): Promise<OceanMarket> {
         const market: OceanMarket = new OceanMarket("OceanMarket")

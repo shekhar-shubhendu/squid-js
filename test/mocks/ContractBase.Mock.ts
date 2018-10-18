@@ -1,6 +1,6 @@
-import ContractWrapperBase from "../../src/keeper/ContractWrapperBase"
+import ContractBase from "../../src/keeper/ContractBase"
 
-export default class ContractWrapperBaseMock extends ContractWrapperBase {
+export default class ContractBaseMock extends ContractBase {
     public async initMock() {
         this.init()
     }
