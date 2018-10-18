@@ -1,16 +1,38 @@
 {
   "name": "@oceanprotocol/squid",
-  "version": "0.0.12",
+  "version": "0.1.0-beta.16",
   "description": "JavaScript client library for Ocean Protocol",
   "main": "dist/squid.js",
   "scripts": {
-    "test": "tslint -c tslint.json 'src/**/*.ts'",
-    "start": "tsc -w",
-    "build": "tsc",
+    "test": "mocha",
+    "test:watch": "mocha -w --watch-extensions js,ts",
+    "test:cover": "nyc mocha",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "start": "npm link @oceanprotocol/keeper-contracts && npm run build:watch",
+    "build": "npm run lint && tsc && npm run doc",
+    "build:watch": "tsc -w",
+    "doc": "typedoc --mode modules --out ./doc/ src/",
     "release": "./node_modules/release-it/bin/release-it.js --src.tagName='v%s' --github.release --npm.publish --non-interactive",
     "release-minor": "./node_modules/release-it/bin/release-it.js minor --src.tagName='v%s' --github.release --npm.publish --non-interactive",
     "release-major": "./node_modules/release-it/bin/release-it.js major --src.tagName='v%s' --github.release --npm.publish --non-interactive",
     "prepublishOnly": "npm run build"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   },
   "repository": {
     "type": "git",
@@ -23,18 +45,31 @@
     "url": "https://github.com/oceanprotocol/squid-js/issues"
   },
   "homepage": "https://github.com/oceanprotocol/squid-js#readme",
-  "dependencies": {
-    "@oceanprotocol/keeper-contracts": "^0.2.0",
-    "bignumber.js": "^7.2.1",
-    "truffle-contract": "^3.0.6",
-    "web3": "0.20.6"
-  },
   "engines": {
     "node": ">=8 <10"
   },
+  "dependencies": {
+    "@oceanprotocol/keeper-contracts": "^0.3.3",
+    "bignumber.js": "^7.2.1",
+    "eth-crypto": "^1.2.4",
+    "eth-ecies": "^1.0.3",
+    "ethereumjs-util": "^6.0.0",
+    "jsonwebtoken": "^8.3.0",
+    "node-fetch": "^2.2.0",
+    "web3": "1.0.0-beta.36",
+    "web3-utils": "1.0.0-beta.36"
+  },
   "devDependencies": {
-    "@types/web3": "^1.0.6",
+    "@types/chai": "^4.1.6",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^8.10.36",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "source-map-support": "^0.5.9",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.3"
+    "typedoc": "^0.13.0",
+    "typescript": "^3.1.3"
   }
 }

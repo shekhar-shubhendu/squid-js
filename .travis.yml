@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- "8"
+- "10"
 
 services:
 - docker
@@ -13,18 +13,21 @@ matrix:
   fast_finish: true
 
 before_install:
-  - npm install -g npm
-  - npm install -g release-it greenkeeper-lockfile
+- npm install -g npm
+- npm install -g release-it greenkeeper-lockfile ganache-cli
 
 before_script:
-  - greenkeeper-lockfile-update
+- greenkeeper-lockfile-update
+- ganache-cli > ganache-cli.log &
+- sleep 2
 
 script:
-  - npm test
-  - npm run build
+- npm run test:cover
+- npm run build
+- npm run doc
 
 after_script:
-  - greenkeeper-lockfile-upload
+- greenkeeper-lockfile-upload
 
 notifications:
   email: false
