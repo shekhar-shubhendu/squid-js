@@ -1,5 +1,5 @@
-import * as assert from "assert"
-import OceanBase from "./OceanBaseMock"
+import {assert} from "chai"
+import OceanBaseMock from "../mocks/OceanBase.Mock"
 
 describe("OceanBase", () => {
 
@@ -8,7 +8,7 @@ describe("OceanBase", () => {
         it("should get the id", async () => {
 
             const id = "test"
-            const oceanBase = new OceanBase(id)
+            const oceanBase = new OceanBaseMock(id)
 
             assert(oceanBase.getId() === id)
         })
@@ -20,7 +20,7 @@ describe("OceanBase", () => {
         it("should get the id", async () => {
 
             const id = "test"
-            const oceanBase = new OceanBase()
+            const oceanBase = new OceanBaseMock()
             oceanBase.setId(id)
 
             assert(oceanBase.getId() === id)

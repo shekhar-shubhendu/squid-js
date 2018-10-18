@@ -1,4 +1,4 @@
-import * as assert from "assert"
+import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
@@ -7,7 +7,7 @@ import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import ProviderProvider from "../../src/provider/ProviderProvider"
 import config from "../config"
-import MockProvider from "../MockProvider"
+import ProviderMock from "../mocks/Provider.Mock"
 
 const testName = "Test Asset 2"
 const testDescription = "This asset is pure owange"
@@ -22,7 +22,7 @@ let testPublisher: Account
 
 before(async () => {
     ConfigProvider.configure(config)
-    ProviderProvider.setProvider(MockProvider)
+    ProviderProvider.setProvider(ProviderMock)
 
     await ContractHandler.deployContracts()
     ocean = await Ocean.getInstance(config)

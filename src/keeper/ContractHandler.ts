@@ -25,12 +25,12 @@ export default class ContractHandler {
         const deployerAddress = (await web3.eth.getAccounts())[0]
 
         // deploy libs
-        const dll = await ContractHandler.deployContract(web3, "DLL", deployerAddress)
-        const attributeStore = await ContractHandler.deployContract(web3, "AttributeStore", deployerAddress)
+        const dll = await ContractHandler.deployContract("DLL", deployerAddress)
+        const attributeStore = await ContractHandler.deployContract("AttributeStore", deployerAddress)
 
         // deploy contracts
-        const token = await ContractHandler.deployContract(web3, "OceanToken", deployerAddress)
-        const plcrVoting = await ContractHandler.deployContract(web3, "PLCRVoting", deployerAddress, {
+        const token = await ContractHandler.deployContract("OceanToken", deployerAddress)
+        const plcrVoting = await ContractHandler.deployContract("PLCRVoting", deployerAddress, {
             args: [token.options.address],
             tokens: [
                 {
@@ -40,16 +40,16 @@ export default class ContractHandler {
                 },
             ],
         })
-        const registry = await ContractHandler.deployContract(web3, "OceanRegistry", deployerAddress, {
+        const registry = await ContractHandler.deployContract("OceanRegistry", deployerAddress, {
             args: [token.options.address, plcrVoting.options.address],
         })
-        const market = await ContractHandler.deployContract(web3, "OceanMarket", deployerAddress, {
+        const market = await ContractHandler.deployContract("OceanMarket", deployerAddress, {
             args: [token.options.address, registry.options.address],
         })
-        const dispute = await ContractHandler.deployContract(web3, "OceanDispute", deployerAddress, {
+        const dispute = await ContractHandler.deployContract("OceanDispute", deployerAddress, {
             args: [market.options.address, registry.options.address, plcrVoting.options.address],
         })
-        await ContractHandler.deployContract(web3, "OceanAuth", deployerAddress, {
+        await ContractHandler.deployContract("OceanAuth", deployerAddress, {
             args: [market.options.address, dispute.options.address],
         })
     }
@@ -84,12 +84,14 @@ export default class ContractHandler {
         return bytecode.toString()
     }
 
-    private static async deployContract(web3, name, from, params?): Promise<Contract> {
+    private static async deployContract(name: string, from: string, params?): Promise<Contract> {
 
         // dont redeploy if there is already something loaded
         if (contracts.has(name)) {
             return contracts.get(name)
         }
+
+        const web3 = Web3Provider.getWeb3()
 
         let contractInstance: Contract
         try {

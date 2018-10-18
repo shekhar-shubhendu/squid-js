@@ -1,4 +1,4 @@
-import * as assert from "assert"
+import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
