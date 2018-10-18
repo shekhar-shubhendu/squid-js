@@ -33,7 +33,7 @@
 Start by adding the package to your dependencies:
 
 ```bash
-npm i @oceanprotocol/squid
+npm i @oceanprotocol/squid --save
 ```
 
 The package exposes `Ocean` and `Logger` which you can import in your code like this:
