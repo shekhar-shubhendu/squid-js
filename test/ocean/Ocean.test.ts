@@ -29,6 +29,17 @@ before(async () => {
 
 describe("Ocean", () => {
 
+    describe("#getInstance()", () => {
+
+        it("should list accounts", async () => {
+
+            const ocn = Ocean.getInstance(config)
+
+            assert(ocn)
+        })
+
+    })
+
     describe("#getAccounts()", () => {
 
         it("should list accounts", async () => {
@@ -51,6 +62,7 @@ describe("Ocean", () => {
             assert(assetId.length === 66)
             assert(assetId.startsWith("0x"))
         })
+
     })
 
     describe("#getOrdersByConsumer()", () => {
@@ -63,7 +75,7 @@ describe("Ocean", () => {
             await ocean.register(asset)
 
             const order: Order = await asset.purchase(testConsumer, timeout)
-            const orders = await ocean.getOrdersByConsumer(testConsumer)
+            const orders = await ocean.getOrdersByAccount(testConsumer)
 
             assert(orders.length === 1)
             assert(orders[0].getId() === order.getId())

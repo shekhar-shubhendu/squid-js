@@ -23,9 +23,9 @@ describe("Account", () => {
 
         it("should get initial ocean balance", async () => {
 
-            const balance = await accounts[0].getOceanBalance()
+            const balance = await accounts[8].getOceanBalance()
 
-            assert(0 === balance)
+            assert(0 === balance, `Expected 0 got ${balance}`)
         })
 
         it("should get the correct balance", async () => {
@@ -44,7 +44,7 @@ describe("Account", () => {
         it("should get initial ether balance", async () => {
 
             const account: Account = accounts[9]
-            const balance = await account.getEthBalance()
+            const balance = await account.getEtherBalance()
             const web3 = Web3Provider.getWeb3()
 
             assert(Number(web3.utils.toWei("100", "ether")) === balance)
@@ -61,6 +61,18 @@ describe("Account", () => {
 
             assert(Number(web3.utils.toWei("100", "ether")) === balance.eth)
             assert(0 === balance.ocn)
+        })
+    })
+
+    describe("#requestTokens()", () => {
+
+        it("should return the amount of tokens granted", async () => {
+
+            const tokens = 500
+            const account: Account = accounts[0]
+            const tokensGranted: number = await account.requestTokens(tokens)
+
+            assert(tokensGranted === tokens)
         })
     })
 })

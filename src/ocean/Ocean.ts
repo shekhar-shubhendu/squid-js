@@ -54,8 +54,8 @@ export default class Ocean {
         return assetId
     }
 
-    public async getOrdersByConsumer(consumer: Account): Promise<Order[]> {
-        const {auth, market} = this.keeper
+    public async getOrdersByAccount(consumer: Account): Promise<Order[]> {
+        const {auth} = this.keeper
 
         Logger.log("Getting orders")
 
@@ -80,7 +80,6 @@ export default class Ocean {
                         null, null)
 
                     order.setId(returnValues._id)
-                    order.setPaid(await market.verifyOrderPayment(returnValues._id))
 
                     return order
                 }),

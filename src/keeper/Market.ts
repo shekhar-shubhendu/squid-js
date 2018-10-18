@@ -38,9 +38,10 @@ export default class OceanMarket extends ContractWrapperBase {
     }
 
     public async payOrder(order: Order, publisherAddress: string,
-                          price: number, consumerAddress: string): Promise<Receipt> {
+                          price: number, consumerAddress: string,
+                          timeout: number): Promise<Receipt> {
         return this.sendTransaction("sendPayment", consumerAddress, [
-            order.getId(), publisherAddress, price, order.getTimeout(),
+            order.getId(), publisherAddress, price, timeout,
         ])
     }
 }

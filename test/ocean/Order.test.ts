@@ -12,7 +12,7 @@ const testName = "Order Test Asset"
 const testDescription = "This asset is pure owange"
 const testPrice = 100
 const timeout = 1000000
-const accessToken = "eyJhbGciOiJIUzI1"
+const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1Mzk3ODcxMDEsImV4cCI6NDcyNjk5NjcwNCwiYXVkIjoiIiwic3ViIjoiIiwic2VydmljZV9lbmRwb2ludCI6Imh0dHA6Ly9hZGFzZCIsInJlc291cmNlX2lkIjoiMTIzNDUifQ.2H3TRC3CAToVE9divSckwHi_HNvgOHKrtJPo8128qrKBHTk7YYb0UNfVCuYqwhGR"
 
 let ocean: Ocean
 let testAsset: Asset
@@ -83,4 +83,19 @@ describe("Order", () => {
         })
     })
 
+    describe("#consume()", () => {
+
+        it("should consume an asset", async () => {
+            const consumerAccount = accounts[5]
+            await consumerAccount.requestTokens(testAsset.price)
+            // place order - consumer
+            const order: Order = await testAsset.purchase(consumerAccount, timeout)
+            // commit order - provider
+            await order.commit(accessToken)
+            // pay order - consumer
+            await order.pay(consumerAccount)
+            const url = await order.consume(consumerAccount)
+            assert(url)
+        })
+    })
 })
