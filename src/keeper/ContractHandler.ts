@@ -25,11 +25,13 @@ export default class ContractHandler {
         const deployerAddress = (await web3.eth.getAccounts())[0]
 
         // deploy libs
+        /* not part of trilobite
         const dll = await ContractHandler.deployContract("DLL", deployerAddress)
         const attributeStore = await ContractHandler.deployContract("AttributeStore", deployerAddress)
-
+        */
         // deploy contracts
         const token = await ContractHandler.deployContract("OceanToken", deployerAddress)
+        /* not part of trilobite
         const plcrVoting = await ContractHandler.deployContract("PLCRVoting", deployerAddress, {
             args: [token.options.address],
             tokens: [
@@ -40,17 +42,21 @@ export default class ContractHandler {
                 },
             ],
         })
+        /* not part of trilobite
         const registry = await ContractHandler.deployContract("OceanRegistry", deployerAddress, {
             args: [token.options.address, plcrVoting.options.address],
         })
+        */
         const market = await ContractHandler.deployContract("OceanMarket", deployerAddress, {
-            args: [token.options.address, registry.options.address],
+            args: [token.options.address],
         })
+        /* not part of trilobite
         const dispute = await ContractHandler.deployContract("OceanDispute", deployerAddress, {
             args: [market.options.address, registry.options.address, plcrVoting.options.address],
         })
+        */
         await ContractHandler.deployContract("OceanAuth", deployerAddress, {
-            args: [market.options.address, dispute.options.address],
+            args: [market.options.address],
         })
     }
 
@@ -71,6 +77,7 @@ export default class ContractHandler {
         return contracts.get(what)
     }
 
+    // todo: reactivate for tethys
     private static replaceTokens(bytecode: string, tokens: any[]) {
 
         for (const token of tokens) {
