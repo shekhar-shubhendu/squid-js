@@ -9,7 +9,7 @@
     "test:cover": "nyc mocha",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start": "npm link @oceanprotocol/keeper-contracts && npm run build:watch",
-    "build": "npm run lint && tsc",
+    "build": "npm run lint && tsc && npm run doc",
     "build:watch": "tsc -w",
     "doc": "typedoc --mode modules --out ./doc/ src/",
     "release": "./node_modules/release-it/bin/release-it.js --src.tagName='v%s' --github.release --npm.publish --non-interactive",
