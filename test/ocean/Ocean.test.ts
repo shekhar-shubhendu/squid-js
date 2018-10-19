@@ -17,17 +17,17 @@ const description = "This asset is pure owange"
 const price = 100
 const timeout = 100000000
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-    accounts = await ocean.getAccounts()
-
-    testPublisher = accounts[0]
-    testAsset = new Asset(name, description, price, testPublisher)
-})
-
 describe("Ocean", () => {
+
+    before(async () => {
+        ConfigProvider.configure(config)
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
+
+        testPublisher = accounts[0]
+        testAsset = new Asset(name, description, price, testPublisher)
+    })
 
     describe("#getInstance()", () => {
 

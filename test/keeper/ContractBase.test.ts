@@ -5,13 +5,13 @@ import ContractBaseMock from "../mocks/ContractBase.Mock"
 
 const wrappedContract = new ContractBaseMock("OceanToken")
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    wrappedContract.initMock()
-})
+describe("ContractBase", () => {
 
-describe("ContractWrapperBase", () => {
+    before(async () => {
+        ConfigProvider.configure(config)
+        await ContractHandler.deployContracts()
+        wrappedContract.initMock()
+    })
 
     describe("#call()", () => {
 

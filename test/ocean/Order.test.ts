@@ -20,19 +20,19 @@ let accounts: Account[]
 let testPublisher: Account
 let testConsumer: Account
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-    accounts = await ocean.getAccounts()
-    testPublisher = accounts[0]
-    testConsumer = accounts[1]
-    // register an asset to play around with
-    testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
-    await ocean.register(testAsset)
-})
-
 describe("Order", () => {
+
+    before(async () => {
+        ConfigProvider.configure(config)
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
+        testPublisher = accounts[0]
+        testConsumer = accounts[1]
+        // register an asset to play around with
+        testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
+        await ocean.register(testAsset)
+    })
 
     describe("#pay()", async () => {
 

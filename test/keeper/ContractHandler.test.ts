@@ -3,12 +3,12 @@ import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import config from "../config"
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-})
-
 describe("ContractHandler", () => {
+
+    before(async () => {
+        ConfigProvider.configure(config)
+        await ContractHandler.deployContracts()
+    })
 
     describe("#get()", () => {
 
