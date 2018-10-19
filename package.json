@@ -54,6 +54,7 @@
     "eth-crypto": "^1.2.4",
     "eth-ecies": "^1.0.3",
     "ethereumjs-util": "^6.0.0",
+    "jayson": "^2.1.0",
     "jsonwebtoken": "^8.3.0",
     "node-fetch": "^2.2.0",
     "web3": "1.0.0-beta.36",
