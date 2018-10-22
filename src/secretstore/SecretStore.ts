@@ -1,4 +1,5 @@
-import Logger from "../utils/Logger"
+import GeneratedKey from "./keys/GeneratedKey"
+import RetrievedKey from "./keys/RetrievedKey"
 import ParityClient from "./ParityClient"
 import SecretStoreClient from "./SecretStoreClient"
 
@@ -13,53 +14,77 @@ export default class SecretStore {
             url: config.parityUrl, address: config.address,
             password: config.password,
         })
-        this.secretStoreClient = new SecretStoreClient(config.secretStoreUrl)
+        this.secretStoreClient = new SecretStoreClient({url: config.secretStoreUrl})
     }
 
-    public async generateServerKey(serverKeyId: string): Promise<string> {
+    public async encryptDocument(serverKeyId: string, document: any): Promise<string> {
+        const serverKey = await this.generateServerKey(serverKeyId)
 
+        // generate document key
+        const documentKey: GeneratedKey = await this.generateDocumentKey(serverKey)
+
+        // store the document key in secret store
+        await this.storeDocumentKey(serverKeyId, documentKey)
+
+        // encrypt document
+        const encryptedDocument =
+            await this.partiyClient.encryptDocument(documentKey.encryptedKey, document)
+        return encryptedDocument
+    }
+
+    public async decryptDocument(serverkeyId: string, encryptedDocument: string): Promise<any> {
+
+        // get document key from secret store
+        const documentKey: RetrievedKey = await this.retrieveDocumentKey(serverkeyId)
+
+        const decryptDocument: any = await this.partiyClient.decryptDocument(
+            documentKey.decryptedSecret, documentKey.commonPoint,
+            documentKey.decryptShadows, encryptedDocument)
+
+        return decryptDocument
+    }
+
+    private async generateServerKey(serverKeyId: string): Promise<string> {
+
+        // sign server key id
         const serverKeyIdSig = await this.partiyClient.signKeyId(serverKeyId)
 
-        Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
+        // Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
 
-        const key = await this.secretStoreClient.generateServerKey(serverKeyId, serverKeyIdSig)
+        // generate server key
+        const serverKey = await this.secretStoreClient.generateServerKey(serverKeyId, serverKeyIdSig)
 
-        Logger.log("key:", key)
-
-        return key
+        return serverKey
     }
 
-    public async storeDocumentKey(serverKeyId: string, documentKeyId): Promise<string> {
-
-        const serverKeyIdSig = await this.partiyClient.signKeyId(serverKeyId)
-        Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
-        const serverKey = await this.secretStoreClient.generateServerKey(
-            serverKeyId, serverKeyIdSig)
-        Logger.log("key:", serverKey)
-
-        const documentKey = this.partiyClient.generateDocumentKeyFromKey(serverKey)
-
-        return documentKey
+    private async generateDocumentKey(serverKey: string): Promise<GeneratedKey> {
+        // generate document key from server key
+        const documentKeys: GeneratedKey = await this.partiyClient.generateDocumentKeyFromKey(serverKey)
+        return documentKeys
     }
 
-    public async retrieveDocumentKey(serverKeyId: string): Promise<string> {
+    private async storeDocumentKey(serverKeyId: string, documentKeys: GeneratedKey): Promise<boolean> {
 
+        // sign server key id
         const serverKeyIdSig = await this.partiyClient.signKeyId(serverKeyId)
 
-        Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
+        // store document key in secret store
+        await this.secretStoreClient.storeDocumentKey(serverKeyId, serverKeyIdSig,
+            documentKeys.commonPoint, documentKeys.encryptedPoint)
 
-        const key = await this.secretStoreClient.retrieveDocumentKey(serverKeyId, serverKeyIdSig)
-
-        Logger.log("key:", key)
-
-        return key
+        return true
     }
 
-    public encryptDocument(document: string) {
-    }
+    private async retrieveDocumentKey(serverKeyId: string): Promise<RetrievedKey> {
 
-    public decryptDocument(encryptedDocument: string) {
+        // sign server key id
+        const serverKeyIdSig = await this.partiyClient.signKeyId(serverKeyId)
 
+        // Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
+
+        // retrieve document key from secret store
+        const documentKeys: RetrievedKey = await this.secretStoreClient.retrieveDocumentKey(serverKeyId, serverKeyIdSig)
+        return documentKeys
     }
 
 }

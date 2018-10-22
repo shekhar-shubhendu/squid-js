@@ -11,6 +11,13 @@ ConfigProvider.configure({
     nodeUri: parityUrl,
 } as Config)
 
+const testDocument = {
+    so: "ocean",
+    soWow: true,
+    many: "text is nice to have",
+    i: "blow up this document with blind text",
+}
+
 const address = "0xa50f397644973dba99624404b2894825840aa03b"
 const password = "unittest"
 
@@ -29,24 +36,28 @@ function generateRandomId(): string {
 
 describe("SecretStore", () => {
 
-    describe("#generateServerKey()", () => {
-        it("should generate Server key", async () => {
+    describe("#encryptDocument()", () => {
+        it("should encrypt an document", async () => {
 
             const serverKeyId = generateRandomId()
-            const serverKey = await secretStore.generateServerKey(serverKeyId)
 
-            assert(serverKey)
+            const encryptedDocument = await secretStore.encryptDocument(serverKeyId, testDocument)
+            assert(encryptedDocument)
         })
     })
 
-    describe("#storeDocumentKey()", () => {
-        it("should store Document key", async () => {
+    describe("#decryptDocument()", () => {
+        it("should decrypt an document", async () => {
 
             const serverKeyId = generateRandomId()
-            const documentKeyId = generateRandomId()
-            const documentKey = await secretStore.storeDocumentKey(serverKeyId, documentKeyId)
 
-            assert(documentKey)
+            const encryptedDocument: string = await secretStore.encryptDocument(serverKeyId, testDocument)
+            assert(encryptedDocument)
+
+            const decryptedDocument: any = await secretStore.decryptDocument(serverKeyId, encryptedDocument)
+            assert(decryptedDocument)
+
+            assert(testDocument.soWow === decryptedDocument.soWow)
         })
     })
 })

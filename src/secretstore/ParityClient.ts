@@ -2,11 +2,8 @@ import * as jayson from "jayson"
 import {Client} from "jayson"
 import {URL} from "url"
 import Logger from "../utils/Logger"
-import DocumentKeys from "./DocumentKeys"
-
-function add0xPrefix(key) {
-    return key.startsWith("0x") ? key : "0x" + key
-}
+import HexHelpler from "./HexHelpler"
+import GeneratedKey from "./keys/GeneratedKey"
 
 export default class ParityClient {
 
@@ -23,7 +20,7 @@ export default class ParityClient {
     public async signKeyId(keyId): Promise<string> {
         return this.sendJsonRpcRequest(this.rpcClient,
             "secretstore_signRawHash",
-            [this.address, this.password, add0xPrefix(keyId)])
+            [this.address, this.password, HexHelpler.add0xPrefix(keyId)])
             .then((result: string) => {
                 return result
             })
@@ -34,32 +31,36 @@ export default class ParityClient {
             "secretstore_generateDocumentKey",
             [this.address, this.password, serverKey])
             .then((result: any) => {
-                return {
+                const generatedKey = {
                     commonPoint: result.common_point,
                     encryptedKey: result.encrypted_key,
                     encryptedPoint: result.encrypted_point,
-                } as DocumentKeys
+                } as GeneratedKey
+                return generatedKey
             })
     }
 
-    public encryptDocument(encryptedKey, document: any): Promise<string> {
+    public encryptDocument(encryptedKey: string, document: any): Promise<string> {
         // `document` must be encoded in hex when sent to encryption
-        return this.sendJsonRpcRequest(this.rpcClient, "secretstore_encrypt",
-            [this.address, this.password, encryptedKey,
-                add0xPrefix(new Buffer(JSON.stringify(document)).toString("hex"))])
+        const documentString = JSON.stringify(document)
+        const documentHexed = HexHelpler.add0xPrefix(new Buffer(documentString).toString("hex"))
+        return this.sendJsonRpcRequest(this.rpcClient,
+            "secretstore_encrypt",
+            [this.address, this.password, encryptedKey, documentHexed])
             .then((result: string) => {
                 return result
             })
     }
 
     public decryptDocument(decryptedSecret: string, commonPoint: string,
-                           decryptShadows: string, encryptedDocument: string): Promise<any> {
+                           decryptShadows: string[], encryptedDocument: string): Promise<any> {
         return this.sendJsonRpcRequest(this.rpcClient,
             "secretstore_shadowDecrypt",
             [this.address, this.password, decryptedSecret,
                 commonPoint, decryptShadows, encryptedDocument])
             .then((result: string) => {
-                return result
+                const documentString = new Buffer(HexHelpler.removeLeading0xPrefix(result), "hex").toString("utf8")
+                return JSON.parse(documentString)
             })
     }
 
