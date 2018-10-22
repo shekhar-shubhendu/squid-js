@@ -8,7 +8,7 @@ const parityUrl = "http://localhost:8545"
 const ssUrl = "https://secret-store.dev-ocean.com"
 
 ConfigProvider.configure({
-    nodeUri: ssUrl,
+    nodeUri: parityUrl,
 } as Config)
 
 const address = "0xa50f397644973dba99624404b2894825840aa03b"

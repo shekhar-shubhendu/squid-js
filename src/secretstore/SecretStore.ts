@@ -9,7 +9,10 @@ export default class SecretStore {
 
     constructor(config: { secretStoreUrl: string, parityUrl: string, address: string, password: string }) {
 
-        this.partiyClient = new ParityClient(config.parityUrl, config.address, config.password)
+        this.partiyClient = new ParityClient({
+            url: config.parityUrl, address: config.address,
+            password: config.password,
+        })
         this.secretStoreClient = new SecretStoreClient(config.secretStoreUrl)
     }
 
@@ -29,18 +32,14 @@ export default class SecretStore {
     public async storeDocumentKey(serverKeyId: string, documentKeyId): Promise<string> {
 
         const serverKeyIdSig = await this.partiyClient.signKeyId(serverKeyId)
-        const documentKeyIdSig = await this.partiyClient.signKeyId(documentKeyId)
-
         Logger.log("serverKeyId:", serverKeyId, "serverKeyIdSig:", serverKeyIdSig)
+        const serverKey = await this.secretStoreClient.generateServerKey(
+            serverKeyId, serverKeyIdSig)
+        Logger.log("key:", serverKey)
 
-        const key = await this.secretStoreClient.storeDocumentKey(
-            serverKeyId, serverKeyIdSig,
-            documentKeyId, documentKeyIdSig,
-        )
+        const documentKey = this.partiyClient.generateDocumentKeyFromKey(serverKey)
 
-        Logger.log("key:", key)
-
-        return key
+        return documentKey
     }
 
     public async retrieveDocumentKey(serverKeyId: string): Promise<string> {
@@ -54,6 +53,13 @@ export default class SecretStore {
         Logger.log("key:", key)
 
         return key
+    }
+
+    public encryptDocument(document: string) {
+    }
+
+    public decryptDocument(encryptedDocument: string) {
+
     }
 
 }

@@ -2,6 +2,7 @@ import * as jayson from "jayson"
 import {Client} from "jayson"
 import {URL} from "url"
 import Logger from "../utils/Logger"
+import DocumentKeys from "./DocumentKeys"
 
 function add0xPrefix(key) {
     return key.startsWith("0x") ? key : "0x" + key
@@ -9,10 +10,14 @@ function add0xPrefix(key) {
 
 export default class ParityClient {
 
+    private address: string
+    private password: string
     private rpcClient: Client
 
-    constructor(private url: string, private address: string, private password: string) {
-        this.rpcClient = jayson.Client.http(new URL(this.url))
+    constructor(config: { url: string, address: string, password: string }) {
+        this.password = config.password
+        this.address = config.address
+        this.rpcClient = jayson.Client.http(new URL(config.url))
     }
 
     public async signKeyId(keyId): Promise<string> {
@@ -20,33 +25,35 @@ export default class ParityClient {
             "secretstore_signRawHash",
             [this.address, this.password, add0xPrefix(keyId)])
             .then((result: string) => {
-                Logger.log("fu", result)
                 return result
             })
-
     }
 
-    public generateDocumentKeyFromKey(serverKey) {
+    public async generateDocumentKeyFromKey(serverKey: string): Promise<any> {
         return this.sendJsonRpcRequest(this.rpcClient,
             "secretstore_generateDocumentKey",
             [this.address, this.password, serverKey])
-            .then((result: string) => {
-                return result
+            .then((result: any) => {
+                return {
+                    commonPoint: result.common_point,
+                    encryptedKey: result.encrypted_key,
+                    encryptedPoint: result.encrypted_point,
+                } as DocumentKeys
             })
-
     }
 
-    public encryptDocument(encryptedKey, document: string) {
+    public encryptDocument(encryptedKey, document: any): Promise<string> {
         // `document` must be encoded in hex when sent to encryption
         return this.sendJsonRpcRequest(this.rpcClient, "secretstore_encrypt",
             [this.address, this.password, encryptedKey,
-                add0xPrefix(new Buffer(document).toString("hex"))])
+                add0xPrefix(new Buffer(JSON.stringify(document)).toString("hex"))])
             .then((result: string) => {
                 return result
             })
     }
 
-    public decryptDocument(decryptedSecret, commonPoint, decryptShadows, encryptedDocument) {
+    public decryptDocument(decryptedSecret: string, commonPoint: string,
+                           decryptShadows: string, encryptedDocument: string): Promise<any> {
         return this.sendJsonRpcRequest(this.rpcClient,
             "secretstore_shadowDecrypt",
             [this.address, this.password, decryptedSecret,
@@ -58,9 +65,7 @@ export default class ParityClient {
 
     private sendJsonRpcRequest(rpcClient: Client, methodName: string, paramsList: any[]) {
         return new Promise((resolve, reject) => {
-            rpcClient.request(
-                methodName,
-                paramsList,
+            rpcClient.request(methodName, paramsList,
                 (err, response) => {
                     const error = response.error || err
                     if (error) {
@@ -68,7 +73,7 @@ export default class ParityClient {
                         Logger.error(`Method ${methodName}`)
                         return reject(error)
                     }
-                    return resolve(response.result.toString())
+                    return resolve(response.result)
                 })
         })
     }
