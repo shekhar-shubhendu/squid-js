@@ -5,10 +5,10 @@
   "main": "dist/squid.js",
   "scripts": {
     "test": "mocha",
-    "test:watch": "mocha -w --watch-extensions js,ts",
+    "test:watch": "mocha -w --watch-extensions js,ts,json",
     "test:cover": "nyc mocha",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "start": "npm link @oceanprotocol/keeper-contracts && npm run build:watch",
+    "start": "npm link @oceanprotocol/keeper-contracts @oceanprotocol/secret-store-client && npm run build:watch",
     "build": "npm run lint && tsc && npm run doc",
     "build:watch": "tsc -w",
     "doc": "typedoc --mode modules --out ./doc/ src/",
@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@oceanprotocol/keeper-contracts": "^0.3.3",
-    "@oceanprotocol/secret-store-client": "^0.0.2",
+    "@oceanprotocol/secret-store-client": "^0.0.3",
     "bignumber.js": "^7.2.1",
     "eth-crypto": "^1.2.4",
     "eth-ecies": "^1.0.3",
