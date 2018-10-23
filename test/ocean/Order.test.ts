@@ -7,12 +7,12 @@ import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
+import * as AccessToken from "./AccessToken.json"
 
 const testName = "Order Test Asset"
 const testDescription = "This asset is pure owange"
 const testPrice = 100
 const timeout = 1000000
-const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1Mzk3ODcxMDEsImV4cCI6NDcyNjk5NjcwNCwiYXVkIjoiIiwic3ViIjoiIiwic2VydmljZV9lbmRwb2ludCI6Imh0dHA6Ly9hZGFzZCIsInJlc291cmNlX2lkIjoiMTIzNDUifQ.2H3TRC3CAToVE9divSckwHi_HNvgOHKrtJPo8128qrKBHTk7YYb0UNfVCuYqwhGR"
 
 let ocean: Ocean
 let testAsset: Asset
@@ -41,7 +41,7 @@ describe("Order", () => {
             const order: Order = await testAsset.purchase(testConsumer, timeout)
             assert(order)
 
-            await order.commit(accessToken)
+            await order.commit(AccessToken.toString())
             await testConsumer.requestTokens(testAsset.price)
             const paymentId: string = await order.pay(testConsumer)
             assert(paymentId)
@@ -56,7 +56,7 @@ describe("Order", () => {
             const order: Order = await testAsset.purchase(testConsumer, timeout)
             assert(order)
 
-            await order.commit(accessToken)
+            await order.commit(AccessToken.toString())
         })
     })
 
@@ -76,7 +76,7 @@ describe("Order", () => {
             const order: Order = await testAsset.purchase(testConsumer, timeout)
             assert(order)
 
-            await order.commit(accessToken)
+            await order.commit(AccessToken.toString())
 
             const status: AccessStatus = await order.getStatus()
             assert(status === AccessStatus.Delivered)
@@ -91,7 +91,7 @@ describe("Order", () => {
             // place order - consumer
             const order: Order = await testAsset.purchase(consumerAccount, timeout)
             // commit order - provider
-            await order.commit(accessToken)
+            await order.commit(AccessToken.toString())
             // pay order - consumer
             await order.pay(consumerAccount)
             const url = await order.consume(consumerAccount)
