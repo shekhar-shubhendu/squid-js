@@ -1,9 +1,9 @@
 import * as EthEcies from "eth-ecies"
 import * as JWT from "jsonwebtoken"
+import AquariusProvider from "../aquarius/AquariusProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import AccessStatus from "../models/AccessStatus"
-import ProviderProvider from "../provider/ProviderProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
@@ -87,7 +87,7 @@ export default class Order extends OceanBase {
             jwt: accessTokenEncoded,
         })
 
-        const accessUrl = await ProviderProvider.getProvider().getAccessUrl(accessToken, payload)
+        const accessUrl = await AquariusProvider.getAquarius().getAccessUrl(accessToken, payload)
 
         Logger.log("consume url: ", accessUrl)
 
