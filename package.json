@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@oceanprotocol/keeper-contracts": "^0.3.3",
-    "@oceanprotocol/secret-store-client": "^0.0.3",
+    "@oceanprotocol/secret-store-client": "^0.0.4",
     "bignumber.js": "^7.2.1",
     "eth-crypto": "^1.2.4",
     "eth-ecies": "^1.0.3",

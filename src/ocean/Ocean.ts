@@ -1,8 +1,10 @@
 import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
+import Config from "../models/Config"
 import Provider from "../provider/Provider"
 import ProviderProvider from "../provider/ProviderProvider"
+import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
@@ -10,10 +12,11 @@ import Order from "./Order"
 
 export default class Ocean {
 
-    public static async getInstance(config) {
+    public static async getInstance(config: Config) {
 
         if (!Ocean.instance) {
             ConfigProvider.configure(config)
+            SecretStoreProvider.configure(config)
             ProviderProvider.setProvider(Provider)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
@@ -39,8 +42,21 @@ export default class Ocean {
     public async register(asset: Asset): Promise<string> {
         const {market} = this.keeper
 
+        const secretStore = SecretStoreProvider.getSecretStore()
+
+        const id = Math.random().toString(10)
+        Logger.log("id", id)
+
+        const assetId = (await market.generateId(id)).replace("0x", "")
+
+        Logger.log(assetId.length)
+        const encryptedDocument = await secretStore.encryptDocument(assetId, asset)
+
+        const decryptedDocument = await secretStore.decryptDocument(assetId, encryptedDocument)
+
+        Logger.log(decryptedDocument, encryptedDocument)
+
         // generate an id
-        const assetId = await market.generateId(asset.name + asset.description)
         Logger.log(`Registering: ${assetId} with price ${asset.price} for ${asset.publisher.getId()}`)
         asset.setId(assetId)
         const isAssetActive = await market.isAssetActive(assetId)
