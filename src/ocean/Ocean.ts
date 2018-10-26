@@ -16,7 +16,6 @@ export default class Ocean {
         if (!Ocean.instance) {
             ConfigProvider.setConfig(config)
             SecretStoreProvider.configure(config)
-            AquariusProvider.setAquarius(Aquarius)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 

@@ -38,9 +38,10 @@ describe("Asset", () => {
 
         it("should purchase an asset", async () => {
 
-        // todo
-        const consumerAccount = accounts[5]
-        const order: Order = await testAsset.purchase(consumerAccount, timeout)
-        assert(order)
+            // todo
+            const consumerAccount = accounts[5]
+            const order: Order = await testAsset.purchase(consumerAccount, timeout)
+            assert(order)
+        })
     })
 })
