@@ -1,4 +1,5 @@
 import {assert} from "chai"
+import AquariusProvider from "../../src/aquarius/AquariusProvider"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import AccessStatus from "../../src/models/AccessStatus"
@@ -7,6 +8,7 @@ import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
+import AquariusMock from "../mocks/Aquarius.mock"
 
 const testName = "Order Test Asset"
 const testDescription = "This asset is pure owange"
@@ -20,19 +22,20 @@ let accounts: Account[]
 let testPublisher: Account
 let testConsumer: Account
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-    accounts = await ocean.getAccounts()
-    testPublisher = accounts[0]
-    testConsumer = accounts[1]
-    // register an asset to play around with
-    testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
-    await ocean.register(testAsset)
-})
-
 describe("Order", () => {
+
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        AquariusProvider.setAquarius(new AquariusMock())
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
+        testPublisher = accounts[0]
+        testConsumer = accounts[1]
+        // register an asset to play around with
+        testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
+        await ocean.register(testAsset)
+    })
 
     describe("#pay()", async () => {
 

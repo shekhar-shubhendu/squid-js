@@ -6,14 +6,14 @@ import config from "../config"
 
 let keeper: Keeper
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    keeper = await Keeper.getInstance()
-})
-
 describe("Keeper", () => {
 
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        await ContractHandler.deployContracts()
+        keeper = await Keeper.getInstance()
+    })
+    
     describe("public interface", () => {
 
         it("should have market", () => {

@@ -6,7 +6,7 @@ export default class ConfigProvider {
         return ConfigProvider.config
     }
 
-    public static configure(config: Config) {
+    public static setConfig(config: Config) {
 
         ConfigProvider.config = config
     }

@@ -1,5 +1,5 @@
 export default class Config {
-    public providerUri: string
+    public aquariusUri: string
     public nodeUri: string
     public web3Provider: any
 }
