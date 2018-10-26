@@ -10,24 +10,27 @@ before(() => {
 
 describe("Aquarius", () => {
 
-    describe("#queryMetadata()", async () => {
+    describe("#queryMetadata()", () => {
 
-        const aquarius: Aquarius = new Aquarius(config)
+        it("should query metadata", async () => {
 
-        const query = {
-            offset: 100,
-            page: 0,
-            query: {
-                value: 1,
-            },
-            sort: {
-                value: 1,
-            },
-            text: "Office",
-        }
+            const aquarius: Aquarius = new Aquarius(config)
 
-        const result: any[] = await aquarius.queryMetadata(query)
-        assert(result)
+            const query = {
+                offset: 100,
+                page: 0,
+                query: {
+                    value: 1,
+                },
+                sort: {
+                    value: 1,
+                },
+                text: "Office",
+            }
+
+            const result: any[] = await aquarius.queryMetadata(query)
+            assert(result)
+        })
+
     })
-
 })
