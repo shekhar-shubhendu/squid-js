@@ -4,8 +4,6 @@ import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
-import Provider from "../provider/Provider"
-import ProviderProvider from "../provider/ProviderProvider"
 import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
@@ -17,7 +15,7 @@ export default class Ocean {
     public static async getInstance(config: Config) {
 
         if (!Ocean.instance) {
-            ConfigProvider.configure(config)
+            ConfigProvider.setConfig(config)
             SecretStoreProvider.configure(config)
             AquariusProvider.setAquarius(Aquarius)
             Ocean.instance = new Ocean(await Keeper.getInstance())
