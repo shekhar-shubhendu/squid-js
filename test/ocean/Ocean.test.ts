@@ -23,7 +23,7 @@ describe("Ocean", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        AquariusProvider.setAquarius(new AquariusMock())
+        AquariusProvider.setAquarius(new AquariusMock(config))
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
@@ -31,7 +31,7 @@ describe("Ocean", () => {
         testPublisher = accounts[0]
         testAsset = new Asset(name, description, price, testPublisher)
     })
-    
+
     describe("#getInstance()", () => {
 
         it("should list accounts", async () => {

@@ -23,7 +23,7 @@ describe("Asset", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        AquariusProvider.setAquarius(new AquariusMock())
+        AquariusProvider.setAquarius(new AquariusMock(config))
 
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)

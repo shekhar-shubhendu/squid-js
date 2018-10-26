@@ -1,3 +1,4 @@
+import ConfigProvider from "../ConfigProvider"
 import Aquarius from "./Aquarius"
 
 export default class AquariusProvider {
@@ -10,7 +11,7 @@ export default class AquariusProvider {
     public static getAquarius() {
 
         if (!AquariusProvider.aquarius) {
-            AquariusProvider.aquarius = new Aquarius()
+            AquariusProvider.aquarius = new Aquarius(ConfigProvider.getConfig())
         }
         return AquariusProvider.aquarius
     }

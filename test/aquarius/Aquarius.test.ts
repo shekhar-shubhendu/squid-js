@@ -1,18 +1,18 @@
 import * as assert from "assert"
 import Aquarius from "../../src/aquarius/Aquarius"
-import ConfigProvider from "../../src/ConfigProvider"
+import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import config from "../config"
+import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
+
+before(() => {
+    AquariusConnectorProvider.setConnector(new AquariusConnectorMock())
+})
 
 describe("Aquarius", () => {
 
-    before(() => {
+    describe("#queryMetadata()", async () => {
 
-        ConfigProvider.setConfig(config)
-    })
-
-    describe("#queryMetadata()queryMetadata", async () => {
-
-        const aquarius: Aquarius = new Aquarius()
+        const aquarius: Aquarius = new Aquarius(config)
 
         const query = {
             offset: 100,
