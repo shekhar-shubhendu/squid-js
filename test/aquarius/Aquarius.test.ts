@@ -13,6 +13,7 @@ describe("Aquarius", () => {
     describe("#queryMetadata()", () => {
 
         it("should query metadata", async () => {
+
             const aquarius: Aquarius = new Aquarius(config)
 
             const query = {
@@ -30,6 +31,7 @@ describe("Aquarius", () => {
             const result: any[] = await aquarius.queryMetadata(query)
             assert(result)
         })
+
     })
 
 })
