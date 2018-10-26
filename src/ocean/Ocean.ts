@@ -7,8 +7,8 @@ import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
-import Order from "./Order"
 import IdGenerator from "./IdGenerator"
+import Order from "./Order"
 
 export default class Ocean {
 
