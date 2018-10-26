@@ -23,7 +23,7 @@ describe("Asset", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        AquariusProvider.setAquarius(new AquariusMock(config.aquariusUri))
+        AquariusProvider.setAquarius(new AquariusMock())
 
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
@@ -33,7 +33,7 @@ describe("Asset", () => {
 
         await ocean.register(testAsset)
     })
-    
+
     describe("#purchase()", () => {
 
         it("should purchase an asset", async () => {
