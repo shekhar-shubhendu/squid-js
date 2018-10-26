@@ -8,6 +8,8 @@ import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
 import AquariusMock from "../mocks/Aquarius.mock"
+import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
+import SecretStoreMock from "../mocks/SecretStore.mock"
 
 const testName = "Test Asset 2"
 const testDescription = "This asset is pure owange"
@@ -24,7 +26,7 @@ describe("Asset", () => {
     before(async () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
-
+        SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
