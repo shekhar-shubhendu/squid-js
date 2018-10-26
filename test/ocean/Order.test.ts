@@ -1,4 +1,5 @@
 import {assert} from "chai"
+import AquariusProvider from "../../src/aquarius/AquariusProvider"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import AccessStatus from "../../src/models/AccessStatus"
@@ -7,6 +8,7 @@ import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
+import AquariusMock from "../mocks/Aquarius.mock"
 import * as AccessToken from "./AccessToken.json"
 
 const testName = "Order Test Asset"
@@ -23,7 +25,8 @@ let testConsumer: Account
 describe("Order", () => {
 
     before(async () => {
-        ConfigProvider.configure(config)
+        ConfigProvider.setConfig(config)
+        AquariusProvider.setAquarius(new AquariusMock(config))
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()

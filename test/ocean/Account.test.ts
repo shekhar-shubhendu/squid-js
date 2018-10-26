@@ -12,7 +12,7 @@ let accounts: Account[]
 describe("Account", () => {
 
     before(async () => {
-        ConfigProvider.configure(config)
+        ConfigProvider.setConfig(config)
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
 

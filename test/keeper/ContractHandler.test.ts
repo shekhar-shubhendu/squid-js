@@ -6,7 +6,7 @@ import config from "../config"
 describe("ContractHandler", () => {
 
     before(async () => {
-        ConfigProvider.configure(config)
+        ConfigProvider.setConfig(config)
         await ContractHandler.deployContracts()
     })
 

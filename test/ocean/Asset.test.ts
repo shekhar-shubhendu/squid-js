@@ -19,11 +19,11 @@ let testAsset: Asset
 let accounts: Account[]
 let testPublisher: Account
 
-describe("#purchase()", () => {
+describe("Asset", () => {
 
     before(async () => {
-        ConfigProvider.configure(config)
-        AquariusProvider.setAquarius(AquariusMock)
+        ConfigProvider.setConfig(config)
+        AquariusProvider.setAquarius(new AquariusMock(config))
 
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
@@ -34,7 +34,9 @@ describe("#purchase()", () => {
         await ocean.register(testAsset)
     })
 
-    it("should purchase an asset", async () => {
+    describe("#purchase()", () => {
+
+        it("should purchase an asset", async () => {
 
         // todo
         const consumerAccount = accounts[5]

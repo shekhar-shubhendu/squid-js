@@ -9,7 +9,7 @@ let keeper: Keeper
 describe("Keeper", () => {
 
     before(async () => {
-        ConfigProvider.configure(config)
+        ConfigProvider.setConfig(config)
         await ContractHandler.deployContracts()
         keeper = await Keeper.getInstance()
     })
