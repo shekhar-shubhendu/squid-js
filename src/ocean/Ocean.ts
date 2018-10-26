@@ -8,6 +8,7 @@ import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
 import Order from "./Order"
+import IdGenerator from "./IdGenerator"
 
 export default class Ocean {
 
@@ -15,7 +16,6 @@ export default class Ocean {
 
         if (!Ocean.instance) {
             ConfigProvider.setConfig(config)
-            SecretStoreProvider.configure(config)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 
@@ -42,12 +42,8 @@ export default class Ocean {
 
         const secretStore = SecretStoreProvider.getSecretStore()
 
-        const id = Math.random().toString(10)
-        Logger.log("id", id)
+        const assetId = IdGenerator.generateId()
 
-        const assetId = (await market.generateId(id)).replace("0x", "")
-
-        Logger.log(assetId.length)
         const encryptedDocument = await secretStore.encryptDocument(assetId, asset)
 
         const decryptedDocument = await secretStore.decryptDocument(assetId, encryptedDocument)

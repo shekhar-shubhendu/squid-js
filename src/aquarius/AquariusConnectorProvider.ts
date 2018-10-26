@@ -15,7 +15,6 @@ export default class AquariusConnectorProvider {
         if (!AquariusConnectorProvider.connector) {
             AquariusConnectorProvider.connector = new AquariusConnector()
         }
-        Logger.log("getting", typeof AquariusConnectorProvider.connector.constructor.name)
         return AquariusConnectorProvider.connector
     }
 

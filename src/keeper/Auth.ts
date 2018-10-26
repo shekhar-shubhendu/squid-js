@@ -27,7 +27,7 @@ export default class OceanAuth extends ContractBase {
 
     public async initiateAccessRequest(asset: Asset, publicKey: string,
                                        timeout: number, buyerAddress: string): Promise<Receipt> {
-        const args = [asset.getId(), asset.publisher.getId(), publicKey, timeout]
+        const args = ["0x" + asset.getId(), asset.publisher.getId(), publicKey, timeout]
         return this.sendTransaction("initiateAccessRequest", buyerAddress, args)
     }
 
