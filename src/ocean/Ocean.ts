@@ -1,8 +1,8 @@
+import Aquarius from "../aquarius/Aquarius"
+import AquariusProvider from "../aquarius/AquariusProvider"
 import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
-import Provider from "../provider/Provider"
-import ProviderProvider from "../provider/ProviderProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
@@ -14,7 +14,7 @@ export default class Ocean {
 
         if (!Ocean.instance) {
             ConfigProvider.configure(config)
-            ProviderProvider.setProvider(Provider)
+            AquariusProvider.setAquarius(Aquarius)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 
