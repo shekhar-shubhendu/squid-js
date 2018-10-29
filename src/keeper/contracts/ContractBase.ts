@@ -33,7 +33,7 @@ export default abstract class ContractBase {
 
     public async getEventData(eventName: any, options: any): Promise<Event[]> {
         if (!this.contract.events[eventName]) {
-            throw new Error(`Event ${eventName} not found on contract ${this.contractName}`)
+            throw new Error(`Event "${eventName}" not found on contract "${this.contractName}"`)
         }
         return this.contract.getPastEvents(eventName, options)
     }
@@ -42,13 +42,28 @@ export default abstract class ContractBase {
         return this.contract.options.address
     }
 
+    public getSignatureOfMethod(methodName: string): string {
+
+        const foundMethod = this.contract.options.jsonInterface.find((method) => {
+            if (method.name === methodName) {
+                return method
+            }
+        })
+
+        if (!foundMethod) {
+            throw new Error(`Method "${methodName}" is not part of contract "${this.contractName}"`)
+        }
+
+        return foundMethod.signature
+    }
+
     protected async init() {
         this.contract = await ContractHandler.get(this.contractName)
     }
 
     protected async send(name: string, from: string, args: any[]): Promise<Receipt> {
         if (!this.contract.methods[name]) {
-            throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
+            throw new Error(`Method "${name}" is not part of contract "${this.contractName}"`)
         }
         try {
             const tx = this.contract.methods[name](...args)
@@ -61,7 +76,7 @@ export default abstract class ContractBase {
             })
         } catch (err) {
             const argString = JSON.stringify(args, null, 2)
-            Logger.error(`Sending transaction ${name} on contract ${this.contractName} failed.`)
+            Logger.error(`Sending transaction "${name}" on contract "${this.contractName}" failed.`)
             Logger.error(`Args: ${argString} From: ${from}`)
             throw err
         }
@@ -75,7 +90,7 @@ export default abstract class ContractBase {
             const method = this.contract.methods[name](...args)
             return method.call(from ? {from} : null)
         } catch (err) {
-            Logger.error(`Calling method ${name} on contract ${this.contractName} failed. Args: ${args}`, err)
+            Logger.error(`Calling method "${name}" on contract "${this.contractName}" failed. Args: ${args}`, err)
             throw err
         }
     }

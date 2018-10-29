@@ -50,7 +50,19 @@ export default class ContractHandler {
         const market = await ContractHandler.deployContract("OceanMarket", deployerAddress, {
             args: [token.options.address],
         })
-        await ContractHandler.deployContract("ServiceAgreement", deployerAddress, {})
+
+        const sa = await ContractHandler.deployContract("ServiceAgreement", deployerAddress, {
+            args: [],
+
+        })
+        await ContractHandler.deployContract("AccessConditions", deployerAddress, {
+            args: [sa.options.address],
+        })
+
+        await ContractHandler.deployContract("PaymentConditions", deployerAddress, {
+            args: [sa.options.address, token.options.address],
+        })
+
         await ContractHandler.deployContract("DIDRegistry", deployerAddress, {})
         /* not part of trilobite
         const dispute = await ContractHandler.deployContract("OceanDispute", deployerAddress, {
