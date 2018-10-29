@@ -1,5 +1,5 @@
 import fetch from "node-fetch"
-import URL from "url"
+import { URL } from "url"
 
 export default class AquariusConnector {
 
