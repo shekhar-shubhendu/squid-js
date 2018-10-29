@@ -1,4 +1,5 @@
 import {assert} from "chai"
+import AquariusProvider from "../../src/aquarius/AquariusProvider"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
@@ -6,6 +7,7 @@ import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
+import AquariusMock from "../mocks/Aquarius.mock"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -17,17 +19,18 @@ const description = "This asset is pure owange"
 const price = 100
 const timeout = 100000000
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-    accounts = await ocean.getAccounts()
-
-    testPublisher = accounts[0]
-    testAsset = new Asset(name, description, price, testPublisher)
-})
-
 describe("Ocean", () => {
+
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        AquariusProvider.setAquarius(new AquariusMock(config))
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
+
+        testPublisher = accounts[0]
+        testAsset = new Asset(name, description, price, testPublisher)
+    })
 
     describe("#getInstance()", () => {
 
@@ -84,4 +87,26 @@ describe("Ocean", () => {
 
     })
 
+    describe("#searchAssets()", () => {
+
+        it("should search for assets", async () => {
+
+            const query = {
+                offset: 100,
+                page: 0,
+                query: {
+                    value: 1,
+                },
+                sort: {
+                    value: 1,
+                },
+                text: "Office",
+            }
+
+            const assets: any[] = await ocean.searchAssets(query)
+
+            assert(assets)
+        })
+
+    })
 })

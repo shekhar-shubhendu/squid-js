@@ -19,20 +19,20 @@ let testAsset: Asset
 let accounts: Account[]
 let testPublisher: Account
 
-before(async () => {
-    ConfigProvider.configure(config)
-    AquariusProvider.setAquarius(AquariusMock)
-
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-    accounts = await ocean.getAccounts()
-    testPublisher = accounts[0]
-    testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
-
-    await ocean.register(testAsset)
-})
-
 describe("Asset", () => {
+
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        AquariusProvider.setAquarius(new AquariusMock(config))
+
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
+        testPublisher = accounts[0]
+        testAsset = new Asset(testName, testDescription, testPrice, testPublisher)
+
+        await ocean.register(testAsset)
+    })
 
     describe("#purchase()", () => {
 

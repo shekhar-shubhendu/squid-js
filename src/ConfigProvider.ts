@@ -2,11 +2,11 @@ import Config from "./models/Config"
 
 export default class ConfigProvider {
 
-    public static getConfig() {
+    public static getConfig(): Config {
         return ConfigProvider.config
     }
 
-    public static configure(config: Config) {
+    public static setConfig(config: Config) {
 
         ConfigProvider.config = config
     }

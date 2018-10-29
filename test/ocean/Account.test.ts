@@ -9,15 +9,15 @@ import config from "../config"
 let ocean: Ocean
 let accounts: Account[]
 
-before(async () => {
-    ConfigProvider.configure(config)
-    await ContractHandler.deployContracts()
-    ocean = await Ocean.getInstance(config)
-
-    accounts = await ocean.getAccounts()
-})
-
 describe("Account", () => {
+
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        await ContractHandler.deployContracts()
+        ocean = await Ocean.getInstance(config)
+
+        accounts = await ocean.getAccounts()
+    })
 
     describe("#getOceanBalance()", () => {
 

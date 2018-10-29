@@ -1,4 +1,3 @@
-import Aquarius from "../aquarius/Aquarius"
 import AquariusProvider from "../aquarius/AquariusProvider"
 import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
@@ -13,8 +12,7 @@ export default class Ocean {
     public static async getInstance(config) {
 
         if (!Ocean.instance) {
-            ConfigProvider.configure(config)
-            AquariusProvider.setAquarius(Aquarius)
+            ConfigProvider.setConfig(config)
             Ocean.instance = new Ocean(await Keeper.getInstance())
         }
 
@@ -89,5 +87,9 @@ export default class Ocean {
         Logger.log(`Got ${Object.keys(orders).length} orders`)
 
         return orders
+    }
+
+    public async searchAssets(query): Promise<any[]> {
+        return AquariusProvider.getAquarius().queryMetadata(query)
     }
 }
