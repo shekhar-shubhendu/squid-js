@@ -36,7 +36,7 @@ export default class Aquarius {
     public async queryMetadata(query): Promise<any[]> {
 
         const result = await AquariusConnectorProvider.getConnector().post(
-            this.url + "/api/v1/aquarius/assets/metadata/query",
+            this.url + "/api/v1/aquarius/assets/ddo/query",
             JSON.stringify(query))
             .then((response: any) => {
                 if (response.ok) {
@@ -45,7 +45,25 @@ export default class Aquarius {
                 Logger.log("Failed: ", response.status, response.statusText)
             })
             .catch((error) => {
-                Logger.error("Error fetching querying metdata: ", error)
+                Logger.error("Error fetching querying metadata: ", error)
+            })
+
+        return result
+    }
+
+    public async queryMetadataByText(query): Promise<any[]> {
+
+        const result = await AquariusConnectorProvider.getConnector().get(
+            this.url + "/api/v1/aquarius/assets/ddo/query",
+            JSON.stringify(query))
+            .then((response: any) => {
+                if (response.ok) {
+                    return response.json()
+                }
+                Logger.log("Failed: ", response.status, response.statusText)
+            })
+            .catch((error) => {
+                Logger.error("Error fetching querying metadata: ", error)
             })
 
         return result
