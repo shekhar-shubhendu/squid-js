@@ -49,7 +49,7 @@
     "node": ">=8 <10"
   },
   "dependencies": {
-    "@oceanprotocol/keeper-contracts": "^0.3.3",
+    "@oceanprotocol/keeper-contracts": "^0.4.1",
     "bignumber.js": "^7.2.1",
     "eth-crypto": "^1.2.4",
     "eth-ecies": "^1.0.3",
