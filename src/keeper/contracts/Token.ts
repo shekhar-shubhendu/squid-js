@@ -11,7 +11,7 @@ export default class OceanToken extends ContractBase {
     }
 
     public async approve(marketAddress: string, price: number, buyerAddress: string): Promise<Receipt> {
-        return this.sendTransaction("approve", buyerAddress, [marketAddress, price])
+        return this.send("approve", buyerAddress, [marketAddress, price])
     }
 
     public async balanceOf(address: string): Promise<number> {

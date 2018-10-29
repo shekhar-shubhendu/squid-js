@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js"
 import {Receipt} from "web3-utils"
-import Order from "../ocean/Order"
+import Order from "../../ocean/Order"
 import ContractBase from "./ContractBase"
 
 export default class OceanMarket extends ContractBase {
@@ -26,7 +26,7 @@ export default class OceanMarket extends ContractBase {
     }
 
     public async requestTokens(amount: number, receiverAddress: string): Promise<Receipt> {
-        return this.sendTransaction("requestTokens", receiverAddress, [amount])
+        return this.send("requestTokens", receiverAddress, [amount])
     }
 
     public async generateId(input: string): Promise<string> {
@@ -34,13 +34,13 @@ export default class OceanMarket extends ContractBase {
     }
 
     public async register(assetId: string, price: number, publisherAddress: string): Promise<Receipt> {
-        return this.sendTransaction("register", publisherAddress, ["0x" + assetId, price])
+        return this.send("register", publisherAddress, ["0x" + assetId, price])
     }
 
     public async payOrder(order: Order, publisherAddress: string,
                           price: number, consumerAddress: string,
                           timeout: number): Promise<Receipt> {
-        return this.sendTransaction("sendPayment", consumerAddress, [
+        return this.send("sendPayment", consumerAddress, [
             order.getId(), publisherAddress, price, timeout,
         ])
     }

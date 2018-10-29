@@ -1,7 +1,8 @@
 import Event from "web3"
 import Contract from "web3-eth-contract"
-import Logger from "../utils/Logger"
-import ContractHandler from "./ContractHandler"
+import {Receipt} from "web3-utils"
+import Logger from "../../utils/Logger"
+import ContractHandler from "../ContractHandler"
 
 export default abstract class ContractBase {
 
@@ -45,7 +46,7 @@ export default abstract class ContractBase {
         this.contract = await ContractHandler.get(this.contractName)
     }
 
-    protected async sendTransaction(name: string, from: string, args: any[]) {
+    protected async send(name: string, from: string, args: any[]): Promise<Receipt> {
         if (!this.contract.methods[name]) {
             throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
         }
@@ -66,7 +67,7 @@ export default abstract class ContractBase {
         }
     }
 
-    protected async call(name: string, args: any[], from?: string) {
+    protected async call(name: string, args: any[], from?: string): Promise<any> {
         if (!this.contract.methods[name]) {
             throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
         }

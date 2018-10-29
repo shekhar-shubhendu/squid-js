@@ -50,6 +50,8 @@ export default class ContractHandler {
         const market = await ContractHandler.deployContract("OceanMarket", deployerAddress, {
             args: [token.options.address],
         })
+        await ContractHandler.deployContract("ServiceAgreement", deployerAddress, {})
+        await ContractHandler.deployContract("DIDRegistry", deployerAddress, {})
         /* not part of trilobite
         const dispute = await ContractHandler.deployContract("OceanDispute", deployerAddress, {
             args: [market.options.address, registry.options.address, plcrVoting.options.address],
