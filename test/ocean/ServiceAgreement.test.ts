@@ -6,8 +6,8 @@ import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreement from "../../src/ocean/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreementTemplate"
-import config from "../config"
 import Logger from "../../src/utils/Logger"
+import config from "../config"
 
 let ocean: Ocean
 let accounts: Account[]
