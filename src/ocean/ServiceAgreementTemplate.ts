@@ -26,6 +26,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
             await paymentConditions.getSignatureOfMethod("refundPayment"),
         ]
 
+        // tslint:disable
         const dependencies = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
