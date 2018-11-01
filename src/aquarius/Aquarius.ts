@@ -14,23 +14,23 @@ export default class Aquarius {
         this.url = config.aquariusUri
     }
 
-    public async getAccessUrl(accessToken: any, payload: any): Promise<string | void> {
+    public async getAccessUrl(accessToken: any, payload: any): Promise<string> {
 
-        const accessUrl = await AquariusConnectorProvider.getConnector().post(
-            `${accessToken.service_endpoint}/${accessToken.resource_id}`,
-            payload)
-            .then((response: any) => {
+        const accessUrl: string = await AquariusConnectorProvider.getConnector()
+            .post(`${accessToken.service_endpoint}/${accessToken.resource_id}`, payload)
+            .then((response: any): string => {
                 if (response.ok) {
                     return response.text()
                 }
-                Logger.log("Failed: ", response.status, response.statusText)
+                Logger.error("Failed: ", response.status, response.statusText)
             })
-            .then((consumptionUrl: string) => {
+            .then((consumptionUrl: string): string => {
                 Logger.log("Success accessing consume endpoint: ", consumptionUrl)
                 return consumptionUrl
             })
             .catch((error) => {
                 Logger.error("Error fetching the data asset consumption url: ", error)
+                return null
             })
 
         return accessUrl
@@ -77,7 +77,7 @@ export default class Aquarius {
 
     public async storeDDO(ddo: DDO): Promise<DDO> {
         const fullUrl = this.url + `/api/v1/aquarius/assets/ddo`
-        const result = await AquariusConnectorProvider.getConnector()
+        const result: DDO = await AquariusConnectorProvider.getConnector()
             .post(fullUrl, DDO.serialize(ddo))
             .then((response: any) => {
                 if (response.ok) {

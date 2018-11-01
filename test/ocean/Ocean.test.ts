@@ -84,7 +84,6 @@ describe("Ocean", () => {
 
             assert(orders.length === 1)
             assert(orders[0].getId() === order.getId())
-
         })
 
     })

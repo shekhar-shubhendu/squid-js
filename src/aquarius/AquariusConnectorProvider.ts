@@ -7,7 +7,7 @@ export default class AquariusConnectorProvider {
         AquariusConnectorProvider.connector = connector
     }
 
-    public static getConnector() {
+    public static getConnector(): AquariusConnector {
 
         if (!AquariusConnectorProvider.connector) {
             AquariusConnectorProvider.connector = new AquariusConnector()

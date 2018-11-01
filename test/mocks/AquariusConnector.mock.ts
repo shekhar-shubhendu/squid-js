@@ -16,6 +16,9 @@ export default class AquariusConnectorMock extends AquariusConnector {
                 json: () => {
                     return this.returnData ? this.returnData : []
                 },
+                text: () => {
+                    return this.returnData ? this.returnData.toString() : ""
+                },
             })
         })
     }
