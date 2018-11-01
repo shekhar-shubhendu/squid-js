@@ -29,20 +29,29 @@ describe("ServiceAgreement", () => {
         consumerAccount = accounts[2]
 
         const resourceName = "superb car data"
-        testServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, templateOwnerAccount)
+        const methods: string[] = [
+            "PaymentConditions.lockPayment",
+            "AccessConditions.grantAccess",
+            "PaymentConditions.releasePayment",
+            "PaymentConditions.refundPayment",
+        ]
+        // tslint:disable
+        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
+        testServiceAgreementTemplate =
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, methods,
+                dependencyMatrix, templateOwnerAccount)
     })
 
-    describe("#executeServiceAgreement()", () => {
+    describe("#createServiceAgreement()", () => {
         it("should execute an service agreement", async () => {
 
             const did: string = IdGenerator.generateId()
             const assetId: string = IdGenerator.generateId()
 
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(testServiceAgreementTemplate, publisherAccount,
-                    did, assetId, consumerAccount)
+                await ServiceAgreement.createServiceAgreement(testServiceAgreementTemplate, assetId, did,
+                    consumerAccount, publisherAccount)
 
             assert(serviceAgreement)
             const id = serviceAgreement.getId()
@@ -58,8 +67,8 @@ describe("ServiceAgreement", () => {
             const assetId: string = IdGenerator.generateId()
 
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(testServiceAgreementTemplate, publisherAccount,
-                    did, assetId, consumerAccount)
+                await ServiceAgreement.createServiceAgreement(testServiceAgreementTemplate, assetId, did,
+                    consumerAccount, publisherAccount)
 
             assert(serviceAgreement)
             const status = await serviceAgreement.getStatus()
@@ -73,13 +82,9 @@ describe("ServiceAgreement", () => {
             const did: string = IdGenerator.generateId()
             const assetId: string = IdGenerator.generateId()
 
-            const resourceName = "nice service"
-            const serviceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, templateOwnerAccount)
-
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(serviceAgreementTemplate, publisherAccount,
-                    did, assetId, consumerAccount)
+                await ServiceAgreement.createServiceAgreement(testServiceAgreementTemplate, assetId, did,
+                    consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
             const fulfilled: boolean = await serviceAgreement.grantAccess(did, IdGenerator.generateId())

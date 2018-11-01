@@ -7,18 +7,16 @@ import OceanBase from "./OceanBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
-    public static async registerServiceAgreementsTemplate(serviceName: string, templateOwner: Account):
+    public static async registerServiceAgreementsTemplate(serviceName: string, methods: string[],
+                                                          dependencyMatrix: number[], templateOwner: Account):
         Promise<ServiceAgreementTemplate> {
 
-        const methodReflections: MethodReflection[] = [
-            await ContractReflector.reflectContractMethod("PaymentConditions.lockPayment"),
-            await ContractReflector.reflectContractMethod("AccessConditions.grantAccess"),
-            await ContractReflector.reflectContractMethod("PaymentConditions.releasePayment"),
-            await ContractReflector.reflectContractMethod("PaymentConditions.refundPayment"),
-        ]
-
-        // tslint:disable
-        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
+        const methodReflections: MethodReflection[] =
+            await Promise.all(methods.map(async (method) => {
+                const methodReflection = await
+                    ContractReflector.reflectContractMethod(method)
+                return methodReflection
+            }))
 
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
 

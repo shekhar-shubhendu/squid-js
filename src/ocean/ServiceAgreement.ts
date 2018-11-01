@@ -8,26 +8,35 @@ import ServiceAgreementTemplate from "./ServiceAgreementTemplate"
 
 export default class ServiceAgreement extends OceanBase {
 
-    public static async signServiceAgreement(serviceAgreementTemplate: ServiceAgreementTemplate, publisher: Account,
-                                             did: string, assetId: string, consumer: Account):
-        Promise<ServiceAgreement> {
+    public static async createServiceAgreement(serviceAgreementTemplate: ServiceAgreementTemplate, assetId: string,
+                                               did: string, consumer: Account, publisher: Account) {
 
+        // todo: this should come from ddo
         const serviceAgreementId = IdGenerator.generateId()
-
-        const valueHashes = [
-            ServiceAgreement.hashSingleValue("bool", true),
-            ServiceAgreement.hashSingleValue("bool", false),
-            ServiceAgreement.hashSingleValue("uint", 120),
-            // assetId
-            ServiceAgreement.hashSingleValue("string", assetId),
+        const timeoutValues = [0, 0, 0, 500] // timeout 500 blocks @ condition 4
+        const values = [
+            {type: "bool", value: true},
+            {type: "bool", value: false},
+            {type: "uint", value: 120},
+            {type: "string", value: assetId},
         ]
 
-        const timeoutValues = [0, 0, 0, 500] // timeout 500 blocks @ condition 4
+        const saHashSig = await ServiceAgreement.createSAHashSignature(serviceAgreementTemplate, serviceAgreementId,
+            values, timeoutValues, consumer)
 
-        const serviceAgreementHash = ServiceAgreement.hashServiceAgreement(serviceAgreementTemplate, valueHashes,
-            timeoutValues, serviceAgreementId)
-        const serviceAgreementHashSignature =
-            await Web3Provider.getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.signServiceAgreement(serviceAgreementTemplate,
+            serviceAgreementId, assetId, did, values, timeoutValues, saHashSig, consumer, publisher)
+
+        return serviceAgreement
+    }
+
+    private static async signServiceAgreement(serviceAgreementTemplate: ServiceAgreementTemplate,
+                                              serviceAgreementId: string, assetId: string, did: string, values: any[],
+                                              timeoutValues: number[], serviceAgreementHashSignature: string,
+                                              consumer: Account, publisher: Account):
+        Promise<ServiceAgreement> {
+
+        const valueHashes = ServiceAgreement.createValueHashes(values)
 
         const serviceAgreement: ServiceAgreementContract = await ServiceAgreementContract.getInstance()
 
@@ -49,9 +58,29 @@ export default class ServiceAgreement extends OceanBase {
         )
     }
 
-    protected static hashSingleValue(type: string, value: any): string {
+    private static createValueHashes(values: any[]): any[] {
+        return values.map((value) => {
+            return ServiceAgreement.hashSingleValue(value.type, value.value)
+        })
+    }
+
+    private static hashSingleValue(type: string, value: any): string {
         const args = {type, value}
         return Web3Provider.getWeb3().utils.soliditySha3(args).toString("hex")
+    }
+
+    private static async createSAHashSignature(serviceAgreementTemplate: ServiceAgreementTemplate,
+                                               serviceAgreementId: string, values: any[], timeoutValues: number[],
+                                               consumer: Account): Promise<string> {
+
+        const valueHashes = ServiceAgreement.createValueHashes(values)
+
+        const serviceAgreementHash = ServiceAgreement.hashServiceAgreement(serviceAgreementTemplate, valueHashes,
+            timeoutValues, serviceAgreementId)
+        const serviceAgreementHashSignature =
+            await Web3Provider.getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
+
+        return serviceAgreementHashSignature
     }
 
     private static hashServiceAgreement(serviceAgreementTemplate: ServiceAgreementTemplate, valueHashes: string[],
