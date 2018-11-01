@@ -9,7 +9,7 @@ import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
 import config from "../config"
 import AquariusMock from "../mocks/Aquarius.mock"
-import * as AccessToken from "./AccessToken.json"
+import * as AccessToken from "../testdata/AccessToken.json"
 
 const testName = "Order Test Asset"
 const testDescription = "This asset is pure owange"
