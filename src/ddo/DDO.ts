@@ -23,13 +23,13 @@ export default class DDO {
     // @ts-ignore
     private assa: string
 
-    public constructor(ddo: {
-        publicKey: PublicKey[],
-        authentication: Authentication[],
-        service: Service[],
+    public constructor(ddo?: {
+        publicKey?: PublicKey[],
+        authentication?: Authentication[],
+        service?: Service[],
     }) {
-        this.publicKey = ddo.publicKey
-        this.authentication = ddo.authentication
-        this.service = ddo.service
+        this.publicKey = ddo ? ddo.publicKey ? ddo.publicKey : [] : []
+        this.authentication = ddo ? ddo.authentication ? ddo.authentication : [] : []
+        this.service = ddo ? ddo.service ? ddo.service : [] : []
     }
 }

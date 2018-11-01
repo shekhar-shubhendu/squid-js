@@ -8,7 +8,6 @@ import MetaDataBase from "../../src/ddo/MetaDataBase"
 import PublicKey from "../../src/ddo/PublicKey"
 import Service from "../../src/ddo/Service"
 import StructuredMarkup from "../../src/ddo/StructuredMarkup"
-import Logger from "../../src/utils/Logger"
 import * as jsonDDO from "../testdata/ddo.json"
 
 describe("DDO", () => {
@@ -151,9 +150,40 @@ describe("DDO", () => {
         it("should properly serialize", async () => {
 
             const ddoString = DDO.serialize(testDDO)
-            Logger.log(ddoString)
             assert(ddoString)
             assert(ddoString.startsWith("{"))
+        })
+    })
+
+    describe("#constructor()", () => {
+
+        it("should create an empty ddo", async () => {
+
+            const ddo = new DDO()
+            assert(ddo)
+
+            assert(ddo.service.length === 0)
+            assert(ddo.authentication.length === 0)
+            assert(ddo.publicKey.length === 0)
+        })
+
+        it("should create an predefined ddo", async () => {
+
+            const service: Service = {
+                serviceEndpoint: "http://",
+                description: "nice service"
+            } as Service
+
+            const ddo = new DDO({
+                service: [service]
+            })
+            assert(ddo)
+
+            assert(ddo.service.length === 1)
+            assert(ddo.service[0].description === service.description)
+
+            assert(ddo.authentication.length === 0)
+            assert(ddo.publicKey.length === 0)
         })
     })
 
