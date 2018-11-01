@@ -33,24 +33,14 @@ export default class ServiceAgreementTemplate extends OceanBase {
             templateOwner)
     }
 
-    /**
-     * gets the status of a service agreement template
-     */
-    public async getStatus(): Promise<boolean> {
-
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
-
-        return serviceAgreement.getTemplateStatus(this.getId())
-    }
-
     private static generateConditionsKeys(serviceAgreementTemplateId: string, methodReflections: MethodReflection[]):
         string[] {
         const conditions = []
-        for (let i = 0; i < methodReflections.length; i++) {
+        for (const methodReflection of methodReflections) {
             const values = [
                 {type: "bytes32", value: serviceAgreementTemplateId},
-                {type: "address", value: methodReflections[i].address},
-                {type: "bytes4", value: methodReflections[i].signature},
+                {type: "address", value: methodReflection.address},
+                {type: "bytes4", value: methodReflection.signature},
             ]
             conditions.push(Web3Provider.getWeb3().utils.soliditySha3(...values).toString("hex"))
         }
@@ -59,6 +49,16 @@ export default class ServiceAgreementTemplate extends OceanBase {
 
     private constructor(id, private conditionKeys: string[], private owner: Account) {
         super(id)
+    }
+
+    /**
+     * gets the status of a service agreement template
+     */
+    public async getStatus(): Promise<boolean> {
+
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+
+        return serviceAgreement.getTemplateStatus(this.getId())
     }
 
     public getOwner(): Account {
