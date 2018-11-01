@@ -1,11 +1,8 @@
-import Logger from "../utils/Logger"
 import AquariusConnector from "./AquariusConnector"
 
 export default class AquariusConnectorProvider {
 
     public static setConnector(connector: AquariusConnector) {
-
-        Logger.log("setting", typeof connector.constructor.name)
 
         AquariusConnectorProvider.connector = connector
     }

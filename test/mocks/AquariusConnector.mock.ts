@@ -1,17 +1,22 @@
 import AquariusConnector from "../../src/aquarius/AquariusConnector"
 
+// @ts-ignore
 export default class AquariusConnectorMock extends AquariusConnector {
 
-    public async post(url: string, payload: any) {
+    constructor(private returnData: any) {
+        super()
+    }
 
-        return {
-            ok: true,
-            json: () => {
-                return []
-            },
-            text: () => {
-                return ""
-            },
-        }
+    // @ts-ignore
+    private async fetch(url, opts): Promise<any> {
+
+        return new Promise((resolve, reject) => {
+            resolve({
+                ok: true,
+                json: () => {
+                    return this.returnData ? this.returnData : []
+                },
+            })
+        })
     }
 }
