@@ -1,7 +1,7 @@
-import Curation from "./Curation"
-import StructuredMarkup from "./StructuredMarkup"
 import AdditionalInformation from "./AdditionalInformation"
+import Curation from "./Curation"
 import MetaDataBase from "./MetaDataBase"
+import StructuredMarkup from "./StructuredMarkup"
 
 export default class MetaData {
 
