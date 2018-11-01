@@ -6,11 +6,14 @@ import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreement from "../../src/ocean/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreementTemplate"
-import Logger from "../../src/utils/Logger"
 import config from "../config"
 
 let ocean: Ocean
 let accounts: Account[]
+let publisherAccount: Account
+let templateOwnerAccount: Account
+let consumerAccount: Account
+
 let testServiceAgreementTemplate: ServiceAgreementTemplate
 
 describe("ServiceAgreement", () => {
@@ -21,36 +24,66 @@ describe("ServiceAgreement", () => {
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 
-        const publisherAccount = accounts[0]
+        templateOwnerAccount = accounts[0]
+        publisherAccount = accounts[1]
+        consumerAccount = accounts[2]
+
         const resourceName = "superb car data"
         testServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, publisherAccount)
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, templateOwnerAccount)
 
     })
 
     describe("#executeServiceAgreement()", () => {
-        it("should execture an service agreement", async () => {
+        it("should execute an service agreement", async () => {
 
-            const consumerAccount = accounts[0]
             const did: string = IdGenerator.generateId()
+            const assetId: string = IdGenerator.generateId()
+
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.executeServiceAgreement(testServiceAgreementTemplate, did, consumerAccount)
+                await ServiceAgreement.signServiceAgreement(testServiceAgreementTemplate, publisherAccount,
+                    did, assetId, consumerAccount)
 
             assert(serviceAgreement)
-            assert(serviceAgreement.getId().startsWith("0x"))
+            const id = serviceAgreement.getId()
+            assert(id)
+            assert(id !== did)
         })
     })
 
     describe("#getStatus()", () => {
-        it("should execture an service agreement", async () => {
+        it("should get the status of a newly created service agreement", async () => {
 
-            const consumerAccount = accounts[0]
             const did: string = IdGenerator.generateId()
-            const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.executeServiceAgreement(testServiceAgreementTemplate, did, consumerAccount)
+            const assetId: string = IdGenerator.generateId()
 
+            const serviceAgreement: ServiceAgreement =
+                await ServiceAgreement.signServiceAgreement(testServiceAgreementTemplate, publisherAccount,
+                    did, assetId, consumerAccount)
+
+            assert(serviceAgreement)
             const status = await serviceAgreement.getStatus()
-            Logger.log(status)
+            assert(status === false)
+        })
+    })
+
+    describe("#grantAccess()", () => {
+        it("should grant access in that service agreement", async () => {
+
+            const did: string = IdGenerator.generateId()
+            const assetId: string = IdGenerator.generateId()
+
+            const resourceName = "nice service"
+            const serviceAgreementTemplate =
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, templateOwnerAccount)
+
+            const serviceAgreement: ServiceAgreement =
+                await ServiceAgreement.signServiceAgreement(serviceAgreementTemplate, publisherAccount,
+                    did, assetId, consumerAccount)
+            assert(serviceAgreement)
+
+            const fulfilled: boolean = await serviceAgreement.grantAccess(did, IdGenerator.generateId())
+            assert(fulfilled)
         })
     })
 })

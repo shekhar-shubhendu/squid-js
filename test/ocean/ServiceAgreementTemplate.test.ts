@@ -21,13 +21,26 @@ describe("ServiceAgreementTemplate", () => {
     describe("#registerServiceAgreementsTemplate()", () => {
         it("should setup an agreement template", async () => {
 
-            const publisherAccount = accounts[0]
+            const templateOwner = accounts[0]
             const resourceName = "test data"
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, publisherAccount)
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, templateOwner)
             assert(serviceAgreementTemplate)
             assert(serviceAgreementTemplate.getId())
-            assert(serviceAgreementTemplate.getPublisher().getId() === publisherAccount.getId())
+            assert(serviceAgreementTemplate.getOwner().getId() === templateOwner.getId())
+        })
+    })
+
+    describe("#getStatus()", () => {
+        it("should get the status of a newly deployed agreement template", async () => {
+
+            const publisherAccount = accounts[0]
+            const resourceName = "template status"
+            const serviceAgreementTemplate: ServiceAgreementTemplate =
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, publisherAccount)
+
+            const templateStatus = await serviceAgreementTemplate.getStatus()
+            assert(templateStatus === true)
         })
     })
 

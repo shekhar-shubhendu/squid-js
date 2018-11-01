@@ -49,7 +49,7 @@
     "node": ">=8 <10"
   },
   "dependencies": {
-    "@oceanprotocol/keeper-contracts": "^0.4.1",
+    "@oceanprotocol/keeper-contracts": "^0.3.7",
     "@oceanprotocol/secret-store-client": "^0.0.7",
     "bignumber.js": "^7.2.1",
     "eth-crypto": "^1.2.4",

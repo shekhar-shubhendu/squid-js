@@ -1,4 +1,5 @@
 import {Receipt} from "web3-utils"
+import MethodReflection from "../../models/MethodReflection"
 import ContractBase from "./ContractBase"
 
 export default class ServiceAgreement extends ContractBase {
@@ -9,25 +10,32 @@ export default class ServiceAgreement extends ContractBase {
         return serviceAgreement
     }
 
-    public async setupAgreementTemplate(contractAddresses: any[], contractFunctionSignatures: string[],
-                                        depencyMatrix: number[], name: any, ownerAddress: string): Promise<Receipt> {
+    public async setupAgreementTemplate(methodReflections: MethodReflection[], dependencyMatrix: number[], name: any,
+                                        ownerAddress: string): Promise<Receipt> {
 
         return this.send("setupAgreementTemplate", ownerAddress, [
-            contractAddresses, contractFunctionSignatures, depencyMatrix, name,
+            methodReflections.map((r) => r.address), methodReflections.map((r) => r.signature),
+            dependencyMatrix, name,
         ])
     }
 
-    public async getAgreementStatus(agreementId: string) {
+    public async getTemplateStatus(templateId: string) {
 
-        return this.call("getAgreementStatus", [agreementId])
+        return this.call("getTemplateStatus", [templateId])
     }
 
-    public async executeAgreement(templateId: string, signature: string, consumerAddress: string, valueHashes: string[],
-                                  timeoutValues: number[], serviceDefinitionId: string, did: string,
-                                  publisherAddress: string): Promise<Receipt> {
+    public async getAgreementStatus(serviceAgreementId: string) {
+
+        return this.call("getAgreementStatus", ["0x" + serviceAgreementId])
+    }
+
+    public async executeAgreement(serviceAgreementTemplateId: string, serviceAgreementSignatureHash: string,
+                                  consumerAddress: string, valueHashes: string[], timeoutValues: number[],
+                                  serviceAgreementId: string, did: string, publisherAddress: string): Promise<Receipt> {
 
         return this.send("executeAgreement", publisherAddress, [
-            templateId, signature, consumerAddress, valueHashes, timeoutValues, serviceDefinitionId, "0x" + did,
+            serviceAgreementTemplateId, serviceAgreementSignatureHash, consumerAddress, valueHashes,
+            timeoutValues, "0x" + serviceAgreementId, "0x" + did,
         ])
     }
 }

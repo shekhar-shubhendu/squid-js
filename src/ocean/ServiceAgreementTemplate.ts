@@ -1,65 +1,70 @@
-import AccessConditions from "../keeper/contracts/conditions/AccessConditions"
-import PaymentConditions from "../keeper/contracts/conditions/PaymentConditions"
+import ContractReflector from "../keeper/ContractReflector"
 import ServiceAgreement from "../keeper/contracts/ServiceAgreement"
 import Web3Provider from "../keeper/Web3Provider"
+import MethodReflection from "../models/MethodReflection"
 import Account from "./Account"
 import OceanBase from "./OceanBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
-    public static async registerServiceAgreementsTemplate(resourceName: string, publisher: Account):
+    public static async registerServiceAgreementsTemplate(serviceName: string, templateOwner: Account):
         Promise<ServiceAgreementTemplate> {
 
-        const paymentConditions: PaymentConditions = await PaymentConditions.getInstance()
-        const accessConditions: AccessConditions = await AccessConditions.getInstance()
-
-        const contractAddresses = [
-            await paymentConditions.getAddress(),
-            await accessConditions.getAddress(),
-            await paymentConditions.getAddress(),
-            await paymentConditions.getAddress(),
-        ]
-        const functionSignatures = [
-            await paymentConditions.getSignatureOfMethod("lockPayment"),
-            await accessConditions.getSignatureOfMethod("grantAccess"),
-            await paymentConditions.getSignatureOfMethod("releasePayment"),
-            await paymentConditions.getSignatureOfMethod("refundPayment"),
+        const methodReflections: MethodReflection[] = [
+            await ContractReflector.reflectContractMethod("PaymentConditions.lockPayment"),
+            await ContractReflector.reflectContractMethod("AccessConditions.grantAccess"),
+            await ContractReflector.reflectContractMethod("PaymentConditions.releasePayment"),
+            await ContractReflector.reflectContractMethod("PaymentConditions.refundPayment"),
         ]
 
         // tslint:disable
-        const dependencies = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
+        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
 
         const receipt = await serviceAgreement.setupAgreementTemplate(
-            contractAddresses, functionSignatures, dependencies,
-            Web3Provider.getWeb3().utils.fromAscii(resourceName), publisher.getId())
+            methodReflections, dependencyMatrix,
+            Web3Provider.getWeb3().utils.fromAscii(serviceName),
+            templateOwner.getId())
 
         const id = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
 
         return new ServiceAgreementTemplate(
             id,
-            ServiceAgreementTemplate.generateConditionsKeys(id, contractAddresses, functionSignatures),
-            publisher)
+            ServiceAgreementTemplate.generateConditionsKeys(id, methodReflections),
+            templateOwner)
     }
 
-    private static generateConditionsKeys(serviceAgreementTemplateId: string, contractAddresses: string[],
-                                          functionSignatures: string[]): string[] {
+    /**
+     * gets the status of a service agreement template
+     */
+    public async getStatus(): Promise<boolean> {
+
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+
+        return serviceAgreement.getTemplateStatus(this.getId())
+    }
+
+    private static generateConditionsKeys(serviceAgreementTemplateId: string, methodReflections: MethodReflection[]):
+        string[] {
         const conditions = []
-        for (let i = 0; i < contractAddresses.length; i++) {
-            const types = ["bytes32", "address", "bytes4"]
-            const values = [serviceAgreementTemplateId, contractAddresses[i], functionSignatures[i]]
-            conditions.push(Web3Provider.getWeb3().utils.soliditySha3(...types, ...values).toString("hex"))
+        for (let i = 0; i < methodReflections.length; i++) {
+            const values = [
+                {type: "bytes32", value: serviceAgreementTemplateId},
+                {type: "address", value: methodReflections[i].address},
+                {type: "bytes4", value: methodReflections[i].signature},
+            ]
+            conditions.push(Web3Provider.getWeb3().utils.soliditySha3(...values).toString("hex"))
         }
         return conditions
     }
 
-    private constructor(id, private conditionKeys: string[], private publisher: Account) {
+    private constructor(id, private conditionKeys: string[], private owner: Account) {
         super(id)
     }
 
-    public getPublisher(): Account {
-        return this.publisher
+    public getOwner(): Account {
+        return this.owner
     }
 
     public getConditionKeys(): string[] {
