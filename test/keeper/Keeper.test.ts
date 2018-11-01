@@ -13,7 +13,7 @@ describe("Keeper", () => {
         await ContractHandler.deployContracts()
         keeper = await Keeper.getInstance()
     })
-    
+
     describe("public interface", () => {
 
         it("should have market", () => {

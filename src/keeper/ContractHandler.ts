@@ -3,14 +3,12 @@ import Logger from "../utils/Logger"
 import Keeper from "./Keeper"
 import Web3Provider from "./Web3Provider"
 
-const contracts: Map<string, Contract> = new Map<string, Contract>()
-
 export default class ContractHandler {
 
     public static async get(what: string): Contract {
         const where = (await (await Keeper.getInstance()).getNetworkName()).toLowerCase()
         try {
-            return contracts.get(what) || await ContractHandler.load(what, where)
+            return ContractHandler.contracts.get(what) || await ContractHandler.load(what, where)
         } catch (err) {
             Logger.error("Failed to load", what, "from", where, err)
             throw err
@@ -50,6 +48,20 @@ export default class ContractHandler {
         const market = await ContractHandler.deployContract("OceanMarket", deployerAddress, {
             args: [token.options.address],
         })
+
+        const sa = await ContractHandler.deployContract("ServiceAgreement", deployerAddress, {
+            args: [],
+        })
+
+        await ContractHandler.deployContract("AccessConditions", deployerAddress, {
+            args: [sa.options.address],
+        })
+
+        await ContractHandler.deployContract("PaymentConditions", deployerAddress, {
+            args: [sa.options.address, token.options.address],
+        })
+
+        await ContractHandler.deployContract("DIDRegistry", deployerAddress, {})
         /* not part of trilobite
         const dispute = await ContractHandler.deployContract("OceanDispute", deployerAddress, {
             args: [market.options.address, registry.options.address, plcrVoting.options.address],
@@ -59,6 +71,8 @@ export default class ContractHandler {
             args: [market.options.address],
         })
     }
+
+    private static contracts: Map<string, Contract> = new Map<string, Contract>()
 
     private static async load(what: string, where: string): Promise<Contract> {
         const web3 = Web3Provider.getWeb3()
@@ -73,8 +87,8 @@ export default class ContractHandler {
         // Logger.log("Getting instance of", what, "from", where, "at", artifact.address)
         const contract = new web3.eth.Contract(artifact.abi, artifact.address)
         Logger.log("Loaded", what, "from", where)
-        contracts.set(what, contract)
-        return contracts.get(what)
+        ContractHandler.contracts.set(what, contract)
+        return ContractHandler.contracts.get(what)
     }
 
     // todo: reactivate for tethys
@@ -94,8 +108,8 @@ export default class ContractHandler {
     private static async deployContract(name: string, from: string, params?): Promise<Contract> {
 
         // dont redeploy if there is already something loaded
-        if (contracts.has(name)) {
-            return contracts.get(name)
+        if (ContractHandler.contracts.has(name)) {
+            return ContractHandler.contracts.get(name)
         }
 
         const web3 = Web3Provider.getWeb3()
@@ -116,7 +130,7 @@ export default class ContractHandler {
                 gas: 3000000,
                 gasPrice: 10000000000,
             })
-            contracts.set(name, contractInstance)
+            ContractHandler.contracts.set(name, contractInstance)
             // Logger.log("Deployed", name, "at", contractInstance.options.address);
         } catch (err) {
             Logger.error("Deployment failed for", name, "with params", JSON.stringify(params, null, 2), err.message)

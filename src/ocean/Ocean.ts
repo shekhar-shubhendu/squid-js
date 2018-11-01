@@ -2,14 +2,17 @@ import AquariusProvider from "../aquarius/AquariusProvider"
 import ConfigProvider from "../ConfigProvider"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
+import Config from "../models/Config"
+import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
+import IdGenerator from "./IdGenerator"
 import Order from "./Order"
 
 export default class Ocean {
 
-    public static async getInstance(config) {
+    public static async getInstance(config: Config) {
 
         if (!Ocean.instance) {
             ConfigProvider.setConfig(config)
@@ -37,8 +40,17 @@ export default class Ocean {
     public async register(asset: Asset): Promise<string> {
         const {market} = this.keeper
 
+        const secretStore = SecretStoreProvider.getSecretStore()
+
+        const assetId = IdGenerator.generateId()
+
+        const encryptedDocument = await secretStore.encryptDocument(assetId, asset)
+
+        const decryptedDocument = await secretStore.decryptDocument(assetId, encryptedDocument)
+
+        Logger.log(decryptedDocument, encryptedDocument)
+
         // generate an id
-        const assetId = await market.generateId(asset.name + asset.description)
         Logger.log(`Registering: ${assetId} with price ${asset.price} for ${asset.publisher.getId()}`)
         asset.setId(assetId)
         const isAssetActive = await market.isAssetActive(assetId)

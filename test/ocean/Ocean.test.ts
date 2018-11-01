@@ -6,8 +6,10 @@ import Account from "../../src/ocean/Account"
 import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import Order from "../../src/ocean/Order"
+import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
 import config from "../config"
 import AquariusMock from "../mocks/Aquarius.mock"
+import SecretStoreMock from "../mocks/SecretStore.mock"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -24,6 +26,7 @@ describe("Ocean", () => {
     before(async () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
+        SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
         await ContractHandler.deployContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
@@ -62,10 +65,9 @@ describe("Ocean", () => {
 
             const assetId: string = await ocean.register(testAsset)
 
-            assert(assetId.length === 66)
-            assert(assetId.startsWith("0x"))
+            assert(assetId.length === 64)
+            assert(!assetId.startsWith("0x"))
         })
-
     })
 
     describe("#getOrdersByConsumer()", () => {
@@ -82,7 +84,6 @@ describe("Ocean", () => {
 
             assert(orders.length === 1)
             assert(orders[0].getId() === order.getId())
-
         })
 
     })

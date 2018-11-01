@@ -33,7 +33,7 @@
 Start by adding the package to your dependencies:
 
 ```bash
-npm i @oceanprotocol/squid
+npm i @oceanprotocol/squid --save
 ```
 
 The package exposes `Ocean` and `Logger` which you can import in your code like this:
@@ -46,10 +46,13 @@ import { Ocean, Logger } from '@oceanprotocol/squid'
 const { Ocean, Logger } = require('@oceanprotocol/squid')
 ```
 
-You can then connect to a running [Keeper](https://github.com/oceanprotocol/keeper-contracts) & [Provider](https://github.com/oceanprotocol/provider) instance, e.g.:
+You can then connect to a running [Keeper](https://github.com/oceanprotocol/keeper-contracts) & [Aquarius](https://github.com/oceanprotocol/aquarius) instance, e.g.:
 
 ```js
-const ocean = await new Ocean({nodeUri: 'http://localhost:8545', network: 'development', providerUri: 'http://localhost:5000'})
+const ocean = await new Ocean({
+    nodeUri: 'http://localhost:8545', 
+    aquariusUri: 'http://localhost:5000'
+})
 ```
 
 ## Development
