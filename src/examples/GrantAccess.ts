@@ -1,3 +1,4 @@
+import DDO from "../ddo/DDO"
 import ServiceAgreement from "../ocean/ServiceAgreement"
 import {Account, Asset, Logger, Ocean} from "../squid"
 
@@ -20,11 +21,11 @@ import {Account, Asset, Logger, Ocean} from "../squid"
         "nice data",
         100, publisher)
 
-    const assetDid = await ocean.register(asset)
-    Logger.log("asset did:", assetDid)
+    const ddo: DDO = await ocean.register(asset)
+    Logger.log("asset did:", ddo.id)
 
     const serviceAgreement: ServiceAgreement = await asset.purchase(consumer)
-    Logger.log("service defintion id:", serviceAgreement.getId())
+    Logger.log("service agreement id:", serviceAgreement.getId())
 
     const accessGranted: boolean =
         await serviceAgreement.grantAccess(asset.getId(), "321721938712931283")

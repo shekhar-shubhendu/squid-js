@@ -1,5 +1,6 @@
-import {Account, Asset, Logger, Ocean} from "../squid"
+import DDO from "../ddo/DDO"
 import ServiceAgreement from "../ocean/ServiceAgreement"
+import {Account, Asset, Logger, Ocean} from "../squid"
 
 (async () => {
     const ocean: Ocean = await Ocean.getInstance({
@@ -20,8 +21,8 @@ import ServiceAgreement from "../ocean/ServiceAgreement"
         "nice data",
         100, publisher)
 
-    const assetDid = await ocean.register(asset)
-    Logger.log(assetDid)
+    const ddo: DDO = await ocean.register(asset)
+    Logger.log(ddo.id)
 
     const serviceAgreement: ServiceAgreement = await asset.purchase(consumer)
     Logger.log(serviceAgreement.getId())

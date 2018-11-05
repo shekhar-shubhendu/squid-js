@@ -1,7 +1,9 @@
 import {assert} from "chai"
 import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import ConfigProvider from "../../src/ConfigProvider"
+import Condition from "../../src/ddo/Condition"
 import DDO from "../../src/ddo/DDO"
+import Service from "../../src/ddo/Service"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
@@ -10,8 +12,6 @@ import ServiceAgreement from "../../src/ocean/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreementTemplate"
 import config from "../config"
 import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
-import Service from "../../src/ddo/Service"
-import Condition from "../../src/ddo/Condition"
 
 let ocean: Ocean
 let accounts: Account[]

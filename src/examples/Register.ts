@@ -1,3 +1,4 @@
+import DDO from "../ddo/DDO"
 import {Account, Asset, Logger, Ocean} from "../squid"
 
 (async () => {
@@ -16,7 +17,7 @@ import {Account, Asset, Logger, Ocean} from "../squid"
         "Fancy Car Data",
         "nice data", 100,
         publisher)
-    const assetDid = await ocean.register(asset)
 
-    Logger.log(assetDid)
+    const ddo: DDO = await ocean.register(asset)
+    Logger.log(ddo.id)
 })()
