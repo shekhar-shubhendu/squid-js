@@ -102,4 +102,8 @@ export default class Ocean {
     public async searchAssets(query: SearchQuery): Promise<any[]> {
         return AquariusProvider.getAquarius().queryMetadata(query)
     }
+
+    public async searchAssetsByText(query: SearchQuery): Promise<any[]> {
+        return AquariusProvider.getAquarius().queryMetadataByText(query)
+    }
 }

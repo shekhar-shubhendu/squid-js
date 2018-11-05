@@ -3,7 +3,6 @@ import ServiceAgreement from "../../keeper/contracts/ServiceAgreement"
 import Web3Provider from "../../keeper/Web3Provider"
 import MethodReflection from "../../models/MethodReflection"
 import ValuePair from "../../models/ValuePair"
-import Logger from "../../utils/Logger"
 import Account from "../Account"
 import OceanBase from "../OceanBase"
 import Condition from "./Condition"
@@ -28,7 +27,6 @@ export default class ServiceAgreementTemplate extends OceanBase {
                 return method.dependency | method.timeout
             }))
 
-        Logger.log(dependencyMatrix)
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
 
         const receipt = await serviceAgreement.setupAgreementTemplate(
