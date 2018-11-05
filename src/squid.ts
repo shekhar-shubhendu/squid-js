@@ -1,3 +1,4 @@
+import Account from "./ocean/Account"
 import Asset from "./ocean/Asset"
 import Ocean from "./ocean/Ocean"
 import Order from "./ocean/Order"
@@ -8,4 +9,5 @@ export {
     Order,
     Asset,
     Logger,
+    Account,
 }

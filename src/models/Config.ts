@@ -5,9 +5,9 @@ export default class Config {
 
     /* Keeper Config */
     // the uri to the node we want to connect to, not need if web3Provider is set
-    public nodeUri: string
+    public nodeUri?: string
     // from outside eg. metamask
-    public web3Provider: any
+    public web3Provider?: any
 
     /* Secret Store Config */
     // the uri of the secret store to connect to

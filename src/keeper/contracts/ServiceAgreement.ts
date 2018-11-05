@@ -24,18 +24,19 @@ export default class ServiceAgreement extends ContractBase {
         return this.call("getTemplateStatus", [templateId])
     }
 
-    public async getAgreementStatus(serviceAgreementId: string) {
+    public async getAgreementStatus(serviceDefinitionId: string) {
 
-        return this.call("getAgreementStatus", ["0x" + serviceAgreementId])
+        return this.call("getAgreementStatus", [serviceDefinitionId])
     }
 
     public async executeAgreement(serviceAgreementTemplateId: string, serviceAgreementSignatureHash: string,
                                   consumerAddress: string, valueHashes: string[], timeoutValues: number[],
-                                  serviceAgreementId: string, did: string, publisherAddress: string): Promise<Receipt> {
+                                  serviceAgreementId: string, did: string, publisherAddress: string):
+        Promise<Receipt> {
 
         return this.send("executeAgreement", publisherAddress, [
             serviceAgreementTemplateId, serviceAgreementSignatureHash, consumerAddress, valueHashes,
-            timeoutValues, "0x" + serviceAgreementId, "0x" + did,
+            timeoutValues, "0x" + serviceAgreementId, "0x" + did.replace("did:op:", ""),
         ])
     }
 }

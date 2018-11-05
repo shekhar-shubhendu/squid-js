@@ -1,14 +1,16 @@
 import AquariusProvider from "../aquarius/AquariusProvider"
+import SearchQuery from "../aquarius/query/SearchQuery"
 import ConfigProvider from "../ConfigProvider"
+import Condition from "../ddo/Condition"
+import DDO from "../ddo/DDO"
+import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
-import SecretStoreProvider from "../secretstore/SecretStoreProvider"
-import Logger from "../utils/Logger"
 import Account from "./Account"
 import Asset from "./Asset"
 import IdGenerator from "./IdGenerator"
-import Order from "./Order"
+import ServiceAgreementTemplate from "./ServiceAgreementTemplate"
 
 export default class Ocean {
 
@@ -37,71 +39,71 @@ export default class Ocean {
         return ethAccounts.map((address: string) => new Account(address))
     }
 
-    public async register(asset: Asset): Promise<string> {
+    public async register(asset: Asset): Promise<DDO> {
+
         const {market} = this.keeper
 
-        const secretStore = SecretStoreProvider.getSecretStore()
+        const assetId: string = IdGenerator.generateId()
+        const did: string = `did:op:${assetId}`
 
-        const assetId = IdGenerator.generateId()
+        const methods: string[] = [
+            "PaymentConditions.lockPayment",
+            "AccessConditions.grantAccess",
+            "PaymentConditions.releasePayment",
+            "PaymentConditions.refundPayment",
+        ]
+        // tslint:disable
+        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
-        const encryptedDocument = await secretStore.encryptDocument(assetId, asset)
+        const serviceName = "Access"
+        const saTemplate: ServiceAgreementTemplate =
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(serviceName, methods, dependencyMatrix,
+                asset.publisher)
 
-        const decryptedDocument = await secretStore.decryptDocument(assetId, encryptedDocument)
+        // get condition keys from template
+        const conditionKeys: string[] = saTemplate.getConditionKeys()
 
-        Logger.log(decryptedDocument, encryptedDocument)
-
-        // generate an id
-        Logger.log(`Registering: ${assetId} with price ${asset.price} for ${asset.publisher.getId()}`)
-        asset.setId(assetId)
-        const isAssetActive = await market.isAssetActive(assetId)
-        // register asset in the market
-        if (!isAssetActive) {
-            const result = await market.register(asset.getId(), asset.price, asset.publisher.getId())
-            Logger.log("Registered:", assetId, "in block", result.blockNumber)
-        } else {
-            throw new Error("Asset already registered")
-        }
-        return assetId
-    }
-
-    public async getOrdersByAccount(consumer: Account): Promise<Order[]> {
-        const {auth} = this.keeper
-
-        Logger.log("Getting orders")
-
-        const accessConsentRequestedData = await auth.getEventData(
-            "AccessConsentRequested", {
-                filter: {
-                    _consumer: consumer.getId(),
+        // create ddo conditions out of the keys
+        const conditions: Condition[] = conditionKeys.map((conditionKey, i): Condition => {
+            return {
+                name: methods[i].split(".")[1],
+                timeout: 100,
+                conditionKey: conditionKey,
+                parameters: {
+                    // todo wtf?
+                    assetId: "bytes32",
+                    price: "integer"
                 },
-                fromBlock: 0,
-                toBlock: "latest",
-            })
+            } as Condition
+        })
 
-        const orders = await Promise.all(
-            accessConsentRequestedData
-                .map(async (event: any) => {
+        // create ddo itself
+        const ddo: DDO = new DDO({
+            id: did,
+            service: [
+                {
+                    type: serviceName,
+                    // tslint:disable
+                    serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
+                    purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
+                    // the id of the service agreement?
+                    serviceDefinitionId: "0x" + IdGenerator.generateId(),
+                    // the id of the service agreement template
+                    templateId: saTemplate.getId(),
+                    conditions,
+                } as Service,
+            ],
+        })
 
-                    const {returnValues} = event
 
-                    const order: Order = new Order(
-                        null,
-                        parseInt(returnValues._timeout, 10),
-                        null, null)
+        await AquariusProvider.getAquarius().storeDDO(ddo)
+        asset.setId(assetId)
 
-                    order.setId(returnValues._id)
-
-                    return order
-                }),
-        )
-
-        // Logger.log("Got orders:", JSON.stringify(orders, null, 2))
-        Logger.log(`Got ${Object.keys(orders).length} orders`)
-
-        return orders
+        await market.register(assetId, asset.price, asset.publisher.getId())
+        return ddo
     }
 
-    public async searchAssets(query): Promise<any[]> {
+    public async searchAssets(query: SearchQuery): Promise<any[]> {
         return AquariusProvider.getAquarius().queryMetadata(query)
     }
 }

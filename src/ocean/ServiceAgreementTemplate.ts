@@ -25,11 +25,12 @@ export default class ServiceAgreementTemplate extends OceanBase {
             Web3Provider.getWeb3().utils.fromAscii(serviceName),
             templateOwner.getId())
 
-        const id = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
+        const serviceAgreementTemplateId =
+            receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
 
         return new ServiceAgreementTemplate(
-            id,
-            ServiceAgreementTemplate.generateConditionsKeys(id, methodReflections),
+            serviceAgreementTemplateId,
+            ServiceAgreementTemplate.generateConditionsKeys(serviceAgreementTemplateId, methodReflections),
             templateOwner)
     }
 
@@ -47,17 +48,15 @@ export default class ServiceAgreementTemplate extends OceanBase {
         return conditions
     }
 
-    private constructor(id, private conditionKeys: string[], private owner: Account) {
-        super(id)
+    private constructor(serviceAgreementTemplateId, private conditionKeys: string[], private owner: Account) {
+        super(serviceAgreementTemplateId)
     }
 
     /**
      * gets the status of a service agreement template
      */
     public async getStatus(): Promise<boolean> {
-
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
-
         return serviceAgreement.getTemplateStatus(this.getId())
     }
 

@@ -1,10 +1,8 @@
-import * as EthCrypto from "eth-crypto"
-import * as EthjsUtil from "ethereumjs-util"
-import Keeper from "../keeper/Keeper"
-import Logger from "../utils/Logger"
+import AquariusProvider from "../aquarius/AquariusProvider"
 import Account from "./Account"
+import IdGenerator from "./IdGenerator"
 import OceanBase from "./OceanBase"
-import Order from "./Order"
+import ServiceAgreement from "./ServiceAgreement"
 
 export default class Asset extends OceanBase {
 
@@ -15,42 +13,15 @@ export default class Asset extends OceanBase {
         super()
     }
 
-    public async purchase(consumer: Account, timeout: number): Promise<Order> {
-        const {token, market, auth} = await Keeper.getInstance()
+    public async purchase(consumer: Account): Promise<ServiceAgreement> {
 
-        const key = EthCrypto.createIdentity()
-        const publicKey = EthjsUtil.privateToPublic(key.privateKey).toString("hex")
-        const price = await market.getAssetPrice(this.getId())
-        const isValid = await market.isAssetActive(this.getId())
+        const did = `did:op:${this.getId()}`
+        const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
 
-        Logger.log("The asset:", this.getId(), "is it valid?", isValid, "it's price is:", price)
+        const serviceAgreementId: string = IdGenerator.generateId()
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.createServiceAgreement(this.getId(),
+            ddo, serviceAgreementId, consumer, this.publisher)
 
-        if (!isValid) {
-            throw new Error("The Asset is not valid!")
-        }
-        try {
-            const marketAddr = market.getAddress()
-            // Allow market contract to transfer funds on the consumer"s behalf
-            await token.approve(marketAddr, price, consumer.getId())
-            Logger.log(`${price} tokens approved on market with id: ${marketAddr}`)
-        } catch (err) {
-            Logger.error("token.approve failed", err)
-        }
-        let order: Order
-        try {
-            // Submit the access request
-            const initiateAccessRequestReceipt = await auth.initiateAccessRequest(this,
-                publicKey, timeout, consumer.getId())
-
-            const {returnValues} = initiateAccessRequestReceipt.events.AccessConsentRequested
-            Logger.log(`Keeper AccessConsentRequested event received on asset: ${this.getId()}`)
-            order = new Order(this, returnValues._timeout, returnValues._pubKey, key)
-            order.setId(returnValues._id)
-        } catch (err) {
-            Logger.error("auth.initiateAccessRequest failed", err)
-        }
-
-        return order
+        return serviceAgreement
     }
-
 }

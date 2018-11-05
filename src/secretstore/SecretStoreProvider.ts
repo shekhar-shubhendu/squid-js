@@ -8,7 +8,7 @@ export default class SecretStoreProvider {
         SecretStoreProvider.secretStore = secretStore
     }
 
-    public static getSecretStore() {
+    public static getSecretStore(): SecretStore {
 
         if (!SecretStoreProvider.secretStore) {
             SecretStoreProvider.secretStore = new SecretStore(ConfigProvider.getConfig())
