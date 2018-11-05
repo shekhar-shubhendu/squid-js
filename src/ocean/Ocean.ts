@@ -95,7 +95,6 @@ export default class Ocean {
             ],
         })
 
-
         await AquariusProvider.getAquarius().storeDDO(ddo)
         asset.setId(assetId)
 
