@@ -12,6 +12,7 @@ export default class ContractReflector {
             methodName: parts[1],
             address: contract.getAddress(),
             signature: contract.getSignatureOfMethod(parts[1]),
+            inputs: contract.getInputsOfMethod(parts[1]),
         } as MethodReflection
     }
 }

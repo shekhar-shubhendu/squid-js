@@ -3,4 +3,5 @@ export default class MethodReflection {
     public methodName: string
     public address: string
     public signature: string
+    public inputs: any[]
 }

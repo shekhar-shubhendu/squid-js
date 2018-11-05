@@ -2,7 +2,7 @@ import AquariusProvider from "../aquarius/AquariusProvider"
 import Account from "./Account"
 import IdGenerator from "./IdGenerator"
 import OceanBase from "./OceanBase"
-import ServiceAgreement from "./ServiceAgreement"
+import ServiceAgreement from "./ServiceAgreements/ServiceAgreement"
 
 export default class Asset extends OceanBase {
 
@@ -19,7 +19,7 @@ export default class Asset extends OceanBase {
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
 
         const serviceAgreementId: string = IdGenerator.generateId()
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.createServiceAgreement(this.getId(),
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.signServiceAgreement(this.getId(),
             ddo, serviceAgreementId, consumer, this.publisher)
 
         return serviceAgreement

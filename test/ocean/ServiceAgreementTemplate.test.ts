@@ -3,19 +3,12 @@ import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import Ocean from "../../src/ocean/Ocean"
-import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreementTemplate"
+import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
+import DefaultTemplate from "../../src/ocean/ServiceAgreements/Templates/Default"
 import config from "../config"
 
 let ocean: Ocean
 let accounts: Account[]
-const methods: string[] = [
-    "PaymentConditions.lockPayment",
-    "AccessConditions.grantAccess",
-    "PaymentConditions.releasePayment",
-    "PaymentConditions.refundPayment",
-]
-// tslint:disable
-const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
 describe("ServiceAgreementTemplate", () => {
 
@@ -32,8 +25,8 @@ describe("ServiceAgreementTemplate", () => {
             const templateOwner = accounts[0]
             const resourceName = "consume"
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, methods,
-                    dependencyMatrix, templateOwner)
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+                    templateOwner)
 
             assert(serviceAgreementTemplate)
             assert(serviceAgreementTemplate.getId())
@@ -48,8 +41,8 @@ describe("ServiceAgreementTemplate", () => {
             const resourceName = "consume"
 
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, methods,
-                    dependencyMatrix, publisherAccount)
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+                    publisherAccount)
             assert(serviceAgreementTemplate)
 
             const templateStatus = await serviceAgreementTemplate.getStatus()

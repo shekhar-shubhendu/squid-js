@@ -1,15 +1,18 @@
 import {assert} from "chai"
 import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import ConfigProvider from "../../src/ConfigProvider"
-import Condition from "../../src/ddo/Condition"
+import DDOCondition from "../../src/ddo/Condition"
 import DDO from "../../src/ddo/DDO"
+import Parameter from "../../src/ddo/Parameter"
 import Service from "../../src/ddo/Service"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
-import ServiceAgreement from "../../src/ocean/ServiceAgreement"
-import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreementTemplate"
+import Condition from "../../src/ocean/ServiceAgreements/Condition"
+import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
+import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
+import DefaultTemplate from "../../src/ocean/ServiceAgreements/Templates/Default"
 import config from "../config"
 import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
 
@@ -35,43 +38,35 @@ describe("ServiceAgreement", () => {
         consumerAccount = accounts[2]
 
         const resourceName = "superb car data"
-        const methods: string[] = [
-            "PaymentConditions.lockPayment",
-            "AccessConditions.grantAccess",
-            "PaymentConditions.releasePayment",
-            "PaymentConditions.refundPayment",
-        ]
-
-        // tslint:disable
-        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
 
         testServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, methods,
-                dependencyMatrix, templateOwnerAccount)
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+                templateOwnerAccount)
 
         // get condition keys from template
-        const conditionKeys: string[] = testServiceAgreementTemplate.getConditionKeys()
+        const conditions: Condition[] = testServiceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
-        const conditions: Condition[] = conditionKeys.map((conditionKey, i): Condition => {
+        const ddoConditions: DDOCondition[] = conditions.map((condition): DDOCondition => {
             return {
-                name: methods[i].split(".")[1],
+                name: condition.methodReflection.methodName,
                 timeout: 100,
-                conditionKey: conditionKey,
-                parameters: {
-                    // todo wtf?
-                    assetId: "bytes32",
-                    price: "integer"
-                },
-            } as Condition
+                conditionKey: condition.condtionKey,
+                parameters: condition.methodReflection.inputs.map((input) => {
+                    return {
+                        ...input,
+                        value: "xx",
+                    }as Parameter
+                }),
+            } as DDOCondition
         })
 
         serviceDefintion = [
             {
                 serviceDefinitionId: IdGenerator.generateId(),
                 templateId: testServiceAgreementTemplate.getId(),
-                conditions,
-            } as Service
+                conditions: ddoConditions,
+            } as Service,
         ]
 
     })
@@ -88,7 +83,7 @@ describe("ServiceAgreement", () => {
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.createServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
                     publisherAccount)
             assert(serviceAgreement)
 
@@ -110,7 +105,7 @@ describe("ServiceAgreement", () => {
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.createServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
                     publisherAccount)
             assert(serviceAgreement)
 
@@ -131,7 +126,7 @@ describe("ServiceAgreement", () => {
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.createServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
                     publisherAccount)
             assert(serviceAgreement)
 

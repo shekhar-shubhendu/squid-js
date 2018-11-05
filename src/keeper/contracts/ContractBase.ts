@@ -43,18 +43,13 @@ export default abstract class ContractBase {
     }
 
     public getSignatureOfMethod(methodName: string): string {
-
-        const foundMethod = this.contract.options.jsonInterface.find((method) => {
-            if (method.name === methodName) {
-                return method
-            }
-        })
-
-        if (!foundMethod) {
-            throw new Error(`Method "${methodName}" is not part of contract "${this.contractName}"`)
-        }
-
+        const foundMethod = this.searchMethod(methodName)
         return foundMethod.signature
+    }
+
+    public getInputsOfMethod(methodName: string): any[] {
+        const foundMethod = this.searchMethod(methodName)
+        return foundMethod.inputs
     }
 
     protected async init() {
@@ -93,6 +88,18 @@ export default abstract class ContractBase {
             Logger.error(`Calling method "${name}" on contract "${this.contractName}" failed. Args: ${args}`, err)
             throw err
         }
+    }
+
+    private searchMethod(methodName): any {
+        const foundMethod = this.contract.options.jsonInterface.find((method) => {
+            if (method.name === methodName) {
+                return method
+            }
+        })
+        if (!foundMethod) {
+            throw new Error(`Method "${methodName}" is not part of contract "${this.contractName}"`)
+        }
+        return foundMethod
     }
 
 }

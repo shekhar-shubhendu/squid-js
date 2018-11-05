@@ -1,16 +1,20 @@
 import AquariusProvider from "../aquarius/AquariusProvider"
 import SearchQuery from "../aquarius/query/SearchQuery"
 import ConfigProvider from "../ConfigProvider"
-import Condition from "../ddo/Condition"
+import DDOCondition from "../ddo/Condition"
 import DDO from "../ddo/DDO"
+import Parameter from "../ddo/Parameter"
 import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
+import ValuePair from "../models/ValuePair"
 import Account from "./Account"
 import Asset from "./Asset"
 import IdGenerator from "./IdGenerator"
-import ServiceAgreementTemplate from "./ServiceAgreementTemplate"
+import Condition from "./ServiceAgreements/Condition"
+import ServiceAgreementTemplate from "./ServiceAgreements/ServiceAgreementTemplate"
+import DefaultTemplate from "./ServiceAgreements/Templates/Default"
 
 export default class Ocean {
 
@@ -46,35 +50,28 @@ export default class Ocean {
         const assetId: string = IdGenerator.generateId()
         const did: string = `did:op:${assetId}`
 
-        const methods: string[] = [
-            "PaymentConditions.lockPayment",
-            "AccessConditions.grantAccess",
-            "PaymentConditions.releasePayment",
-            "PaymentConditions.refundPayment",
-        ]
-        // tslint:disable
-        const dependencyMatrix = [0, 1, 4, 1 | 2 ** 4 | 2 ** 5] // dependency bit | timeout bit
-
         const serviceName = "Access"
-        const saTemplate: ServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(serviceName, methods, dependencyMatrix,
+        const serviceAgreementTemplate: ServiceAgreementTemplate =
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(serviceName, DefaultTemplate.methods,
                 asset.publisher)
 
         // get condition keys from template
-        const conditionKeys: string[] = saTemplate.getConditionKeys()
+        const conditions: Condition[] = serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
-        const conditions: Condition[] = conditionKeys.map((conditionKey, i): Condition => {
+        const ddoConditions: DDOCondition[] = conditions.map((condition: Condition): DDOCondition => {
             return {
-                name: methods[i].split(".")[1],
+                name: condition.methodReflection.methodName,
                 timeout: 100,
-                conditionKey: conditionKey,
-                parameters: {
-                    // todo wtf?
-                    assetId: "bytes32",
-                    price: "integer"
-                },
-            } as Condition
+                conditionKey: condition.condtionKey,
+                parameters: condition.methodReflection.inputs.map((input: ValuePair) => {
+                    return {
+                        ...input,
+                        value: "xxx",
+                    } as Parameter
+                }),
+
+            } as DDOCondition
         })
 
         // create ddo itself
@@ -89,8 +86,8 @@ export default class Ocean {
                     // the id of the service agreement?
                     serviceDefinitionId: "0x" + IdGenerator.generateId(),
                     // the id of the service agreement template
-                    templateId: saTemplate.getId(),
-                    conditions,
+                    templateId: serviceAgreementTemplate.getId(),
+                    conditions: ddoConditions,
                 } as Service,
             ],
         })

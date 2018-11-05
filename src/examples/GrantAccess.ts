@@ -1,5 +1,5 @@
 import DDO from "../ddo/DDO"
-import ServiceAgreement from "../ocean/ServiceAgreement"
+import ServiceAgreement from "../ocean/ServiceAgreements/ServiceAgreement"
 import {Account, Asset, Logger, Ocean} from "../squid"
 
 (async () => {
