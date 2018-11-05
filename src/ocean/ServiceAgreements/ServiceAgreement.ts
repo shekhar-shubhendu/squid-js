@@ -1,3 +1,4 @@
+import Condition from "../../ddo/Condition"
 import DDO from "../../ddo/DDO"
 import AccessConditions from "../../keeper/contracts/conditions/AccessConditions"
 import ServiceAgreementContract from "../../keeper/contracts/ServiceAgreement"
@@ -91,7 +92,7 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     private static getTimeoutValuesFromDDO(ddo: DDO): number[] {
-        const timeoutValues: number[] = ddo.service[0].conditions.map((condition) => {
+        const timeoutValues: number[] = ddo.service[0].conditions.map((condition: Condition) => {
             return condition.timeout
         })
 

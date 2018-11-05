@@ -37,9 +37,10 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const serviceAgreementTemplateId =
             receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
 
-        const conditions: Condition[] = methodReflections.map((methodReflection) => {
+        const conditions: Condition[] = methodReflections.map((methodReflection, i) => {
             return {
                 methodReflection,
+                timeout: methods[i].timeout,
                 condtionKey: ServiceAgreementTemplate.generateConditionsKey(serviceAgreementTemplateId,
                     methodReflection),
             } as Condition

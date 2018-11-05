@@ -4,7 +4,7 @@ import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
-import DefaultTemplate from "../../src/ocean/ServiceAgreements/Templates/Default"
+import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
 import config from "../config"
 
 let ocean: Ocean
@@ -23,9 +23,8 @@ describe("ServiceAgreementTemplate", () => {
         it("should setup an agreement template", async () => {
 
             const templateOwner = accounts[0]
-            const resourceName = "consume"
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
                     templateOwner)
 
             assert(serviceAgreementTemplate)
@@ -38,10 +37,8 @@ describe("ServiceAgreementTemplate", () => {
         it("should get the status of a newly deployed agreement template", async () => {
 
             const publisherAccount = accounts[0]
-            const resourceName = "consume"
-
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
                     publisherAccount)
             assert(serviceAgreementTemplate)
 

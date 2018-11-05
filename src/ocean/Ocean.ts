@@ -14,7 +14,7 @@ import Asset from "./Asset"
 import IdGenerator from "./IdGenerator"
 import Condition from "./ServiceAgreements/Condition"
 import ServiceAgreementTemplate from "./ServiceAgreements/ServiceAgreementTemplate"
-import DefaultTemplate from "./ServiceAgreements/Templates/Default"
+import Access from "./ServiceAgreements/Templates/Access"
 
 export default class Ocean {
 
@@ -50,9 +50,8 @@ export default class Ocean {
         const assetId: string = IdGenerator.generateId()
         const did: string = `did:op:${assetId}`
 
-        const serviceName = "Access"
         const serviceAgreementTemplate: ServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(serviceName, DefaultTemplate.methods,
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
                 asset.publisher)
 
         // get condition keys from template
@@ -62,7 +61,7 @@ export default class Ocean {
         const ddoConditions: DDOCondition[] = conditions.map((condition: Condition): DDOCondition => {
             return {
                 name: condition.methodReflection.methodName,
-                timeout: 100,
+                timeout: condition.timeout,
                 conditionKey: condition.condtionKey,
                 parameters: condition.methodReflection.inputs.map((input: ValuePair) => {
                     return {
@@ -79,7 +78,7 @@ export default class Ocean {
             id: did,
             service: [
                 {
-                    type: serviceName,
+                    type: Access.templateName,
                     // tslint:disable
                     serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
                     purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
@@ -103,7 +102,17 @@ export default class Ocean {
         return AquariusProvider.getAquarius().queryMetadata(query)
     }
 
-    public async searchAssetsByText(query: SearchQuery): Promise<any[]> {
-        return AquariusProvider.getAquarius().queryMetadataByText(query)
+    public async searchAssetsByText(text: string): Promise<any[]> {
+        return AquariusProvider.getAquarius().queryMetadataByText({
+            text,
+            page: 1,
+            offset: 100,
+            query: {
+                value: 1
+            },
+            sort: {
+                value: 1
+            }
+        } as SearchQuery)
     }
 }

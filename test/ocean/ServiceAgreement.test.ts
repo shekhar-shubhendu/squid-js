@@ -12,7 +12,7 @@ import Ocean from "../../src/ocean/Ocean"
 import Condition from "../../src/ocean/ServiceAgreements/Condition"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
-import DefaultTemplate from "../../src/ocean/ServiceAgreements/Templates/Default"
+import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
 import config from "../config"
 import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
 
@@ -37,10 +37,8 @@ describe("ServiceAgreement", () => {
         publisherAccount = accounts[1]
         consumerAccount = accounts[2]
 
-        const resourceName = "superb car data"
-
         testServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(resourceName, DefaultTemplate.methods,
+            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
                 templateOwnerAccount)
 
         // get condition keys from template

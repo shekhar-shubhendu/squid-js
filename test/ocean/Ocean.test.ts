@@ -89,4 +89,15 @@ describe("Ocean", () => {
         })
 
     })
+
+    describe("#searchAssetsByText()", () => {
+
+        it("should search for assets", async () => {
+            const text = "office"
+            const assets: any[] = await ocean.searchAssetsByText(text)
+
+            assert(assets)
+        })
+
+    })
 })
