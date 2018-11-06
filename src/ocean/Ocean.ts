@@ -22,17 +22,19 @@ export default class Ocean {
 
         if (!Ocean.instance) {
             ConfigProvider.setConfig(config)
-            Ocean.instance = new Ocean(await Keeper.getInstance())
+            Ocean.instance = new Ocean()
+            Ocean.instance.keeper = await Keeper.getInstance()
         }
 
         return Ocean.instance
     }
 
     private static instance = null
+
+    // @ts-ignore
     private keeper: Keeper
 
-    private constructor(keeper: Keeper) {
-        this.keeper = keeper
+    private constructor() {
     }
 
     public async getAccounts(): Promise<Account[]> {
@@ -44,8 +46,6 @@ export default class Ocean {
     }
 
     public async register(asset: Asset): Promise<DDO> {
-
-        const {market} = this.keeper
 
         const assetId: string = IdGenerator.generateId()
         const did: string = `did:op:${assetId}`
@@ -92,7 +92,6 @@ export default class Ocean {
         await AquariusProvider.getAquarius().storeDDO(ddo)
         asset.setId(assetId)
 
-        await market.register(assetId, asset.price, asset.publisher.getId())
         return ddo
     }
 
