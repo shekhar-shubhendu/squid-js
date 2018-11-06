@@ -7,7 +7,7 @@ describe("ContractHandler", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
     })
 
     describe("#get()", () => {

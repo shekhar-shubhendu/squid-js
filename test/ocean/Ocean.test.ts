@@ -26,7 +26,7 @@ describe("Ocean", () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
         SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 

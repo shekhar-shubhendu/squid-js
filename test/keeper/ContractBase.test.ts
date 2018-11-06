@@ -13,7 +13,7 @@ describe("ContractWrapperBase", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         await wrappedContract.initMock()
         const ocean: Ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()

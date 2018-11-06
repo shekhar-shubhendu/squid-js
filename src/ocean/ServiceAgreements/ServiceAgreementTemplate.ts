@@ -3,53 +3,51 @@ import ServiceAgreement from "../../keeper/contracts/ServiceAgreement"
 import Web3Provider from "../../keeper/Web3Provider"
 import MethodReflection from "../../models/MethodReflection"
 import ValuePair from "../../models/ValuePair"
+import Logger from "../../utils/Logger"
 import Account from "../Account"
 import OceanBase from "../OceanBase"
 import Condition from "./Condition"
 import Method from "./Method"
+import TemplateBase from "./Templates/TemplateBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
-    public static async registerServiceAgreementsTemplate(serviceName: string, methods: Method[],
-                                                          templateOwner: Account)
-        : Promise<ServiceAgreementTemplate> {
-
-        const methodReflections: MethodReflection[] =
-            await Promise.all(methods.map(async (method: Method) => {
-                const methodReflection = await
-                    ContractReflector.reflectContractMethod(method.path)
-                return methodReflection
-            }))
+    public async register(templateOwnerAddress: string)
+        : Promise<boolean> {
 
         const dependencyMatrix: number[] =
-            await Promise.all(methods.map(async (method: Method) => {
+            await Promise.all(this.template.Methods.map(async (method: Method) => {
                 // tslint:disable
                 return method.dependency | method.timeout
             }))
 
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
 
+        const methodReflections = await this.getMethodReflections()
+
+        const owner = await this.getOwner()
+
+        if (!owner.getId().startsWith("0x0")) {
+            Logger.error(`Template with id "${this.template.id}" already registered.`)
+            return false
+        }
+
         const receipt = await serviceAgreement.setupAgreementTemplate(
             methodReflections, dependencyMatrix,
-            Web3Provider.getWeb3().utils.fromAscii(serviceName),
-            templateOwner.getId())
+            Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
+            templateOwnerAddress)
 
-        const serviceAgreementTemplateId =
-            receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
+        const templateId = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
 
-        const conditions: Condition[] = methodReflections.map((methodReflection, i) => {
-            return {
-                methodReflection,
-                timeout: methods[i].timeout,
-                condtionKey: ServiceAgreementTemplate.generateConditionsKey(serviceAgreementTemplateId,
-                    methodReflection),
-            } as Condition
-        })
+        if (templateId !== this.template.id) {
+            throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${templateId}`)
+        }
 
-        return new ServiceAgreementTemplate(
-            serviceAgreementTemplateId,
-            conditions,
-            templateOwner)
+        if (receipt.status) {
+            Logger.error("Registering template failed")
+        }
+
+        return receipt.status
     }
 
     private static generateConditionsKey(serviceAgreementTemplateId: string, methodReflection: MethodReflection)
@@ -62,9 +60,8 @@ export default class ServiceAgreementTemplate extends OceanBase {
         return Web3Provider.getWeb3().utils.soliditySha3(...values).toString("hex")
     }
 
-    private constructor(serviceAgreementTemplateId, private conditions: Condition[],
-                        private owner: Account) {
-        super(serviceAgreementTemplateId)
+    public constructor(private template: TemplateBase) {
+        super(template.id)
     }
 
     /**
@@ -75,11 +72,34 @@ export default class ServiceAgreementTemplate extends OceanBase {
         return serviceAgreement.getTemplateStatus(this.getId())
     }
 
-    public getOwner(): Account {
-        return this.owner
+    public async getOwner(): Promise<Account> {
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+
+        return new Account(await serviceAgreement.getTemplateOwner(this.id))
     }
 
-    public getConditions(): Condition[] {
-        return this.conditions
+    private async getMethodReflections(): Promise<MethodReflection[]> {
+        const methodReflections: MethodReflection[] =
+            await Promise.all(this.template.Methods.map(async (method: Method) => {
+                const methodReflection = await
+                    ContractReflector.reflectContractMethod(method.path)
+                return methodReflection
+            }))
+        return methodReflections
+    }
+
+    public async getConditions(): Promise<Condition[]> {
+        const methodReflections = await this.getMethodReflections()
+
+        const conditions: Condition[] = methodReflections.map((methodReflection, i) => {
+            return {
+                methodReflection,
+                timeout: this.template.Methods[i].timeout,
+                condtionKey: ServiceAgreementTemplate.generateConditionsKey(this.getId(),
+                    methodReflection),
+            } as Condition
+        })
+
+        return conditions
     }
 }

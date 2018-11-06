@@ -1,4 +1,7 @@
 import Contract from "web3-eth-contract"
+import ServiceAgreementTemplate from "../ocean/ServiceAgreements/ServiceAgreementTemplate"
+import Access from "../ocean/ServiceAgreements/Templates/Access"
+import FitchainCompute from "../ocean/ServiceAgreements/Templates/FitchainCompute"
 import Logger from "../utils/Logger"
 import Keeper from "./Keeper"
 import Web3Provider from "./Web3Provider"
@@ -15,12 +18,23 @@ export default class ContractHandler {
         }
     }
 
-    public static async deployContracts() {
-        Logger.log("Trying to deploy contracts")
+    public static async prepareContracts() {
 
         const web3 = Web3Provider.getWeb3()
-
         const deployerAddress = (await web3.eth.getAccounts())[0]
+
+        // deploy contracts
+        await ContractHandler.deployContracts(deployerAddress)
+
+        // register templates
+        await new ServiceAgreementTemplate(new Access()).register(deployerAddress)
+        await new ServiceAgreementTemplate(new FitchainCompute()).register(deployerAddress)
+    }
+
+    private static contracts: Map<string, Contract> = new Map<string, Contract>()
+
+    private static async deployContracts(deployerAddress: string) {
+        Logger.log("Trying to deploy contracts")
 
         // deploy libs
         /* not part of trilobite
@@ -71,8 +85,6 @@ export default class ContractHandler {
             args: [market.options.address],
         })
     }
-
-    private static contracts: Map<string, Contract> = new Map<string, Contract>()
 
     private static async load(what: string, where: string): Promise<Contract> {
         const web3 = Web3Provider.getWeb3()

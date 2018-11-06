@@ -24,6 +24,11 @@ export default class ServiceAgreement extends ContractBase {
         return this.call("getTemplateStatus", [templateId])
     }
 
+    public async getTemplateOwner(templateId: string) {
+
+        return this.call("getTemplateOwner", [templateId])
+    }
+
     public async getAgreementStatus(serviceDefinitionId: string) {
 
         return this.call("getAgreementStatus", [serviceDefinitionId])

@@ -19,30 +19,26 @@ import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
 let ocean: Ocean
 let accounts: Account[]
 let publisherAccount: Account
-let templateOwnerAccount: Account
 let consumerAccount: Account
 
-let testServiceAgreementTemplate: ServiceAgreementTemplate
 let serviceDefintion
 
 describe("ServiceAgreement", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 
-        templateOwnerAccount = accounts[0]
         publisherAccount = accounts[1]
         consumerAccount = accounts[2]
 
-        testServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
-                templateOwnerAccount)
+        const serviceAgreementTemplate: ServiceAgreementTemplate =
+            new ServiceAgreementTemplate(new Access())
 
         // get condition keys from template
-        const conditions: Condition[] = testServiceAgreementTemplate.getConditions()
+        const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
         const ddoConditions: DDOCondition[] = conditions.map((condition): DDOCondition => {
@@ -62,7 +58,7 @@ describe("ServiceAgreement", () => {
         serviceDefintion = [
             {
                 serviceDefinitionId: IdGenerator.generateId(),
-                templateId: testServiceAgreementTemplate.getId(),
+                templateId: serviceAgreementTemplate.getId(),
                 conditions: ddoConditions,
             } as Service,
         ]

@@ -49,13 +49,11 @@ export default class Ocean {
 
         const assetId: string = IdGenerator.generateId()
         const did: string = `did:op:${assetId}`
-
-        const serviceAgreementTemplate: ServiceAgreementTemplate =
-            await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
-                asset.publisher)
+        const template = new Access()
+        const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
 
         // get condition keys from template
-        const conditions: Condition[] = serviceAgreementTemplate.getConditions()
+        const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
         const ddoConditions: DDOCondition[] = conditions.map((condition: Condition): DDOCondition => {
@@ -78,7 +76,7 @@ export default class Ocean {
             id: did,
             service: [
                 {
-                    type: Access.templateName,
+                    type: template.templateName,
                     // tslint:disable
                     serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
                     purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",

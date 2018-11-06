@@ -2,6 +2,7 @@ import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
 import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
+import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
@@ -14,22 +15,23 @@ describe("ServiceAgreementTemplate", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
     })
 
-    describe("#registerServiceAgreementsTemplate()", () => {
+    describe("#register()", () => {
         it("should setup an agreement template", async () => {
 
             const templateOwner = accounts[0]
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
-                    templateOwner)
-
+                new ServiceAgreementTemplate(new Access(IdGenerator.generateId()))
             assert(serviceAgreementTemplate)
+
+            await serviceAgreementTemplate.register(templateOwner.getId())
+
             assert(serviceAgreementTemplate.getId())
-            assert(serviceAgreementTemplate.getOwner().getId() === templateOwner.getId())
+            assert((await serviceAgreementTemplate.getOwner()).getId() === templateOwner.getId())
         })
     })
 
@@ -38,9 +40,10 @@ describe("ServiceAgreementTemplate", () => {
 
             const publisherAccount = accounts[0]
             const serviceAgreementTemplate: ServiceAgreementTemplate =
-                await ServiceAgreementTemplate.registerServiceAgreementsTemplate(Access.templateName, Access.Methods,
-                    publisherAccount)
+                new ServiceAgreementTemplate(new Access(IdGenerator.generateId()))
             assert(serviceAgreementTemplate)
+
+            await serviceAgreementTemplate.register(publisherAccount.getId())
 
             const templateStatus = await serviceAgreementTemplate.getStatus()
             assert(templateStatus === true)
