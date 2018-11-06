@@ -1,6 +1,6 @@
 {
   "name": "@oceanprotocol/squid",
-  "version": "0.1.0-beta.20",
+  "version": "0.1.0",
   "description": "JavaScript client library for Ocean Protocol",
   "main": "dist/squid.js",
   "scripts": {
@@ -51,14 +51,14 @@
     "node": ">=8 <10"
   },
   "dependencies": {
-    "@oceanprotocol/keeper-contracts": "^0.3.12",
+    "@oceanprotocol/keeper-contracts": "^0.3.14",
     "@oceanprotocol/secret-store-client": "0.0.7",
     "bignumber.js": "^8.0.1",
     "eth-crypto": "^1.2.5",
     "eth-ecies": "^1.0.3",
     "ethereumjs-util": "^6.0.0",
     "jsonwebtoken": "^8.3.0",
-    "node-fetch": "^2.2.0",
+    "node-fetch": "^2.2.1",
     "uuid": "^3.3.2",
     "web3": "1.0.0-beta.36",
     "web3-utils": "1.0.0-beta.36"
