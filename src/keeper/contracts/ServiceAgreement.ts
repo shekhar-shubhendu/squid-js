@@ -15,7 +15,7 @@ export default class ServiceAgreement extends ContractBase {
 
         return this.send("setupAgreementTemplate", ownerAddress, [
             methodReflections.map((r) => r.address), methodReflections.map((r) => r.signature),
-            dependencyMatrix, name,
+            dependencyMatrix, name, [0], 0,
         ])
     }
 
