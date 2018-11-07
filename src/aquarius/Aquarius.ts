@@ -1,4 +1,4 @@
-import {URL} from "url"
+import {URL} from "whatwg-url"
 import DDO from "../ddo/DDO"
 import Config from "../models/Config"
 import Logger from "../utils/Logger"

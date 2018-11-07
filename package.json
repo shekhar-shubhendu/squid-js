@@ -61,7 +61,8 @@
     "node-fetch": "^2.2.1",
     "uuid": "^3.3.2",
     "web3": "1.0.0-beta.36",
-    "web3-utils": "1.0.0-beta.36"
+    "web3-utils": "1.0.0-beta.36",
+    "whatwg-url": "^7.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
