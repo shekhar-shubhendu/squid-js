@@ -1,5 +1,5 @@
 import ContractReflector from "../../keeper/ContractReflector"
-import ServiceAgreement from "../../keeper/contracts/ServiceAgreement"
+import Keeper from "../../keeper/Keeper"
 import Web3Provider from "../../keeper/Web3Provider"
 import MethodReflection from "../../models/MethodReflection"
 import ValuePair from "../../models/ValuePair"
@@ -21,7 +21,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
                 return method.dependency | method.timeout
             }))
 
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+        const {serviceAgreement} = await Keeper.getInstance()
 
         const methodReflections = await this.getMethodReflections()
 
@@ -68,12 +68,12 @@ export default class ServiceAgreementTemplate extends OceanBase {
      * gets the status of a service agreement template
      */
     public async getStatus(): Promise<boolean> {
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+        const {serviceAgreement} = await Keeper.getInstance()
         return serviceAgreement.getTemplateStatus(this.getId())
     }
 
     public async getOwner(): Promise<Account> {
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.getInstance()
+        const {serviceAgreement} = await Keeper.getInstance()
 
         return new Account(await serviceAgreement.getTemplateOwner(this.id))
     }

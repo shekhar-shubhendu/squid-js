@@ -1,7 +1,6 @@
 import Condition from "../../ddo/Condition"
 import DDO from "../../ddo/DDO"
-import AccessConditions from "../../keeper/contracts/conditions/AccessConditions"
-import ServiceAgreementContract from "../../keeper/contracts/ServiceAgreement"
+import Keeper from "../../keeper/Keeper"
 import Web3Provider from "../../keeper/Web3Provider"
 import ValuePair from "../../models/ValuePair"
 import Account from "../Account"
@@ -48,7 +47,7 @@ export default class ServiceAgreement extends OceanBase {
                                           serviceAgreementHashSignature: string, consumer: Account,
                                           publisher: Account): Promise<ServiceAgreement> {
 
-        const serviceAgreement: ServiceAgreementContract = await ServiceAgreementContract.getInstance()
+        const {serviceAgreement} = await Keeper.getInstance()
         const executeAgreementReceipt = await serviceAgreement.executeAgreement(
             ddo.service[0].templateId, serviceAgreementHashSignature, consumer.getId(), valueHashes,
             timeoutValues, serviceAgreementId, ddo.id, publisher.getId())
@@ -117,7 +116,7 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     public async grantAccess(assetId: string, documentId: string): Promise<boolean> {
-        const accessConditions: AccessConditions = await AccessConditions.getInstance()
+        const {accessConditions} = await Keeper.getInstance()
 
         const grantAccessReceipt =
             await accessConditions.grantAccess(this.getId(), assetId, documentId,
@@ -127,7 +126,7 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     public async getStatus() {
-        const serviceAgreement = await ServiceAgreementContract.getInstance()
+        const {serviceAgreement} = await Keeper.getInstance()
         return serviceAgreement.getAgreementStatus(this.getId())
     }
 }
