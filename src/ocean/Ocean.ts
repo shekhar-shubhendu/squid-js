@@ -81,7 +81,7 @@ export default class Ocean {
                     serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
                     purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
                     // the id of the service agreement?
-                    serviceDefinitionId: "0x" + IdGenerator.generateId(),
+                    serviceDefinitionId: IdGenerator.generatePrefixedId(),
                     // the id of the service agreement template
                     templateId: serviceAgreementTemplate.getId(),
                     conditions: ddoConditions,

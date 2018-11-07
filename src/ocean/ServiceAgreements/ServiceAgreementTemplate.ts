@@ -33,7 +33,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
         }
 
         const receipt = await serviceAgreement.setupAgreementTemplate(
-            methodReflections, dependencyMatrix,
+            this.template.id, methodReflections, dependencyMatrix,
             Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
             templateOwnerAddress)
 
