@@ -10,7 +10,7 @@ describe("Keeper", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         keeper = await Keeper.getInstance()
     })
 
