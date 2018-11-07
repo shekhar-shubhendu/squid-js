@@ -1,7 +1,6 @@
 import {Receipt} from "web3-utils"
 import AccessStatus from "../../models/AccessStatus"
 import Asset from "../../ocean/Asset"
-import Order from "../../ocean/Order"
 import ContractBase from "./ContractBase"
 
 export default class OceanAuth extends ContractBase {
@@ -29,11 +28,6 @@ export default class OceanAuth extends ContractBase {
                                        timeout: number, buyerAddress: string): Promise<Receipt> {
         const args = ["0x" + asset.getId(), asset.publisher.getId(), publicKey, timeout]
         return this.send("initiateAccessRequest", buyerAddress, args)
-    }
-
-    public async commitAccessRequest(order: Order, publisherAddress: string) {
-        const args = [order.getId(), true, 9999999999, "discovery", "read", "slaLink", "slaType"]
-        return this.send("commitAccessRequest", publisherAddress, args)
     }
 
     public async getTempPubKey(orderId: string) {

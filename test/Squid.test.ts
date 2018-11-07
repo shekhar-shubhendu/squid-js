@@ -17,8 +17,8 @@ describe("Squid", () => {
             assert(squid.Asset)
         })
 
-        it("should expose Order", async () => {
-            assert(squid.Order)
+        it("should expose ServiceAgreement", async () => {
+            assert(squid.ServiceAgreement)
         })
     })
 

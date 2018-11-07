@@ -1,12 +1,12 @@
 import Account from "./ocean/Account"
 import Asset from "./ocean/Asset"
 import Ocean from "./ocean/Ocean"
-import Order from "./ocean/Order"
+import ServiceAgreement from "./ocean/ServiceAgreements/ServiceAgreement"
 import Logger from "./utils/Logger"
 
 export {
     Ocean,
-    Order,
+    ServiceAgreement,
     Asset,
     Logger,
     Account,
