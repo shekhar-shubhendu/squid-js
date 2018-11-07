@@ -58,6 +58,13 @@ export default class Ocean {
         const did: string = `did:op:${id}`
         const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
 
+        metadata.base.contentUrls = metadata.base.contentUrls.map((contentUrl) => {
+
+            // todo encrypt url in secret store
+            Logger.log(contentUrl)
+            return "0x00000"
+        })
+
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
 
@@ -79,12 +86,7 @@ export default class Ocean {
 
             } as DDOCondition
         })
-
-        metadata.base.contentUrls = metadata.base.contentUrls.map((contentUrl) => {
-
-            Logger.log(contentUrl)
-            return "0x00000"
-        })
+        const serviceEndpoint = this.aquarius.getServiceEndpoint(did)
 
         // create ddo itself
         const ddo: DDO = new DDO({
@@ -102,6 +104,7 @@ export default class Ocean {
                     conditions: ddoConditions,
                 } as Service,
                 {
+                    serviceEndpoint,
                     metadata,
                 } as Service,
             ],
@@ -109,7 +112,7 @@ export default class Ocean {
 
         const storedDdo = await this.aquarius.storeDDO(ddo)
 
-        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", this.aquarius.getServiceEndpoint(did),
+        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", serviceEndpoint,
             publisher.getId())
 
         return storedDdo
