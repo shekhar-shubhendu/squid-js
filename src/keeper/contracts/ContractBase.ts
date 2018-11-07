@@ -101,5 +101,4 @@ export default abstract class ContractBase {
         }
         return foundMethod
     }
-
 }

@@ -23,9 +23,10 @@ export default class Aquarius {
                     return response.text()
                 }
                 Logger.error("Failed: ", response.status, response.statusText)
+                return null
             })
             .then((consumptionUrl: string): string => {
-                Logger.log("Success accessing consume endpoint: ", consumptionUrl)
+                Logger.error("Success accessing consume endpoint: ", consumptionUrl)
                 return consumptionUrl
             })
             .catch((error) => {
@@ -44,7 +45,8 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.log("Failed: ", response.status, response.statusText)
+                Logger.error("queryMetadata failed:", response.status, response.statusText)
+                return null
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
@@ -66,7 +68,8 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.log("Failed: ", response.status, response.statusText)
+                Logger.log("queryMetadataByText failed:", response.status, response.statusText)
+                return null
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
@@ -83,7 +86,8 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.log("Failed:", response.status, response.statusText)
+                Logger.error("storeDDO failed:", response.status, response.statusText)
+                return null
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
@@ -100,12 +104,17 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.log("Failed:", response.status, response.statusText)
+                Logger.log("retrieveDDO failed:", response.status, response.statusText)
+                return null
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
             })
 
         return result
+    }
+
+    public getServiceEndpoint(did) {
+        return `${this.url}/api/v1/provider/assets/metadata/${did}`
     }
 }

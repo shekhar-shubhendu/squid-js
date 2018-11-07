@@ -5,7 +5,6 @@ import DDOCondition from "../../src/ddo/Condition"
 import DDO from "../../src/ddo/DDO"
 import Parameter from "../../src/ddo/Parameter"
 import Service from "../../src/ddo/Service"
-import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
@@ -14,6 +13,7 @@ import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
 import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
 
 let ocean: Ocean
@@ -27,7 +27,7 @@ describe("ServiceAgreement", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 

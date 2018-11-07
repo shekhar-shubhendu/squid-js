@@ -1,18 +1,22 @@
+import Aquarius from "../aquarius/Aquarius"
 import AquariusProvider from "../aquarius/AquariusProvider"
 import SearchQuery from "../aquarius/query/SearchQuery"
 import ConfigProvider from "../ConfigProvider"
 import DDOCondition from "../ddo/Condition"
 import DDO from "../ddo/DDO"
+import MetaData from "../ddo/MetaData"
 import Parameter from "../ddo/Parameter"
 import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
 import ValuePair from "../models/ValuePair"
+import ValueType from "../models/ValueType"
+import Logger from "../utils/Logger"
 import Account from "./Account"
-import Asset from "./Asset"
 import IdGenerator from "./IdGenerator"
 import Condition from "./ServiceAgreements/Condition"
+import ServiceAgreement from "./ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "./ServiceAgreements/ServiceAgreementTemplate"
 import Access from "./ServiceAgreements/Templates/Access"
 
@@ -24,6 +28,7 @@ export default class Ocean {
             ConfigProvider.setConfig(config)
             Ocean.instance = new Ocean()
             Ocean.instance.keeper = await Keeper.getInstance()
+            Ocean.instance.aquarius = await AquariusProvider.getAquarius()
         }
 
         return Ocean.instance
@@ -31,8 +36,8 @@ export default class Ocean {
 
     private static instance = null
 
-    // @ts-ignore
     private keeper: Keeper
+    private aquarius: Aquarius
 
     private constructor() {
     }
@@ -45,10 +50,14 @@ export default class Ocean {
         return ethAccounts.map((address: string) => new Account(address))
     }
 
-    public async register(asset: Asset): Promise<DDO> {
+    public async registerAsset(metadata: MetaData, publisher: Account): Promise<DDO> {
 
-        const assetId: string = IdGenerator.generateId()
-        const did: string = `did:op:${assetId}`
+        const {didRegistry} = this.keeper
+
+        const id: string = IdGenerator.generateId()
+        const did: string = `did:op:${id}`
+        const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
+
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
 
@@ -71,45 +80,69 @@ export default class Ocean {
             } as DDOCondition
         })
 
+        metadata.base.contentUrls = metadata.base.contentUrls.map((contentUrl) => {
+
+            Logger.log(contentUrl)
+            return "0x00000"
+        })
+
         // create ddo itself
         const ddo: DDO = new DDO({
             id: did,
             service: [
                 {
                     type: template.templateName,
-                    // tslint:disable
+                    // tslint:disable-next-line
                     serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
                     purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
                     // the id of the service agreement?
-                    serviceDefinitionId: IdGenerator.generatePrefixedId(),
+                    serviceDefinitionId,
                     // the id of the service agreement template
                     templateId: serviceAgreementTemplate.getId(),
                     conditions: ddoConditions,
                 } as Service,
+                {
+                    metadata,
+                } as Service,
             ],
         })
 
-        await AquariusProvider.getAquarius().storeDDO(ddo)
-        asset.setId(assetId)
+        const storedDdo = await this.aquarius.storeDDO(ddo)
 
-        return ddo
+        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", this.aquarius.getServiceEndpoint(did),
+            publisher.getId())
+
+        return storedDdo
+    }
+
+    public async purchase(did: string, consumer: Account): Promise<ServiceAgreement> {
+
+        const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
+        const id = did.replace("did:op:", "")
+
+        const serviceAgreementId: string = IdGenerator.generateId()
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.signServiceAgreement(id,
+            // todo get publisher from ddo
+            ddo, serviceAgreementId, consumer, new Account())
+
+        return serviceAgreement
     }
 
     public async searchAssets(query: SearchQuery): Promise<any[]> {
-        return AquariusProvider.getAquarius().queryMetadata(query)
+        return this.aquarius.queryMetadata(query)
     }
 
     public async searchAssetsByText(text: string): Promise<any[]> {
-        return AquariusProvider.getAquarius().queryMetadataByText({
+        return this.aquarius.queryMetadataByText({
             text,
             page: 1,
             offset: 100,
             query: {
-                value: 1
+                value: 1,
             },
             sort: {
-                value: 1
-            }
+                value: 1,
+            },
         } as SearchQuery)
     }
 }

@@ -1,10 +1,10 @@
 import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
 import Web3Provider from "../../src/keeper/Web3Provider"
 import Account from "../../src/ocean/Account"
 import Ocean from "../../src/ocean/Ocean"
 import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -13,7 +13,7 @@ describe("Account", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
 
         accounts = await ocean.getAccounts()

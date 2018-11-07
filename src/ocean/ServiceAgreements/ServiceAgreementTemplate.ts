@@ -12,12 +12,26 @@ import TemplateBase from "./Templates/TemplateBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
+    private static generateConditionsKey(serviceAgreementTemplateId: string, methodReflection: MethodReflection)
+        : string {
+        const values = [
+            {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
+            {type: "address", value: methodReflection.address} as ValuePair,
+            {type: "bytes4", value: methodReflection.signature} as ValuePair,
+        ]
+        return Web3Provider.getWeb3().utils.soliditySha3(...values).toString("hex")
+    }
+
+    public constructor(private template: TemplateBase) {
+        super(template.id)
+    }
+
     public async register(templateOwnerAddress: string)
         : Promise<boolean> {
 
         const dependencyMatrix: number[] =
             await Promise.all(this.template.Methods.map(async (method: Method) => {
-                // tslint:disable
+                // tslint:disable-next-line
                 return method.dependency | method.timeout
             }))
 
@@ -40,6 +54,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const templateId = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
 
         if (templateId !== this.template.id) {
+            // tslint:disable-next-line
             throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${templateId}`)
         }
 
@@ -48,20 +63,6 @@ export default class ServiceAgreementTemplate extends OceanBase {
         }
 
         return receipt.status
-    }
-
-    private static generateConditionsKey(serviceAgreementTemplateId: string, methodReflection: MethodReflection)
-        : string {
-        const values = [
-            {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
-            {type: "address", value: methodReflection.address} as ValuePair,
-            {type: "bytes4", value: methodReflection.signature} as ValuePair,
-        ]
-        return Web3Provider.getWeb3().utils.soliditySha3(...values).toString("hex")
-    }
-
-    public constructor(private template: TemplateBase) {
-        super(template.id)
     }
 
     /**
@@ -78,16 +79,6 @@ export default class ServiceAgreementTemplate extends OceanBase {
         return new Account(await serviceAgreement.getTemplateOwner(this.id))
     }
 
-    private async getMethodReflections(): Promise<MethodReflection[]> {
-        const methodReflections: MethodReflection[] =
-            await Promise.all(this.template.Methods.map(async (method: Method) => {
-                const methodReflection = await
-                    ContractReflector.reflectContractMethod(method.path)
-                return methodReflection
-            }))
-        return methodReflections
-    }
-
     public async getConditions(): Promise<Condition[]> {
         const methodReflections = await this.getMethodReflections()
 
@@ -101,5 +92,14 @@ export default class ServiceAgreementTemplate extends OceanBase {
         })
 
         return conditions
+    }
+
+    private async getMethodReflections(): Promise<MethodReflection[]> {
+        const methodReflections: MethodReflection[] =
+            await Promise.all(this.template.Methods.map(async (method: Method) => {
+                const methodReflection = await ContractReflector.reflectContractMethod(method.path)
+                return methodReflection
+            }))
+        return methodReflections
     }
 }

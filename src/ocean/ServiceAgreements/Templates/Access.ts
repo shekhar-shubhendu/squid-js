@@ -4,7 +4,7 @@ import TemplateBase from "./TemplateBase"
 export default class Access extends TemplateBase {
 
     public templateName: string = "Access"
-    public id: string = "0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563"
+    public id: string = "0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d"
     public Methods: Method[] = [
         {
             path: "PaymentConditions.lockPayment",

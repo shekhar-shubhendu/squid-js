@@ -80,11 +80,12 @@ describe("DDO", () => {
             } as Service,
             {
                 type: "Consume",
-                // tslint:disable
+                // tslint:disable-next-line
                 serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
             } as Service,
             {
                 type: "Compute",
+                // tslint:disable-next-line
                 serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/compute?pubKey=${pubKey}&serviceId={serviceId}&algo={algo}&container={container}",
             } as Service,
             {
@@ -105,44 +106,46 @@ describe("DDO", () => {
                         contentType: "text/csv",
                         workExample: "423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
                         contentUrls: [
-                            "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"
+                            "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
                         ],
                         links: [
                             {
+                                // tslint:disable-next-line
                                 sample1: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"
                             },
                             {
+                                // tslint:disable-next-line
                                 sample2: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"
                             },
                             {
-                                fieldsDescription: "http://data.ceda.ac.uk/badc/ukcp09/"
-                            }
+                                fieldsDescription: "http://data.ceda.ac.uk/badc/ukcp09/",
+                            },
                         ],
                         inLanguage: "en",
                         tags: "weather, uk, 2011, temperature, humidity",
-                        price: 10
+                        price: 10,
                     } as MetaDataBase,
                     curation: {
-                        "rating": 0.93,
-                        "numVotes": 123,
-                        "schema": "Binary Votting"
+                        rating: 0.93,
+                        numVotes: 123,
+                        schema: "Binary Votting",
                     } as Curation,
                     additionalInformation: {
                         updateFrecuency: "yearly",
                         structuredMarkup: [
                             {
-                                "uri": "http://skos.um.es/unescothes/C01194/jsonld",
-                                "mediaType": "application/ld+json"
+                                uri: "http://skos.um.es/unescothes/C01194/jsonld",
+                                mediaType: "application/ld+json",
                             } as StructuredMarkup,
                             {
-                                "uri": "http://skos.um.es/unescothes/C01194/turtle",
-                                "mediaType": "text/turtle"
-                            } as StructuredMarkup
-                        ]
-                    } as AdditionalInformation
-                } as MetaData
-            }
-        ]
+                                uri: "http://skos.um.es/unescothes/C01194/turtle",
+                                mediaType: "text/turtle",
+                            } as StructuredMarkup,
+                        ],
+                    } as AdditionalInformation,
+                } as MetaData,
+            },
+        ],
     })
 
     describe("#serialize()", () => {
@@ -171,11 +174,11 @@ describe("DDO", () => {
 
             const service: Service = {
                 serviceEndpoint: "http://",
-                description: "nice service"
+                description: "nice service",
             } as Service
 
             const ddo = new DDO({
-                service: [service]
+                service: [service],
             })
             assert(ddo)
 
@@ -197,8 +200,8 @@ describe("DDO", () => {
             const ddo: DDO = DDO.deserialize(ddoString)
             assert(ddo)
 
-            assert(ddo.id == testDDO.id)
-            assert(ddo.publicKey[0].publicKeyPem == testDDO.publicKey[0].publicKeyPem)
+            assert(ddo.id === testDDO.id)
+            assert(ddo.publicKey[0].publicKeyPem === testDDO.publicKey[0].publicKeyPem)
         })
 
         it("should properly deserialize from json file", async () => {
@@ -206,8 +209,8 @@ describe("DDO", () => {
             const ddo: DDO = DDO.deserialize(JSON.stringify(jsonDDO))
             assert(ddo)
 
-            assert(ddo.id == jsonDDO.id)
-            assert(ddo.publicKey[0].publicKeyPem == jsonDDO.publicKey[0].publicKeyPem)
+            assert(ddo.id === jsonDDO.id)
+            assert(ddo.publicKey[0].publicKeyPem === jsonDDO.publicKey[0].publicKeyPem)
         })
     })
 })

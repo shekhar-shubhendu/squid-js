@@ -1,6 +1,5 @@
 import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
@@ -8,6 +7,7 @@ import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceA
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
 import TemplateBase from "../../src/ocean/ServiceAgreements/Templates/TemplateBase"
 import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -16,7 +16,7 @@ describe("ServiceAgreementTemplate", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
     })

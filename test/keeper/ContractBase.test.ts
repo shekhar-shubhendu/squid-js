@@ -1,10 +1,10 @@
 import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
 import Account from "../../src/ocean/Account"
 import Ocean from "../../src/ocean/Ocean"
 import config from "../config"
 import ContractBaseMock from "../mocks/ContractBase.Mock"
+import TestContractHandler from "./TestContractHandler"
 
 const wrappedContract = new ContractBaseMock("OceanToken")
 let accounts: Account[]
@@ -13,7 +13,7 @@ describe("ContractWrapperBase", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         await wrappedContract.initMock()
         const ocean: Ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()

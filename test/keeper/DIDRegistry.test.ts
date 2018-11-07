@@ -1,6 +1,5 @@
 import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
 import DIDRegistry from "../../src/keeper/contracts/DIDRegistry"
 import Web3Provider from "../../src/keeper/Web3Provider"
 import ValueType from "../../src/models/ValueType"
@@ -9,6 +8,7 @@ import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
 import Logger from "../../src/utils/Logger"
 import config from "../config"
+import TestContractHandler from "./TestContractHandler"
 
 let ocean: Ocean
 let didRegistry: DIDRegistry
@@ -17,7 +17,7 @@ describe("DIDRegistry", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         didRegistry = await DIDRegistry.getInstance()
     })

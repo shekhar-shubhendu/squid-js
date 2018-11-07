@@ -1,5 +1,6 @@
 import {Receipt} from "web3-utils"
 import ValueType from "../../models/ValueType"
+import Web3Provider from "../Web3Provider"
 import ContractBase from "./ContractBase"
 
 export default class DIDRegistry extends ContractBase {
@@ -14,7 +15,7 @@ export default class DIDRegistry extends ContractBase {
                                    value: string, ownerAddress: string): Promise<Receipt> {
 
         return this.send("registerAttribute",
-            ownerAddress, ["0x" + did, type, key, value],
+            ownerAddress, ["0x" + did, type, Web3Provider.getWeb3().utils.fromAscii(key), value],
         )
     }
 

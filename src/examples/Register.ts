@@ -1,5 +1,6 @@
 import DDO from "../ddo/DDO"
-import {Account, Asset, Logger, Ocean} from "../squid"
+import MetaData from "../ddo/MetaData"
+import {Account, Logger, Ocean} from "../squid"
 
 (async () => {
     const ocean: Ocean = await Ocean.getInstance({
@@ -13,11 +14,7 @@ import {Account, Asset, Logger, Ocean} from "../squid"
     })
 
     const publisher: Account = (await ocean.getAccounts())[0]
-    const asset: Asset = new Asset(
-        "Fancy Car Data",
-        "nice data", 100,
-        publisher)
 
-    const ddo: DDO = await ocean.register(asset)
+    const ddo: DDO = await ocean.registerAsset(new MetaData(), publisher)
     Logger.log(ddo.id)
 })()

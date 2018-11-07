@@ -3,12 +3,12 @@ import AquariusProvider from "../../src/aquarius/AquariusProvider"
 import SearchQuery from "../../src/aquarius/query/SearchQuery"
 import ConfigProvider from "../../src/ConfigProvider"
 import DDO from "../../src/ddo/DDO"
-import ContractHandler from "../../src/keeper/ContractHandler"
+import MetaData from "../../src/ddo/MetaData"
 import Account from "../../src/ocean/Account"
-import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
 import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
 import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 import AquariusMock from "../mocks/Aquarius.mock"
 import SecretStoreMock from "../mocks/SecretStore.mock"
 
@@ -16,17 +16,13 @@ let ocean: Ocean
 let accounts: Account[]
 let testPublisher: Account
 
-const name = "Test Asset 3" + Math.random().toString()
-const description = "This asset is pure owange"
-const price = 100
-
 describe("Ocean", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
         SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
-        await ContractHandler.prepareContracts()
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 
@@ -56,13 +52,14 @@ describe("Ocean", () => {
 
     })
 
-    describe("#register()", () => {
+    describe("#registerAsset()", () => {
 
         it("should register an asset", async () => {
 
-            const asset: Asset = new Asset(name, description, price, testPublisher)
-            const ddo: DDO = await ocean.register(asset)
+            const metaData: MetaData = new MetaData()
+            const ddo: DDO = await ocean.registerAsset(metaData, testPublisher)
 
+            assert(ddo)
             assert(ddo.id.startsWith("did:op:"))
         })
     })

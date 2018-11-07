@@ -2,7 +2,7 @@ import ContractBase from "./ContractBase"
 
 export default class GenericContract extends ContractBase {
 
-    public static async getInstance(contractName: string) {
+    public static async getInstance(contractName: string): Promise<ContractBase> {
         const contract: GenericContract = new GenericContract(contractName)
         await contract.init()
         return contract
