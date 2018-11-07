@@ -51,7 +51,7 @@
     "node": ">=8 <10"
   },
   "dependencies": {
-    "@oceanprotocol/keeper-contracts": "^0.3.17",
+    "@oceanprotocol/keeper-contracts": "0.3.18",
     "@oceanprotocol/secret-store-client": "0.0.7",
     "bignumber.js": "^8.0.1",
     "eth-crypto": "^1.2.5",
