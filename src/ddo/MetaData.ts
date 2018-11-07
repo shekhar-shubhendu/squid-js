@@ -20,7 +20,7 @@ export default class MetaData {
         // tslint:disable-next-line
         workExample: "stationId,latitude,longitude,datetime,temperature,humidity423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
         contentUrls: [
-            "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip"
+            "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
         ],
         links: [
             {sample1: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
