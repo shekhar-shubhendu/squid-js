@@ -21,7 +21,7 @@ let accounts: Account[]
 let publisherAccount: Account
 let consumerAccount: Account
 
-let serviceDefintion
+let serviceDefinition
 
 describe("ServiceAgreement", () => {
 
@@ -44,7 +44,7 @@ describe("ServiceAgreement", () => {
         const ddoConditions: DDOCondition[] = conditions.map((condition): DDOCondition => {
             return {
                 name: condition.methodReflection.methodName,
-                timeout: 100,
+                timeout: condition.timeout,
                 conditionKey: condition.condtionKey,
                 parameters: condition.methodReflection.inputs.map((input) => {
                     return {
@@ -55,7 +55,7 @@ describe("ServiceAgreement", () => {
             } as DDOCondition
         })
 
-        serviceDefintion = [
+        serviceDefinition = [
             {
                 serviceDefinitionId: IdGenerator.generateId(),
                 templateId: serviceAgreementTemplate.getId(),
@@ -65,12 +65,12 @@ describe("ServiceAgreement", () => {
 
     })
 
-    describe("#createServiceAgreement()", () => {
+    describe("#signServiceAgreement()", () => {
         it("should execute an service agreement", async () => {
 
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
-            const ddo = new DDO({id: did, service: serviceDefintion})
+            const ddo = new DDO({id: did, service: serviceDefinition})
             const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -92,7 +92,7 @@ describe("ServiceAgreement", () => {
 
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
-            const ddo = new DDO({id: did, service: serviceDefintion})
+            const ddo = new DDO({id: did, service: serviceDefinition})
             const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -113,7 +113,7 @@ describe("ServiceAgreement", () => {
 
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
-            const ddo = new DDO({id: did, service: serviceDefintion})
+            const ddo = new DDO({id: did, service: serviceDefinition})
             const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 

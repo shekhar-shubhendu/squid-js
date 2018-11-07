@@ -17,7 +17,7 @@ describe("DIDRegistry", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
+        await ContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         didRegistry = await DIDRegistry.getInstance()
     })

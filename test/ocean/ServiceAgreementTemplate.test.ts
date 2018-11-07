@@ -21,7 +21,7 @@ describe("ServiceAgreementTemplate", () => {
     })
 
     describe("#register()", () => {
-        it("should setup an agreement template", async () => {
+        it("should setup an Access agreement template correctly", async () => {
 
             const templateOwner = accounts[0]
             const serviceAgreementTemplate: ServiceAgreementTemplate =
