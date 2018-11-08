@@ -1,6 +1,9 @@
-import OceanAuth from "./Auth"
-import OceanMarket from "./Market"
-import OceanToken from "./Token"
+import OceanAuth from "./contracts/Auth"
+import AccessConditions from "./contracts/conditions/AccessConditions"
+import DIDRegistry from "./contracts/DIDRegistry"
+import OceanMarket from "./contracts/Market"
+import ServiceAgreement from "./contracts/ServiceAgreement"
+import OceanToken from "./contracts/Token"
 import Web3Provider from "./Web3Provider"
 
 export default class Keeper {
@@ -13,6 +16,9 @@ export default class Keeper {
             Keeper.instance.market = await OceanMarket.getInstance()
             Keeper.instance.auth = await OceanAuth.getInstance()
             Keeper.instance.token = await OceanToken.getInstance()
+            Keeper.instance.serviceAgreement = await ServiceAgreement.getInstance()
+            Keeper.instance.accessConditions = await AccessConditions.getInstance()
+            Keeper.instance.didRegistry = await DIDRegistry.getInstance()
         }
         return Keeper.instance
     }
@@ -22,6 +28,9 @@ export default class Keeper {
     public token: OceanToken
     public market: OceanMarket
     public auth: OceanAuth
+    public serviceAgreement: ServiceAgreement
+    public accessConditions: AccessConditions
+    public didRegistry: DIDRegistry
 
     public async getNetworkName(): Promise<string> {
         return Web3Provider.getWeb3().eth.net.getId()

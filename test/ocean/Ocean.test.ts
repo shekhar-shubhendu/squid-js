@@ -1,46 +1,42 @@
 import {assert} from "chai"
 import AquariusProvider from "../../src/aquarius/AquariusProvider"
+import SearchQuery from "../../src/aquarius/query/SearchQuery"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
+import DDO from "../../src/ddo/DDO"
+import MetaData from "../../src/ddo/MetaData"
 import Account from "../../src/ocean/Account"
-import Asset from "../../src/ocean/Asset"
 import Ocean from "../../src/ocean/Ocean"
-import Order from "../../src/ocean/Order"
+import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
 import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 import AquariusMock from "../mocks/Aquarius.mock"
+import SecretStoreMock from "../mocks/SecretStore.mock"
 
 let ocean: Ocean
 let accounts: Account[]
-let testAsset: Asset
 let testPublisher: Account
-
-const name = "Test Asset 3"
-const description = "This asset is pure owange"
-const price = 100
-const timeout = 100000000
 
 describe("Ocean", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
-        await ContractHandler.deployContracts()
+        SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
+        await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
         accounts = await ocean.getAccounts()
 
         testPublisher = accounts[0]
-        testAsset = new Asset(name, description, price, testPublisher)
     })
 
     describe("#getInstance()", () => {
 
-        it("should list accounts", async () => {
+        it("should get an instance of cean", async () => {
 
-            const ocn = Ocean.getInstance(config)
+            const oceanInstance: Ocean = await Ocean.getInstance(config)
 
-            assert(ocn)
+            assert(oceanInstance)
         })
-
     })
 
     describe("#getAccounts()", () => {
@@ -56,35 +52,16 @@ describe("Ocean", () => {
 
     })
 
-    describe("#register()", () => {
+    describe("#registerAsset()", () => {
 
         it("should register an asset", async () => {
 
-            const assetId: string = await ocean.register(testAsset)
+            const metaData: MetaData = new MetaData()
+            const ddo: DDO = await ocean.registerAsset(metaData, testPublisher)
 
-            assert(assetId.length === 66)
-            assert(assetId.startsWith("0x"))
+            assert(ddo)
+            assert(ddo.id.startsWith("did:op:"))
         })
-
-    })
-
-    describe("#getOrdersByConsumer()", () => {
-
-        it("should list orders", async () => {
-
-            const testConsumer = accounts[1]
-            const asset: Asset = new Asset("getOrdersByConsumer test", description, price, testPublisher)
-
-            await ocean.register(asset)
-
-            const order: Order = await asset.purchase(testConsumer, timeout)
-            const orders = await ocean.getOrdersByAccount(testConsumer)
-
-            assert(orders.length === 1)
-            assert(orders[0].getId() === order.getId())
-
-        })
-
     })
 
     describe("#searchAssets()", () => {
@@ -101,9 +78,20 @@ describe("Ocean", () => {
                     value: 1,
                 },
                 text: "Office",
-            }
+            } as SearchQuery
 
             const assets: any[] = await ocean.searchAssets(query)
+
+            assert(assets)
+        })
+
+    })
+
+    describe("#searchAssetsByText()", () => {
+
+        it("should search for assets", async () => {
+            const text = "office"
+            const assets: any[] = await ocean.searchAssetsByText(text)
 
             assert(assets)
         })

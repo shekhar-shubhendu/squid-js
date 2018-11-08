@@ -1,10 +1,9 @@
 import fetch from "node-fetch"
-import { URL } from "url"
 
 export default class AquariusConnector {
 
-    public post(url, payload) {
-        return fetch(url, {
+    public async post(url, payload): Promise<any> {
+        return this.fetch(url, {
             method: "POST",
             body: payload,
             headers: {
@@ -13,17 +12,26 @@ export default class AquariusConnector {
         })
     }
 
-    public get(url, payload) {
-        const fullUrl = new URL(url)
-        for (const key of Object.keys(payload)) {
-          fullUrl.searchParams.append(key, payload[key])
-        }
-        return fetch(fullUrl, {
+    public async get(url): Promise<any> {
+        return this.fetch(url, {
             method: "GET",
-            body: null,
             headers: {
                 "Content-type": "application/json",
             },
         })
+    }
+
+    public async put(url, payload): Promise<any> {
+        return this.fetch(url, {
+            method: "PUT",
+            body: payload,
+            headers: {
+                "Content-type": "application/json",
+            },
+        })
+    }
+
+    private async fetch(url, opts): Promise<any> {
+        return fetch(url, opts)
     }
 }

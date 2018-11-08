@@ -1,16 +1,22 @@
+import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import ContractHandler from "../../src/keeper/ContractHandler"
+import Account from "../../src/ocean/Account"
+import Ocean from "../../src/ocean/Ocean"
 import config from "../config"
 import ContractBaseMock from "../mocks/ContractBase.Mock"
+import TestContractHandler from "./TestContractHandler"
 
 const wrappedContract = new ContractBaseMock("OceanToken")
+let accounts: Account[]
 
 describe("ContractWrapperBase", () => {
 
     before(async () => {
         ConfigProvider.setConfig(config)
-        await ContractHandler.deployContracts()
-        wrappedContract.initMock()
+        await TestContractHandler.prepareContracts()
+        await wrappedContract.initMock()
+        const ocean: Ocean = await Ocean.getInstance(config)
+        accounts = await ocean.getAccounts()
     })
 
     describe("#call()", () => {
@@ -49,6 +55,29 @@ describe("ContractWrapperBase", () => {
 
                     done()
                 })
+        })
+    })
+
+    describe("#send()", () => {
+
+        it("should fail to call on an unknown contract function", (done) => {
+
+            wrappedContract.sendMock("transferxxx", accounts[0].getId(), [])
+                .catch(() => {
+
+                    done()
+                })
+        })
+    })
+
+    describe("#getSignatureOfMethod()", () => {
+
+        it("should a signature of the function", async () => {
+
+            const sig = wrappedContract.getSignatureOfMethod("name")
+            assert(sig)
+            assert(typeof sig === "string")
+            assert(sig.startsWith("0x"))
         })
     })
 
