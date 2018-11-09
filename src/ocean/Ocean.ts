@@ -1,7 +1,10 @@
 import Aquarius from "../aquarius/Aquarius"
 import AquariusProvider from "../aquarius/AquariusProvider"
 import SearchQuery from "../aquarius/query/SearchQuery"
+import Brizo from "../brizo/Brizo"
+import BrizoProvider from "../brizo/BrizoProvider"
 import ConfigProvider from "../ConfigProvider"
+import Authentication from "../ddo/Authentication"
 import DDOCondition from "../ddo/Condition"
 import DDO from "../ddo/DDO"
 import MetaData from "../ddo/MetaData"
@@ -12,7 +15,7 @@ import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
 import ValuePair from "../models/ValuePair"
 import ValueType from "../models/ValueType"
-import Logger from "../utils/Logger"
+import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Account from "./Account"
 import IdGenerator from "./IdGenerator"
 import Condition from "./ServiceAgreements/Condition"
@@ -29,6 +32,7 @@ export default class Ocean {
             Ocean.instance = new Ocean()
             Ocean.instance.keeper = await Keeper.getInstance()
             Ocean.instance.aquarius = await AquariusProvider.getAquarius()
+            Ocean.instance.brizo = await BrizoProvider.getBrizo()
         }
 
         return Ocean.instance
@@ -38,6 +42,7 @@ export default class Ocean {
 
     private keeper: Keeper
     private aquarius: Aquarius
+    private brizo: Brizo
 
     private constructor() {
     }
@@ -58,12 +63,12 @@ export default class Ocean {
         const did: string = `did:op:${id}`
         const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
 
-        metadata.base.contentUrls = metadata.base.contentUrls.map((contentUrl) => {
+        metadata.base.contentUrls = await Promise.all(metadata.base.contentUrls.map(async (contentUrl) => {
 
-            // todo encrypt url in secret store
-            Logger.log(contentUrl)
-            return "0x00000"
-        })
+            const encryptedUrl: string = await SecretStoreProvider.getSecretStore().encryptDocument(id, contentUrl)
+
+            return encryptedUrl
+        }))
 
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
@@ -91,12 +96,16 @@ export default class Ocean {
         // create ddo itself
         const ddo: DDO = new DDO({
             id: did,
+            authentication: [{
+                publicKey: publisher.getId(),
+            } as Authentication],
             service: [
                 {
                     type: template.templateName,
                     // tslint:disable-next-line
-                    serviceEndpoint: "http://mybrizo.org/api/v1/brizo/services/consume?pubKey=${pubKey}&serviceId={serviceId}&url={url}",
-                    purchaseEndpoint: "http://mybrizo.org/api/v1/brizo/services/access/purchase?",
+                    serviceEndpoint: this.brizo.getServiceEndpoint(publisher.getId(),
+                        serviceDefinitionId, metadata.base.contentUrls[0]),
+                    purchaseEndpoint: this.brizo.getPurchaseEndpoint(),
                     // the id of the service agreement?
                     serviceDefinitionId,
                     // the id of the service agreement template
@@ -109,6 +118,8 @@ export default class Ocean {
                 } as Service,
             ],
         })
+
+        // Logger.log(JSON.stringify(ddo, null, 2))
 
         const storedDdo = await this.aquarius.storeDDO(ddo)
 
