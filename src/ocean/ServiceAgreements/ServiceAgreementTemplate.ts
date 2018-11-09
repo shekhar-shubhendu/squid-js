@@ -95,11 +95,10 @@ export default class ServiceAgreementTemplate extends OceanBase {
     }
 
     private async getMethodReflections(): Promise<MethodReflection[]> {
-        const methodReflections: MethodReflection[] =
-            await Promise.all(this.template.Methods.map(async (method: Method) => {
-                const methodReflection = await ContractReflector.reflectContractMethod(method.path)
-                return methodReflection
-            }))
+        const methodReflections: MethodReflection[] = []
+        for (const method of this.template.Methods) {
+            methodReflections.push(await ContractReflector.reflectContractMethod(method.path))
+        }
         return methodReflections
     }
 }

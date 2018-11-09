@@ -95,16 +95,28 @@ export default class Ocean {
 
         // create ddo itself
         const ddo: DDO = new DDO({
-            id: did,
             authentication: [{
-                publicKey: publisher.getId(),
+                type: "RsaSignatureAuthentication2018",
+                publicKey: did + "#keys-1",
             } as Authentication],
+            id: did,
+            publicKey: [
+                {
+                    id: did + "#keys-1",
+                },
+                {
+                    type: "Ed25519VerificationKey2018",
+                },
+                {
+                    owner: did,
+                },
+                {
+                    publicKeyBase58: publisher.getId(),
+                },
+            ],
             service: [
                 {
                     type: template.templateName,
-                    // tslint:disable-next-line
-                    serviceEndpoint: this.brizo.getServiceEndpoint(publisher.getId(),
-                        serviceDefinitionId, metadata.base.contentUrls[0]),
                     purchaseEndpoint: this.brizo.getPurchaseEndpoint(),
                     // the id of the service agreement?
                     serviceDefinitionId,
@@ -113,13 +125,22 @@ export default class Ocean {
                     conditions: ddoConditions,
                 } as Service,
                 {
-                    serviceEndpoint,
+                    serviceEndpoint: this.brizo.getConsumeEndpoint(publisher.getId(),
+                        serviceDefinitionId, metadata.base.contentUrls[0]),
+                    type: "Consume",
+                } as Service,
+                {
+                    serviceEndpoint: this.brizo.getComputeEndpoint(publisher.getId(),
+                        serviceDefinitionId, "xxx", "xxx"),
+                    type: "Consume",
+                } as Service,
+                {
+                    type: "Metadata",
                     metadata,
+                    serviceEndpoint,
                 } as Service,
             ],
         })
-
-        // Logger.log(JSON.stringify(ddo, null, 2))
 
         const storedDdo = await this.aquarius.storeDDO(ddo)
 

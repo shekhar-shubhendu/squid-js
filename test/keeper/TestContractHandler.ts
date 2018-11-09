@@ -78,7 +78,7 @@ export default class TestContractHandler extends ContractHandler {
 
         // dont redeploy if there is already something loaded
         if (ContractHandler.has(name)) {
-            return ContractHandler.get(name)
+            return await ContractHandler.get(name)
         }
 
         const web3 = Web3Provider.getWeb3()
