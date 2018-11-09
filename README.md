@@ -50,8 +50,14 @@ You can then connect to a running [Keeper](https://github.com/oceanprotocol/keep
 
 ```js
 const ocean = await new Ocean({
-    nodeUri: 'http://localhost:8545', 
-    aquariusUri: 'http://localhost:5000'
+    nodeUri: "http://localhost:8545",
+    aquariusUri: "http://localhost:5000",
+    brizoUri: "https://localhost:8030",
+    parityUri: "http://localhost:9545",
+    secretStoreUri: "https://secret-store.dev-ocean.com",
+    threshold: 2,
+    password: "unittest",
+    address: "0xed243adfb84a6626eba46178ccb567481c6e655d",
 })
 ```
 
