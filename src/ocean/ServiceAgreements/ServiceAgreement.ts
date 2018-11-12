@@ -30,7 +30,7 @@ export default class ServiceAgreement extends OceanBase {
         const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromDDO(ddo)
 
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.executeAgreement(ddo,
-            serviceAgreementId, values, valueHashes, timeoutValues, serviceAgreementHashSignature, consumer, publisher)
+            serviceAgreementId, valueHashes, timeoutValues, serviceAgreementHashSignature, consumer, publisher)
 
         return serviceAgreement
     }
@@ -38,6 +38,10 @@ export default class ServiceAgreement extends OceanBase {
     private static async createSAHashSignature(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
                                                valueHashes: string[], timeoutValues: number[], consumer: Account):
         Promise<string> {
+
+        if (!ddo.service[0].templateId) {
+            throw new Error("TemplateId not found in ddo.")
+        }
 
         const conditionKeys: string[] = ddo.service[0].conditions.map((condition) => {
             return condition.conditionKey
@@ -52,18 +56,22 @@ export default class ServiceAgreement extends OceanBase {
         return serviceAgreementHashSignature
     }
 
-    private static async executeAgreement(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
-                                          valueHashes: string[], timeoutValues: number[],
-                                          serviceAgreementHashSignature: string, consumer: Account,
-                                          publisher: Account): Promise<ServiceAgreement> {
+    private static async executeAgreement(ddo: DDO, serviceAgreementId: string, valueHashes: string[],
+                                          timeoutValues: number[], serviceAgreementHashSignature: string,
+                                          consumer: Account, publisher: Account): Promise<ServiceAgreement> {
 
         const {serviceAgreement} = await Keeper.getInstance()
+
+        if (!ddo.service[0].templateId) {
+            throw new Error("TemplateId not found in ddo.")
+        }
+
         const executeAgreementReceipt = await serviceAgreement.executeAgreement(
             ddo.service[0].templateId, serviceAgreementHashSignature, consumer.getId(), valueHashes,
             timeoutValues, serviceAgreementId, ddo.id, publisher.getId())
 
         if (executeAgreementReceipt.events.ExecuteAgreement.returnValues.state === false) {
-            throw new Error("signing service agreement failed.")
+            throw new Error("executing service agreement failed.")
         }
 
         return new ServiceAgreement(
@@ -101,6 +109,7 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     private static getTimeoutValuesFromDDO(ddo: DDO): number[] {
+
         const timeoutValues: number[] = ddo.service[0].conditions.map((condition: Condition) => {
             return condition.timeout
         })

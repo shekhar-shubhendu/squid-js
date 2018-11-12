@@ -14,9 +14,12 @@ import {Logger, Ocean} from "../squid"
     })
 
     const result: DDO[] = await ocean.searchAssetsByText("Office Humidity")
-    const dids = result.map((res: DDO) => {
-        return res.id
+    const names: string[] = result.map((res: DDO): string => {
+        const service = res.service.find((srv) => srv.type === "Metadata")
+        if (service && service.metadata) {
+            return service.metadata.base.name
+        }
     })
 
-    Logger.log(dids.length, JSON.stringify(dids, null, 2))
+    Logger.log(names.length, names)
 })()

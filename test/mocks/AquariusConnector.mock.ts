@@ -14,10 +14,10 @@ export default class AquariusConnectorMock extends AquariusConnector {
             resolve({
                 ok: true,
                 json: () => {
-                    return this.returnData ? this.returnData : []
+                    return this.returnData ? this.returnData : {}
                 },
                 text: () => {
-                    return this.returnData ? this.returnData.toString() : ""
+                    return this.returnData ? JSON.stringify(this.returnData.toString()) : ""
                 },
             })
         })

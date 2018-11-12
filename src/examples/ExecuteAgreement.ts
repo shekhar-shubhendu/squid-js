@@ -1,6 +1,7 @@
 import DDO from "../ddo/DDO"
 import MetaData from "../ddo/MetaData"
 import MetaDataBase from "../ddo/MetaDataBase"
+import IdGenerator from "../ocean/IdGenerator"
 import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
 (async () => {
@@ -35,6 +36,7 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
             workExample: "stationId,latitude,longitude,datetime,temperature,humidity423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68",
             contentUrls: [
                 "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
+                "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
             ],
             links: [
                 {sample1: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
@@ -48,12 +50,14 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
     } as MetaData)
 
     const ddo: DDO = await ocean.registerAsset(metaData, publisher)
-    Logger.log(ddo.id)
+    Logger.log("did", ddo.id)
 
-    const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, consumer)
-    Logger.log(serviceAgreementSignature)
+    const serviceAgreementId: string = IdGenerator.generateId()
+    const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, serviceAgreementId, consumer)
+    Logger.log("ServiceAgreement Signature:", serviceAgreementSignature)
 
-    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, serviceAgreementSignature,
-        consumer, publisher)
-    Logger.log(serviceAgreement)
+    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, serviceAgreementId,
+        serviceAgreementSignature, consumer, publisher)
+    Logger.log("ServiceAgreement Id:", serviceAgreement.getId())
+
 })()

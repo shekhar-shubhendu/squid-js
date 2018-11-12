@@ -41,8 +41,14 @@ export default class ServiceAgreementTemplate extends OceanBase {
 
         const owner = await this.getOwner()
 
+        if (owner.getId() === templateOwnerAddress) {
+            // tslint:disable-next-line
+            Logger.error(`Template with id "${this.template.id}" is already registered to your account "${templateOwnerAddress}".`)
+            return false
+        }
+
         if (!owner.getId().startsWith("0x0")) {
-            Logger.error(`Template with id "${this.template.id}" already registered.`)
+            Logger.error(`Template with id "${this.template.id}" already registered by someone else.`)
             return false
         }
 
@@ -51,15 +57,20 @@ export default class ServiceAgreementTemplate extends OceanBase {
             Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
             templateOwnerAddress)
 
-        const templateId = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
+        const {serviceTemplateId, provider} = receipt.events.SetupAgreementTemplate.returnValues
 
-        if (templateId !== this.template.id) {
+        if (serviceTemplateId !== this.template.id) {
             // tslint:disable-next-line
-            throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${templateId}`)
+            throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${serviceTemplateId}`)
         }
 
-        if (receipt.status) {
-            Logger.error("Registering template failed")
+        if (provider !== templateOwnerAddress) {
+            // tslint:disable-next-line
+            throw new Error(`Template owner missmatch on ${this.template.templateName}! Should be "${templateOwnerAddress}" but is ${provider}`)
+        }
+
+        if (!receipt.status) {
+            Logger.error(`Registering template failed, status was "false".`)
         }
 
         return receipt.status

@@ -1,7 +1,5 @@
-import Aquarius from "../aquarius/Aquarius"
 import AquariusProvider from "../aquarius/AquariusProvider"
 import SearchQuery from "../aquarius/query/SearchQuery"
-import Brizo from "../brizo/Brizo"
 import BrizoProvider from "../brizo/BrizoProvider"
 import ConfigProvider from "../ConfigProvider"
 import Authentication from "../ddo/Authentication"
@@ -16,6 +14,7 @@ import Config from "../models/Config"
 import ValuePair from "../models/ValuePair"
 import ValueType from "../models/ValueType"
 import SecretStoreProvider from "../secretstore/SecretStoreProvider"
+import Logger from "../utils/Logger"
 import Account from "./Account"
 import IdGenerator from "./IdGenerator"
 import Condition from "./ServiceAgreements/Condition"
@@ -31,8 +30,6 @@ export default class Ocean {
             ConfigProvider.setConfig(config)
             Ocean.instance = new Ocean()
             Ocean.instance.keeper = await Keeper.getInstance()
-            Ocean.instance.aquarius = await AquariusProvider.getAquarius()
-            Ocean.instance.brizo = await BrizoProvider.getBrizo()
         }
 
         return Ocean.instance
@@ -41,8 +38,6 @@ export default class Ocean {
     private static instance = null
 
     private keeper: Keeper
-    private aquarius: Aquarius
-    private brizo: Brizo
 
     private constructor() {
     }
@@ -58,17 +53,15 @@ export default class Ocean {
     public async registerAsset(metadata: MetaData, publisher: Account): Promise<DDO> {
 
         const {didRegistry} = this.keeper
+        const aquarius = AquariusProvider.getAquarius()
+        const brizo = BrizoProvider.getBrizo()
 
         const id: string = IdGenerator.generateId()
         const did: string = `did:op:${id}`
         const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
 
-        metadata.base.contentUrls = await Promise.all(metadata.base.contentUrls.map(async (contentUrl) => {
-
-            const encryptedUrl: string = await SecretStoreProvider.getSecretStore().encryptDocument(id, contentUrl)
-
-            return encryptedUrl
-        }))
+        metadata.base.contentUrls =
+            await SecretStoreProvider.getSecretStore().encryptDocument(id, metadata.base.contentUrls)
 
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
@@ -92,7 +85,7 @@ export default class Ocean {
 
             } as DDOCondition
         })
-        const serviceEndpoint = this.aquarius.getServiceEndpoint(did)
+        const serviceEndpoint = aquarius.getServiceEndpoint(did)
 
         // create ddo itself
         const ddo: DDO = new DDO({
@@ -118,8 +111,8 @@ export default class Ocean {
             service: [
                 {
                     type: template.templateName,
-                    purchaseEndpoint: this.brizo.getPurchaseEndpoint(),
-                    serviceEndpoint: this.brizo.getConsumeEndpoint(publisher.getId(),
+                    purchaseEndpoint: brizo.getPurchaseEndpoint(),
+                    serviceEndpoint: brizo.getConsumeEndpoint(publisher.getId(),
                         serviceDefinitionId, metadata.base.contentUrls[0]),
                     // the id of the service agreement?
                     serviceDefinitionId,
@@ -128,7 +121,7 @@ export default class Ocean {
                     conditions: ddoConditions,
                 } as Service,
                 {
-                    serviceEndpoint: this.brizo.getComputeEndpoint(publisher.getId(),
+                    serviceEndpoint: brizo.getComputeEndpoint(publisher.getId(),
                         serviceDefinitionId, "xxx", "xxx"),
                     type: "Compute",
                 } as Service,
@@ -140,7 +133,7 @@ export default class Ocean {
             ],
         })
 
-        const storedDdo = await this.aquarius.storeDDO(ddo)
+        const storedDdo = await aquarius.storeDDO(ddo)
 
         await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", serviceEndpoint,
             publisher.getId())
@@ -148,25 +141,27 @@ export default class Ocean {
         return storedDdo
     }
 
-    public async signServiceAgreement(did: string, consumer: Account): Promise<string> {
+    public async signServiceAgreement(did: string, serviceAgreementId: string, consumer: Account): Promise<string> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
 
-        const serviceAgreementId: string = IdGenerator.generateId()
-        const serviceAgrementSignature: string = await ServiceAgreement.signServiceAgreement(id,
-            ddo, serviceAgreementId, consumer)
+        try {
+            const serviceAgrementSignature: string = await ServiceAgreement.signServiceAgreement(id,
+                ddo, serviceAgreementId, consumer)
+            return serviceAgrementSignature
+        } catch (err) {
 
-        return serviceAgrementSignature
+            Logger.error("Signing ServiceAgreement failed!", err)
+        }
     }
 
-    public async executeServiceAgreement(did: string, serviceAgreementSignature: string,
+    public async executeServiceAgreement(did: string, serviceAgreementId: string, serviceAgreementSignature: string,
                                          consumer: Account, publisher: Account): Promise<ServiceAgreement> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
 
-        const serviceAgreementId: string = IdGenerator.generateId()
         const serviceAgrement: ServiceAgreement = await ServiceAgreement.executeServiceAgreement(id,
             ddo, serviceAgreementId, serviceAgreementSignature, consumer, publisher)
 
@@ -174,11 +169,11 @@ export default class Ocean {
     }
 
     public async searchAssets(query: SearchQuery): Promise<DDO[]> {
-        return this.aquarius.queryMetadata(query)
+        return AquariusProvider.getAquarius().queryMetadata(query)
     }
 
     public async searchAssetsByText(text: string): Promise<DDO[]> {
-        return this.aquarius.queryMetadataByText({
+        return AquariusProvider.getAquarius().queryMetadataByText({
             text,
             page: 0,
             offset: 100,

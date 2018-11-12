@@ -11,7 +11,8 @@ export default class MetaDataBase {
     public compression: string = "zip"
     public contentType: string = "text/csv"
     public workExample: string = "423432fsd,51.509865,-0.118092,2011-01-01T10:55:11+00:00,7.2,68"
-    public contentUrls: string[] = [
+    public contentUrls: string | string[] = [
+        "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
         "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
     ]
     public links: any[] = [
