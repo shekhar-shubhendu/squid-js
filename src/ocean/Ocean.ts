@@ -112,7 +112,7 @@ export default class Ocean {
                     owner: did,
                 },
                 {
-                    publicKeyBase58: publisher.getId(),
+                    publicKeyBase58: publisher.getPublicKey(),
                 },
             ],
             service: [
