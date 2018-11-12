@@ -85,6 +85,7 @@ export default class Ocean {
                 parameters: condition.methodReflection.inputs.map((input: ValuePair) => {
                     return {
                         ...input,
+                        // todo: change remove, move to execute
                         value: "xxx",
                     } as Parameter
                 }),
@@ -118,6 +119,8 @@ export default class Ocean {
                 {
                     type: template.templateName,
                     purchaseEndpoint: this.brizo.getPurchaseEndpoint(),
+                    serviceEndpoint: this.brizo.getConsumeEndpoint(publisher.getId(),
+                        serviceDefinitionId, metadata.base.contentUrls[0]),
                     // the id of the service agreement?
                     serviceDefinitionId,
                     // the id of the service agreement template
@@ -125,14 +128,9 @@ export default class Ocean {
                     conditions: ddoConditions,
                 } as Service,
                 {
-                    serviceEndpoint: this.brizo.getConsumeEndpoint(publisher.getId(),
-                        serviceDefinitionId, metadata.base.contentUrls[0]),
-                    type: "Consume",
-                } as Service,
-                {
                     serviceEndpoint: this.brizo.getComputeEndpoint(publisher.getId(),
                         serviceDefinitionId, "xxx", "xxx"),
-                    type: "Consume",
+                    type: "Compute",
                 } as Service,
                 {
                     type: "Metadata",
@@ -150,27 +148,39 @@ export default class Ocean {
         return storedDdo
     }
 
-    public async purchase(did: string, consumer: Account): Promise<ServiceAgreement> {
+    public async signServiceAgreement(did: string, consumer: Account): Promise<string> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
 
         const serviceAgreementId: string = IdGenerator.generateId()
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.signServiceAgreement(id,
-            // todo get publisher from ddo
-            ddo, serviceAgreementId, consumer, new Account())
+        const serviceAgrementSignature: string = await ServiceAgreement.signServiceAgreement(id,
+            ddo, serviceAgreementId, consumer)
 
-        return serviceAgreement
+        return serviceAgrementSignature
     }
 
-    public async searchAssets(query: SearchQuery): Promise<any[]> {
+    public async executeServiceAgreement(did: string, serviceAgreementSignature: string,
+                                         consumer: Account, publisher: Account): Promise<ServiceAgreement> {
+
+        const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
+        const id = did.replace("did:op:", "")
+
+        const serviceAgreementId: string = IdGenerator.generateId()
+        const serviceAgrement: ServiceAgreement = await ServiceAgreement.executeServiceAgreement(id,
+            ddo, serviceAgreementId, serviceAgreementSignature, consumer, publisher)
+
+        return serviceAgrement
+    }
+
+    public async searchAssets(query: SearchQuery): Promise<DDO[]> {
         return this.aquarius.queryMetadata(query)
     }
 
-    public async searchAssetsByText(text: string): Promise<any[]> {
+    public async searchAssetsByText(text: string): Promise<DDO[]> {
         return this.aquarius.queryMetadataByText({
             text,
-            page: 1,
+            page: 0,
             offset: 100,
             query: {
                 value: 1,

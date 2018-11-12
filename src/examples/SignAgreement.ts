@@ -16,6 +16,7 @@ import {Account, Logger, Ocean} from "../squid"
     })
 
     const publisher: Account = (await ocean.getAccounts())[0]
+    const consumer: Account = (await ocean.getAccounts())[1]
 
     const metaData = new MetaData({
         base: {
@@ -48,4 +49,7 @@ import {Account, Logger, Ocean} from "../squid"
 
     const ddo: DDO = await ocean.registerAsset(metaData, publisher)
     Logger.log(ddo.id)
+
+    const serviceAgreementSignature = await ocean.signServiceAgreement(ddo.id, consumer)
+    Logger.log(serviceAgreementSignature)
 })()

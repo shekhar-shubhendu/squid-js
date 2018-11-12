@@ -66,6 +66,25 @@ describe("ServiceAgreement", () => {
     })
 
     describe("#signServiceAgreement()", () => {
+        it("should sign an service agreement", async () => {
+
+            const id: string = IdGenerator.generateId()
+            const did: string = `did:op:${id}`
+            const ddo = new DDO({id: did, service: serviceDefinition})
+            const assetId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generateId()
+
+            // @ts-ignore
+            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount)
+
+            assert(serviceAgreementSignature)
+            assert(serviceAgreementSignature.startsWith("0x"))
+        })
+    })
+
+    describe("#executeServiceAgreement()", () => {
         it("should execute an service agreement", async () => {
 
             const id: string = IdGenerator.generateId()
@@ -76,9 +95,12 @@ describe("ServiceAgreement", () => {
 
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount)
+
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
-                    publisherAccount)
+                await ServiceAgreement.executeServiceAgreement(assetId, ddo, serviceAgreementId,
+                    serviceAgreementSignature, consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
             const serviceDefinitionId = serviceAgreement.getId()
@@ -98,9 +120,13 @@ describe("ServiceAgreement", () => {
 
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount)
+            assert(serviceAgreementSignature)
+
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
-                    publisherAccount)
+                await ServiceAgreement.executeServiceAgreement(assetId, ddo, serviceAgreementId,
+                    serviceAgreementSignature, consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
             const status = await serviceAgreement.getStatus()
@@ -119,9 +145,13 @@ describe("ServiceAgreement", () => {
 
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount)
+            assert(serviceAgreementSignature)
+
             const serviceAgreement: ServiceAgreement =
-                await ServiceAgreement.signServiceAgreement(assetId, ddo, serviceAgreementId, consumerAccount,
-                    publisherAccount)
+                await ServiceAgreement.executeServiceAgreement(assetId, ddo, serviceAgreementId,
+                    serviceAgreementSignature, consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
             const fulfilled: boolean = await serviceAgreement.grantAccess(assetId, IdGenerator.generateId())

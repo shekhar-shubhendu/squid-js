@@ -8,9 +8,8 @@ import OceanBase from "../OceanBase"
 
 export default class ServiceAgreement extends OceanBase {
 
-    public static async signServiceAgreement(assetId: string, ddo: DDO, serviceAgreementId: string, consumer: Account,
-                                             publisher: Account):
-        Promise<ServiceAgreement> {
+    public static async signServiceAgreement(assetId: string, ddo: DDO, serviceAgreementId: string, consumer: Account):
+        Promise<string> {
 
         const values: ValuePair[] = ServiceAgreement.getValuesFromDDO(ddo, serviceAgreementId)
         const valueHashes = ServiceAgreement.createValueHashes(values)
@@ -19,14 +18,25 @@ export default class ServiceAgreement extends OceanBase {
         const serviceAgreementHashSignature = await ServiceAgreement.createSAHashSignature(ddo, serviceAgreementId,
             values, valueHashes, timeoutValues, consumer)
 
+        return serviceAgreementHashSignature
+    }
+
+    public static async executeServiceAgreement(assetId: string, ddo: DDO, serviceAgreementId: string,
+                                                serviceAgreementHashSignature: string, consumer: Account,
+                                                publisher: Account): Promise<ServiceAgreement> {
+
+        const values: ValuePair[] = ServiceAgreement.getValuesFromDDO(ddo, serviceAgreementId)
+        const valueHashes = ServiceAgreement.createValueHashes(values)
+        const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromDDO(ddo)
+
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.executeAgreement(ddo,
             serviceAgreementId, values, valueHashes, timeoutValues, serviceAgreementHashSignature, consumer, publisher)
 
         return serviceAgreement
     }
 
-    public static async createSAHashSignature(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
-                                              valueHashes: string[], timeoutValues: number[], consumer: Account):
+    private static async createSAHashSignature(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
+                                               valueHashes: string[], timeoutValues: number[], consumer: Account):
         Promise<string> {
 
         const conditionKeys: string[] = ddo.service[0].conditions.map((condition) => {

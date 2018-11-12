@@ -37,42 +37,50 @@ export default class Aquarius {
         return accessUrl
     }
 
-    public async queryMetadata(query: SearchQuery): Promise<any[]> {
+    public async queryMetadata(query: SearchQuery): Promise<DDO[]> {
 
-        const result = await AquariusConnectorProvider.getConnector()
+        const result: DDO[] = await AquariusConnectorProvider.getConnector()
             .post(this.url + "/api/v1/aquarius/assets/ddo/query", JSON.stringify(query))
             .then((response: any) => {
                 if (response.ok) {
                     return response.json()
                 }
                 Logger.error("queryMetadata failed:", response.status, response.statusText)
-                return null
+                return []
+            })
+            .then((res: string) => {
+                return JSON.parse(res) as DDO[]
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
+                return []
             })
 
         return result
     }
 
-    public async queryMetadataByText(query: SearchQuery): Promise<any[]> {
+    public async queryMetadataByText(query: SearchQuery): Promise<DDO[]> {
 
         const fullUrl = new URL(this.url + "/api/v1/aquarius/assets/ddo/query")
         fullUrl.searchParams.append("text", query.text)
-        fullUrl.searchParams.append("sort", JSON.stringify(query.sort))
+        fullUrl.searchParams.append("sort", decodeURIComponent(JSON.stringify(query.sort)))
         fullUrl.searchParams.append("offset", query.offset.toString())
         fullUrl.searchParams.append("page", query.page.toString())
-        const result = await AquariusConnectorProvider.getConnector()
+        const result: DDO[] = await AquariusConnectorProvider.getConnector()
             .get(fullUrl)
             .then((response: any) => {
                 if (response.ok) {
                     return response.json()
                 }
                 Logger.log("queryMetadataByText failed:", response.status, response.statusText)
-                return null
+                return []
+            })
+            .then((res: string) => {
+                return JSON.parse(res) as DDO[]
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
+                return []
             })
 
         return result
