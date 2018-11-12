@@ -47,9 +47,6 @@
     "url": "https://github.com/oceanprotocol/squid-js/issues"
   },
   "homepage": "https://github.com/oceanprotocol/squid-js#readme",
-  "engines": {
-    "node": ">=8 <10"
-  },
   "dependencies": {
     "@oceanprotocol/keeper-contracts": "0.3.19",
     "@oceanprotocol/secret-store-client": "0.0.9",
