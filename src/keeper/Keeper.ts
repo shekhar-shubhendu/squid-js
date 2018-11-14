@@ -35,7 +35,7 @@ export default class Keeper {
     public async getNetworkName(): Promise<string> {
         return Web3Provider.getWeb3().eth.net.getId()
             .then((networkId) => {
-                let network: string = "unknown"
+                let network: string = "Unknown"
 
                 switch (networkId) {
                     case 1:
@@ -53,8 +53,11 @@ export default class Keeper {
                     case 42:
                         network = "Kovan"
                         break
+                    case 8995:
+                        network = "Ocean_POA_AWS"
+                        break
                     default:
-                        network = "development"
+                        network = "Development"
                 }
                 return network
             })

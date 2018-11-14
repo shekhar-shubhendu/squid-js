@@ -135,8 +135,7 @@ export default class Ocean {
 
         const storedDdo = await aquarius.storeDDO(ddo)
 
-        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", serviceEndpoint,
-            publisher.getId())
+        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", serviceEndpoint, publisher.getId())
 
         return storedDdo
     }
