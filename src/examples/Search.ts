@@ -14,8 +14,8 @@ import {Logger, Ocean} from "../squid"
     })
 
     const result: DDO[] = await ocean.searchAssetsByText("Office Humidity")
-    const names: string[] = result.map((res: DDO): string => {
-        const service = res.service.find((srv) => srv.type === "Metadata")
+    const names: string[] = result.map((ddo: DDO): string => {
+        const service = ddo.findServiceByType("Metadata")
         if (service && service.metadata) {
             return service.metadata.base.name
         }

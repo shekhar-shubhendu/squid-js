@@ -5,8 +5,8 @@ import SearchQuery from "../../src/aquarius/query/SearchQuery"
 import ConfigProvider from "../../src/ConfigProvider"
 import DDO from "../../src/ddo/DDO"
 import MetaData from "../../src/ddo/MetaData"
+import Service from "../../src/ddo/Service"
 import Account from "../../src/ocean/Account"
-import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
@@ -111,15 +111,18 @@ describe("Ocean", () => {
 
             const ddo: DDO = await ocean.registerAsset(new MetaData(), publisher)
 
+            const service: Service = ddo.findServiceByType("Access")
+
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
 
-            const serviceAgreementId: string = IdGenerator.generateId()
-            const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, serviceAgreementId,
-                consumer)
+            const serviceAgreementSignature: any = await ocean.signServiceAgreement(ddo.id,
+                service.serviceDefinitionId, consumer)
 
             assert(serviceAgreementSignature)
-            assert(serviceAgreementSignature.startsWith("0x"))
+            assert(serviceAgreementSignature.serviceAgreementId)
+            assert(serviceAgreementSignature.serviceAgreementSignature)
+            assert(serviceAgreementSignature.serviceAgreementSignature.startsWith("0x"))
         })
 
     })
@@ -132,16 +135,17 @@ describe("Ocean", () => {
             const consumer = accounts[1]
 
             const ddo: DDO = await ocean.registerAsset(new MetaData(), publisher)
+            const service: Service = ddo.findServiceByType("Access")
 
             // @ts-ignore
             AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
 
-            const serviceAgreementId: string = IdGenerator.generateId()
-            const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, serviceAgreementId,
-                consumer)
+            const signServiceAgreementResult: any = await ocean.signServiceAgreement(ddo.id,
+                service.serviceDefinitionId, consumer)
 
-            const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, serviceAgreementId,
-                serviceAgreementSignature, consumer, publisher)
+            const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id,
+                service.serviceDefinitionId, signServiceAgreementResult.serviceAgreementId,
+                signServiceAgreementResult.serviceAgreementSignature, consumer, publisher)
 
             assert(serviceAgreement)
         })

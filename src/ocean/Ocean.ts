@@ -140,29 +140,34 @@ export default class Ocean {
         return storedDdo
     }
 
-    public async signServiceAgreement(did: string, serviceAgreementId: string, consumer: Account): Promise<string> {
+    public async signServiceAgreement(did: string, serviceDefinitionId: string, consumer: Account): Promise<any> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
+        const serviceAgreementId: string = IdGenerator.generateId()
 
         try {
-            const serviceAgrementSignature: string = await ServiceAgreement.signServiceAgreement(id,
-                ddo, serviceAgreementId, consumer)
-            return serviceAgrementSignature
+            const serviceAgreementSignature: string = await ServiceAgreement.signServiceAgreement(id,
+                ddo, serviceDefinitionId, serviceAgreementId, consumer)
+            return {
+                serviceAgreementId,
+                serviceAgreementSignature,
+            }
         } catch (err) {
 
             Logger.error("Signing ServiceAgreement failed!", err)
         }
     }
 
-    public async executeServiceAgreement(did: string, serviceAgreementId: string, serviceAgreementSignature: string,
-                                         consumer: Account, publisher: Account): Promise<ServiceAgreement> {
+    public async executeServiceAgreement(did: string, serviceDefinitionId: string, serviceAgreementId: string,
+                                         serviceAgreementSignature: string, consumer: Account, publisher: Account)
+        : Promise<ServiceAgreement> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
 
         const serviceAgrement: ServiceAgreement = await ServiceAgreement.executeServiceAgreement(id,
-            ddo, serviceAgreementId, serviceAgreementSignature, consumer, publisher)
+            ddo, serviceDefinitionId, serviceAgreementId, serviceAgreementSignature, consumer, publisher)
 
         return serviceAgrement
     }
