@@ -1,6 +1,7 @@
 import DDO from "../ddo/DDO"
 import MetaData from "../ddo/MetaData"
 import MetaDataBase from "../ddo/MetaDataBase"
+import Service from "../ddo/Service"
 import IdGenerator from "../ocean/IdGenerator"
 import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
@@ -56,8 +57,10 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
     const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, serviceAgreementId, consumer)
     Logger.log("ServiceAgreement Signature:", serviceAgreementSignature)
 
-    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, serviceAgreementId,
-        serviceAgreementSignature, consumer, publisher)
+    const service: Service = ddo.findServiceByType("Access")
+
+    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, service.serviceDefinitionId,
+        serviceAgreementId, serviceAgreementSignature, consumer, publisher)
     Logger.log("ServiceAgreement Id:", serviceAgreement.getId())
 
 })()
