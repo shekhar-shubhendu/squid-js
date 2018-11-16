@@ -98,7 +98,7 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.error("storeDDO failed:", response.status, response.statusText)
+                Logger.error("storeDDO failed:", response.status, response.statusText, ddo)
                 return null as DDO
             })
             .then((response: DDO) => {
@@ -120,7 +120,7 @@ export default class Aquarius {
                 if (response.ok) {
                     return response.json()
                 }
-                Logger.log("retrieveDDO failed:", response.status, response.statusText)
+                Logger.log("retrieveDDO failed:", response.status, response.statusText, did)
                 return null as DDO
             })
             .then((response: DDO) => {
