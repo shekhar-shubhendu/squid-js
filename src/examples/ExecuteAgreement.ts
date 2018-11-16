@@ -2,14 +2,13 @@ import DDO from "../ddo/DDO"
 import MetaData from "../ddo/MetaData"
 import MetaDataBase from "../ddo/MetaDataBase"
 import Service from "../ddo/Service"
-import IdGenerator from "../ocean/IdGenerator"
 import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
 (async () => {
     const ocean: Ocean = await Ocean.getInstance({
         nodeUri: "http://localhost:8545",
         aquariusUri: "http://localhost:5000",
-        brizoUri: "https://localhost:8030",
+        brizoUri: "http://localhost:8030",
         parityUri: "http://localhost:9545",
         secretStoreUri: "https://secret-store.dev-ocean.com",
         threshold: 2,
@@ -53,14 +52,18 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
     const ddo: DDO = await ocean.registerAsset(metaData, publisher)
     Logger.log("did", ddo.id)
 
-    const serviceAgreementId: string = IdGenerator.generateId()
-    const serviceAgreementSignature: string = await ocean.signServiceAgreement(ddo.id, serviceAgreementId, consumer)
-    Logger.log("ServiceAgreement Signature:", serviceAgreementSignature)
+    const accessService = ddo.findServiceByType("Access")
+
+    const serviceAgreementSignatureResult: any = await ocean.signServiceAgreement(ddo.id,
+        accessService.serviceDefinitionId, consumer)
+    Logger.log("ServiceAgreement Id:", serviceAgreementSignatureResult.serviceAgreementId)
+    Logger.log("ServiceAgreement Signature:", serviceAgreementSignatureResult.serviceAgreementSignature)
 
     const service: Service = ddo.findServiceByType("Access")
 
     const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, service.serviceDefinitionId,
-        serviceAgreementId, serviceAgreementSignature, consumer, publisher)
+        serviceAgreementSignatureResult.serviceAgreementId, serviceAgreementSignatureResult.serviceAgreementSignature,
+        consumer, publisher)
     Logger.log("ServiceAgreement Id:", serviceAgreement.getId())
 
 })()

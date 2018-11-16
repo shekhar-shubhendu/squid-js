@@ -1,16 +1,19 @@
+import AdditionalInformation from "../ddo/AdditionalInformation"
+import Curation from "../ddo/Curation"
 import DDO from "../ddo/DDO"
 import MetaData from "../ddo/MetaData"
-import IdGenerator from "../ocean/IdGenerator"
+import MetaDataBase from "../ddo/MetaDataBase"
+import Service from "../ddo/Service"
 import {Account, Logger, Ocean} from "../squid"
 
 (async () => {
     const ocean: Ocean = await Ocean.getInstance({
         nodeUri: "http://localhost:8545",
         aquariusUri: "http://localhost:5000",
-        brizoUri: "https://localhost:8030",
+        brizoUri: "http://localhost:8030",
         parityUri: "http://localhost:9545",
-        secretStoreUri: "https://secret-store.dev-ocean.com",
-        threshold: 2,
+        secretStoreUri: "http://localhost:12001",
+        threshold: 0,
         password: "unittest",
         address: "0xed243adfb84a6626eba46178ccb567481c6e655d",
     })
@@ -19,6 +22,20 @@ import {Account, Logger, Ocean} from "../squid"
     const consumer: Account = (await ocean.getAccounts())[1]
 
     const metaData = {
+        additionalInformation: {
+            structuredMarkup: [
+                {
+                    mediaType: "application/ld+json",
+                    uri: "http://skos.um.es/unescothes/C01194/jsonld",
+                },
+                {
+                    mediaType: "text/turtle",
+                    uri: "http://skos.um.es/unescothes/C01194/turtle",
+                },
+            ],
+            updateFrecuency: "yearly",
+            checksum: "efdd14d39feb726e321931f408b3454d26f1a4899bcc608a68b5397f23203174",
+        } as AdditionalInformation,
         base: {
             name: "Office Humidity",
             type: "dataset",
@@ -38,26 +55,28 @@ import {Account, Logger, Ocean} from "../squid"
                 "https://testocnfiles.blob.core.windows.net/testfiles/testzkp.zip",
             ],
             links: [
-                {
-                    sample1: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/",
-                },
-                {
-                    sample2: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/",
-                },
-                {
-                    fieldsDescription: "http://data.ceda.ac.uk/badc/ukcp09/",
-                },
+                {sample1: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-daily/"},
+                {sample2: "http://data.ceda.ac.uk/badc/ukcp09/data/gridded-land-obs/gridded-land-obs-averages-25km/"},
+                {fieldsDescription: "http://data.ceda.ac.uk/badc/ukcp09/"},
             ],
             inLanguage: "en",
             tags: "weather, uk, 2011, temperature, humidity",
             price: 10,
-        },
+        } as MetaDataBase,
+        curation: {
+            rating: 0.94,
+            numVotes: 124,
+            schema: "Binary Votting",
+        } as Curation,
     }
 
     const ddo: DDO = await ocean.registerAsset(metaData as MetaData, publisher)
     Logger.log("did", ddo.id)
 
-    const serviceAgreementId: string = IdGenerator.generateId()
-    const serviceAgreementSignature = await ocean.signServiceAgreement(ddo.id, serviceAgreementId, consumer)
-    Logger.log("ServiceAgreement Signature:", serviceAgreementSignature)
+    const accessService: Service = ddo.findServiceByType("Access")
+    const serviceAgreementResult: any = await ocean.signServiceAgreement(ddo.id, accessService.serviceDefinitionId,
+        consumer)
+
+    Logger.log("ServiceAgreement Id:", serviceAgreementResult.serviceAgreementId)
+    Logger.log("ServiceAgreement Signature:", serviceAgreementResult.serviceAgreementSignature)
 })()

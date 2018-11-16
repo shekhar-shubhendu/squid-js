@@ -7,7 +7,7 @@ import {Account, Logger, Ocean} from "../squid"
     const ocean: Ocean = await Ocean.getInstance({
         nodeUri: "http://localhost:8545",
         aquariusUri: "http://localhost:5000",
-        brizoUri: "https://localhost:8030",
+        brizoUri: "http://localhost:8030",
         parityUri: "http://localhost:9545",
         secretStoreUri: "https://secret-store.dev-ocean.com",
         threshold: 2,
