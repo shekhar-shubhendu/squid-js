@@ -7,6 +7,7 @@ export default class AquariusConnector {
             method: "POST",
             body: payload,
             headers: {
+                "Accept": "application/json",
                 "Content-type": "application/json",
             },
         })
@@ -16,6 +17,7 @@ export default class AquariusConnector {
         return this.fetch(url, {
             method: "GET",
             headers: {
+                "Accept": "application/json",
                 "Content-type": "application/json",
             },
         })
@@ -26,6 +28,7 @@ export default class AquariusConnector {
             method: "PUT",
             body: payload,
             headers: {
+                "Accept": "application/json",
                 "Content-type": "application/json",
             },
         })
