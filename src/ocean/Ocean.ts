@@ -105,7 +105,7 @@ export default class Ocean {
                     owner: did,
                 },
                 {
-                    publicKeyBase58: publisher.getPublicKey(),
+                    publicKeyBase58: await publisher.getPublicKey(),
                 },
             ],
             service: [
@@ -121,14 +121,14 @@ export default class Ocean {
                     conditions: ddoConditions,
                 } as Service,
                 {
+                    type: "Compute",
                     serviceEndpoint: brizo.getComputeEndpoint(publisher.getId(),
                         serviceDefinitionId, "xxx", "xxx"),
-                    type: "Compute",
                 } as Service,
                 {
                     type: "Metadata",
-                    metadata,
                     serviceEndpoint,
+                    metadata,
                 } as Service,
             ],
         })
