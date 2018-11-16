@@ -6,20 +6,12 @@ export default class AquariusConnector {
         return this.fetch(url, {
             method: "POST",
             body: payload,
-            headers: {
-                "Accept": "application/json",
-                "Content-type": "application/json",
-            },
         })
     }
 
     public async get(url): Promise<any> {
         return this.fetch(url, {
             method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-type": "application/json",
-            },
         })
     }
 
@@ -27,10 +19,6 @@ export default class AquariusConnector {
         return this.fetch(url, {
             method: "PUT",
             body: payload,
-            headers: {
-                "Accept": "application/json",
-                "Content-type": "application/json",
-            },
         })
     }
 
