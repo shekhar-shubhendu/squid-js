@@ -53,16 +53,16 @@ const additionalInformation: AdditionalInformation = {
 
 export default class MetaData {
 
+    public additionalInformation: AdditionalInformation
     public base: MetaDataBase
     public curation: Curation
-    public additionalInformation: AdditionalInformation
 
     constructor(metaData?: MetaData) {
-        this.base = metaData ? metaData.base ? metaData.base : base : base
-        this.curation = metaData ? metaData.curation ? metaData.curation : curation : curation
         this.additionalInformation = metaData ?
             metaData.additionalInformation ? metaData.additionalInformation :
                 additionalInformation : additionalInformation
+        this.base = metaData ? metaData.base ? metaData.base : base : base
+        this.curation = metaData ? metaData.curation ? metaData.curation : curation : curation
     }
 
 }
