@@ -72,17 +72,15 @@ export default class Ocean {
         // create ddo conditions out of the keys
         const ddoConditions: DDOCondition[] = conditions.map((condition: Condition): DDOCondition => {
             return {
-                name: condition.methodReflection.methodName,
+                contractName: condition.methodReflection.contractName,
+                methodName: condition.methodReflection.methodName,
                 timeout: condition.timeout,
                 conditionKey: condition.condtionKey,
                 parameters: condition.methodReflection.inputs.map((input: ValuePair) => {
                     return {
                         ...input,
-                        // todo: change remove, move to execute
-                        value: "xxx",
                     } as Parameter
                 }),
-
             } as DDOCondition
         })
         const serviceEndpoint = aquarius.getServiceEndpoint(did)
