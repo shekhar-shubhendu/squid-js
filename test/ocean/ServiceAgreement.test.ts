@@ -43,7 +43,8 @@ describe("ServiceAgreement", () => {
         // create ddo conditions out of the keys
         const ddoConditions: DDOCondition[] = conditions.map((condition): DDOCondition => {
             return {
-                name: condition.methodReflection.methodName,
+                contractName: condition.methodReflection.contractName,
+                methodName: condition.methodReflection.methodName,
                 timeout: condition.timeout,
                 conditionKey: condition.condtionKey,
                 parameters: condition.methodReflection.inputs.map((input) => {
