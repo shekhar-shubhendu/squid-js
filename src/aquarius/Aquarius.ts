@@ -43,17 +43,19 @@ export default class Aquarius {
             .post(this.url + "/api/v1/aquarius/assets/ddo/query", JSON.stringify(query))
             .then((response: any) => {
                 if (response.ok) {
-                    return response.json()
+                    return response.json() as DDO[]
                 }
                 Logger.error("queryMetadata failed:", response.status, response.statusText)
-                return []
+                return [] as DDO[]
             })
-            .then((res: string) => {
-                return JSON.parse(res) as DDO[]
+            .then((ddos) => {
+                return ddos.map((ddo): DDO => {
+                    return new DDO(ddo as DDO)
+                })
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
-                return []
+                return [] as DDO[]
             })
 
         return result
@@ -70,17 +72,19 @@ export default class Aquarius {
             .get(fullUrl)
             .then((response: any) => {
                 if (response.ok) {
-                    return response.json()
+                    return response.json() as DDO[]
                 }
                 Logger.log("queryMetadataByText failed:", response.status, response.statusText)
-                return []
+                return [] as DDO[]
             })
-            .then((res: string) => {
-                return JSON.parse(res) as DDO[]
+            .then((ddos) => {
+                return ddos.map((ddo): DDO => {
+                    return new DDO(ddo as DDO)
+                })
             })
             .catch((error) => {
-                Logger.error("Error fetching querying metadata: ", error)
-                return []
+                Logger.error("Error fetching querying metadata by text: ", error)
+                return [] as DDO[]
             })
 
         return result
@@ -92,13 +96,14 @@ export default class Aquarius {
             .post(fullUrl, DDO.serialize(ddo))
             .then((response: any) => {
                 if (response.ok) {
-                    return response.json()
+                    return new DDO(response.json() as DDO)
                 }
                 Logger.error("storeDDO failed:", response.status, response.statusText)
-                return null
+                return null as DDO
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
+                return null as DDO
             })
 
         return result
@@ -110,13 +115,14 @@ export default class Aquarius {
             .get(fullUrl)
             .then((response: any) => {
                 if (response.ok) {
-                    return response.json()
+                    return new DDO(response.json() as DDO)
                 }
                 Logger.log("retrieveDDO failed:", response.status, response.statusText)
-                return null
+                return null as DDO
             })
             .catch((error) => {
                 Logger.error("Error fetching querying metadata: ", error)
+                return null as DDO
             })
 
         return result
