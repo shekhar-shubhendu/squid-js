@@ -2,7 +2,7 @@ import {URL} from "whatwg-url"
 import DDO from "../ddo/DDO"
 import Config from "../models/Config"
 import Logger from "../utils/Logger"
-import AquariusConnectorProvider from "./AquariusConnectorProvider"
+import WebServiceConnectorProvider from "../utils/WebServiceConnectorProvider"
 import SearchQuery from "./query/SearchQuery"
 
 export default class Aquarius {
@@ -16,7 +16,7 @@ export default class Aquarius {
 
     public async getAccessUrl(accessToken: any, payload: any): Promise<string> {
 
-        const accessUrl: string = await AquariusConnectorProvider.getConnector()
+        const accessUrl: string = await WebServiceConnectorProvider.getConnector()
             .post(`${accessToken.service_endpoint}/${accessToken.resource_id}`, payload)
             .then((response: any): string => {
                 if (response.ok) {
@@ -39,7 +39,7 @@ export default class Aquarius {
 
     public async queryMetadata(query: SearchQuery): Promise<DDO[]> {
 
-        const result: DDO[] = await AquariusConnectorProvider.getConnector()
+        const result: DDO[] = await WebServiceConnectorProvider.getConnector()
             .post(this.url + "/api/v1/aquarius/assets/ddo/query", JSON.stringify(query))
             .then((response: any) => {
                 if (response.ok) {
@@ -68,7 +68,7 @@ export default class Aquarius {
         fullUrl.searchParams.append("sort", decodeURIComponent(JSON.stringify(query.sort)))
         fullUrl.searchParams.append("offset", query.offset.toString())
         fullUrl.searchParams.append("page", query.page.toString())
-        const result: DDO[] = await AquariusConnectorProvider.getConnector()
+        const result: DDO[] = await WebServiceConnectorProvider.getConnector()
             .get(fullUrl)
             .then((response: any) => {
                 if (response.ok) {
@@ -92,7 +92,7 @@ export default class Aquarius {
 
     public async storeDDO(ddo: DDO): Promise<DDO> {
         const fullUrl = this.url + `/api/v1/aquarius/assets/ddo`
-        const result: DDO = await AquariusConnectorProvider.getConnector()
+        const result: DDO = await WebServiceConnectorProvider.getConnector()
             .post(fullUrl, DDO.serialize(ddo))
             .then((response: any) => {
                 if (response.ok) {
@@ -114,7 +114,7 @@ export default class Aquarius {
 
     public async retrieveDDO(did: string): Promise<DDO> {
         const fullUrl = this.url + `/api/v1/aquarius/assets/ddo/${did}`
-        const result = await AquariusConnectorProvider.getConnector()
+        const result = await WebServiceConnectorProvider.getConnector()
             .get(fullUrl)
             .then((response: any) => {
                 if (response.ok) {

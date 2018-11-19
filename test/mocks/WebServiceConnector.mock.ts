@@ -1,7 +1,7 @@
-import AquariusConnector from "../../src/aquarius/AquariusConnector"
+import WebServiceConnector from "../../src/utils/WebServiceConnector"
 
 // @ts-ignore
-export default class AquariusConnectorMock extends AquariusConnector {
+export default class WebServiceConnectorMock extends WebServiceConnector {
 
     constructor(private returnData: any) {
         super()

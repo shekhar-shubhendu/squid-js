@@ -1,5 +1,4 @@
 import {assert} from "chai"
-import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import ConfigProvider from "../../src/ConfigProvider"
 import DDOCondition from "../../src/ddo/Condition"
 import DDO from "../../src/ddo/DDO"
@@ -12,9 +11,10 @@ import Condition from "../../src/ocean/ServiceAgreements/Condition"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
+import WebServiceConnectorProvider from "../../src/utils/WebServiceConnectorProvider"
 import config from "../config"
 import TestContractHandler from "../keeper/TestContractHandler"
-import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
+import WebServiceConnectorMock from "../mocks/WebServiceConnector.mock"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -74,7 +74,8 @@ describe("ServiceAgreement", () => {
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
+
             const serviceAgreementSignature: string =
                 await ServiceAgreement.signServiceAgreement(assetId, ddo, service.serviceDefinitionId,
                     serviceAgreementId, consumerAccount)
@@ -94,7 +95,7 @@ describe("ServiceAgreement", () => {
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
             const serviceAgreementSignature: string =
                 await ServiceAgreement.signServiceAgreement(assetId, ddo, service.serviceDefinitionId,
                     serviceAgreementId, consumerAccount)
@@ -120,7 +121,7 @@ describe("ServiceAgreement", () => {
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
             const serviceAgreementSignature: string =
                 await ServiceAgreement.signServiceAgreement(assetId, ddo, service.serviceDefinitionId,
                     serviceAgreementId, consumerAccount)
@@ -146,7 +147,7 @@ describe("ServiceAgreement", () => {
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
             const serviceAgreementSignature: string =
                 await ServiceAgreement.signServiceAgreement(assetId, ddo, service.serviceDefinitionId,
                     serviceAgreementId, consumerAccount)

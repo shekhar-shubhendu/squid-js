@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
 
-export default class AquariusConnector {
+export default class WebServiceConnector {
 
     public async post(url, payload): Promise<any> {
         return this.fetch(url, {

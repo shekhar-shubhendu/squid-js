@@ -1,11 +1,11 @@
 import * as assert from "assert"
 import Aquarius from "../../src/aquarius/Aquarius"
-import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import SearchQuery from "../../src/aquarius/query/SearchQuery"
 import DDO from "../../src/ddo/DDO"
 import IdGenerator from "../../src/ocean/IdGenerator"
+import WebServiceConnectorProvider from "../../src/utils/WebServiceConnectorProvider"
 import config from "../config"
-import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
+import WebServiceConnectorMock from "../mocks/WebServiceConnector.mock"
 
 describe("Aquarius", () => {
 
@@ -27,7 +27,7 @@ describe("Aquarius", () => {
         it("should query metadata", async () => {
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock([new DDO()]))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock([new DDO()]))
 
             const result: DDO[] = await aquarius.queryMetadata(query)
             assert(result)
@@ -37,7 +37,7 @@ describe("Aquarius", () => {
         it("should query metadata and return real ddo", async () => {
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock([new DDO()]))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock([new DDO()]))
 
             const result: DDO[] = await aquarius.queryMetadata(query)
             assert(result)
@@ -62,7 +62,7 @@ describe("Aquarius", () => {
         it("should query metadata by text", async () => {
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock([new DDO()]))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock([new DDO()]))
 
             const result: DDO[] = await aquarius.queryMetadataByText(query)
             assert(result)
@@ -72,7 +72,7 @@ describe("Aquarius", () => {
         it("should query metadata and return real ddo", async () => {
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock([new DDO()]))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock([new DDO()]))
 
             const result: DDO[] = await aquarius.queryMetadataByText(query)
             assert(result)
@@ -91,7 +91,7 @@ describe("Aquarius", () => {
             })
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
 
             const result: DDO = await aquarius.storeDDO(ddo)
             assert(result)
@@ -109,7 +109,7 @@ describe("Aquarius", () => {
             })
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
 
             const storageResult: DDO = await aquarius.storeDDO(ddo)
             assert(storageResult)

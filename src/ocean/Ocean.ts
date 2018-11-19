@@ -50,6 +50,11 @@ export default class Ocean {
         return ethAccounts.map((address: string) => new Account(address))
     }
 
+    public async resolveDID(did): Promise<DDO> {
+
+        return AquariusProvider.getAquarius().retrieveDDO(did)
+    }
+
     public async registerAsset(metadata: MetaData, publisher: Account): Promise<DDO> {
 
         const {didRegistry} = this.keeper
@@ -155,6 +160,14 @@ export default class Ocean {
 
             Logger.error("Signing ServiceAgreement failed!", err)
         }
+    }
+
+    public async initializeServiceAgreement(did: string, serviceDefinitionId: string, serviceAgreementId: string,
+                                            serviceAgreementSignature: string, consumer: Account) {
+        const result = await BrizoProvider.getBrizo().initializeServiceAgreement(did, serviceAgreementId,
+            serviceDefinitionId, serviceAgreementSignature, await consumer.getPublicKey())
+
+        Logger.log(result)
     }
 
     public async executeServiceAgreement(did: string, serviceDefinitionId: string, serviceAgreementId: string,

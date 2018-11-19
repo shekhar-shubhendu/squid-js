@@ -1,7 +1,7 @@
 import {assert} from "chai"
-import AquariusConnectorProvider from "../../src/aquarius/AquariusConnectorProvider"
 import AquariusProvider from "../../src/aquarius/AquariusProvider"
 import SearchQuery from "../../src/aquarius/query/SearchQuery"
+import BrizoProvider from "../../src/brizo/BrizoProvider"
 import ConfigProvider from "../../src/ConfigProvider"
 import DDO from "../../src/ddo/DDO"
 import MetaData from "../../src/ddo/MetaData"
@@ -10,11 +10,13 @@ import Account from "../../src/ocean/Account"
 import Ocean from "../../src/ocean/Ocean"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import SecretStoreProvider from "../../src/secretstore/SecretStoreProvider"
+import WebServiceConnectorProvider from "../../src/utils/WebServiceConnectorProvider"
 import config from "../config"
 import TestContractHandler from "../keeper/TestContractHandler"
 import AquariusMock from "../mocks/Aquarius.mock"
-import AquariusConnectorMock from "../mocks/AquariusConnector.mock"
+import BrizoMock from "../mocks/Brizo.mock"
 import SecretStoreMock from "../mocks/SecretStore.mock"
+import WebServiceConnectorMock from "../mocks/WebServiceConnector.mock"
 
 let ocean: Ocean
 let accounts: Account[]
@@ -25,6 +27,7 @@ describe("Ocean", () => {
     before(async () => {
         ConfigProvider.setConfig(config)
         AquariusProvider.setAquarius(new AquariusMock(config))
+        BrizoProvider.setBrizo(new BrizoMock(config))
         SecretStoreProvider.setSecretStore(new SecretStoreMock(config))
         await TestContractHandler.prepareContracts()
         ocean = await Ocean.getInstance(config)
@@ -52,6 +55,21 @@ describe("Ocean", () => {
             assert(10 === accs.length)
             assert(0 === (await accs[5].getBalance()).ocn)
             assert("string" === typeof accs[0].getId())
+        })
+
+    })
+
+    describe("#resolveDID()", () => {
+
+        it("should resolve a did to a ddo", async () => {
+
+            const metaData: MetaData = new MetaData()
+            const ddo: DDO = await ocean.registerAsset(metaData, testPublisher)
+
+            const resolvedDDO: DDO = await ocean.resolveDID(ddo.id)
+
+            assert(resolvedDDO)
+            assert(resolvedDDO.id === ddo.id)
         })
 
     })
@@ -114,7 +132,7 @@ describe("Ocean", () => {
             const service: Service = ddo.findServiceByType("Access")
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
 
             const serviceAgreementSignature: any = await ocean.signServiceAgreement(ddo.id,
                 service.serviceDefinitionId, consumer)
@@ -138,7 +156,7 @@ describe("Ocean", () => {
             const service: Service = ddo.findServiceByType("Access")
 
             // @ts-ignore
-            AquariusConnectorProvider.setConnector(new AquariusConnectorMock(ddo))
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
 
             const signServiceAgreementResult: any = await ocean.signServiceAgreement(ddo.id,
                 service.serviceDefinitionId, consumer)
