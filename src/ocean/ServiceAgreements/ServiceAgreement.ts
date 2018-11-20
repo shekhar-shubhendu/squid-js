@@ -14,6 +14,8 @@ export default class ServiceAgreement extends OceanBase {
                                              serviceAgreementId: string, consumer: Account):
         Promise<string> {
 
+        // Logger.log("signing SA", serviceAgreementId)
+
         const service: Service = ddo.findServiceById(serviceDefinitionId)
         const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
         const valueHashes = ServiceAgreement.createValueHashes(values)
@@ -29,14 +31,17 @@ export default class ServiceAgreement extends OceanBase {
                                                 serviceAgreementId: string, serviceAgreementHashSignature: string,
                                                 consumer: Account, publisher: Account): Promise<ServiceAgreement> {
 
+        // Logger.log("executing SA", serviceAgreementId)
+
         const service: Service = ddo.findServiceById(serviceDefinitionId)
         const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
         const valueHashes = ServiceAgreement.createValueHashes(values)
         const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
 
+        // todo get consumer from ddo
         const serviceAgreement: ServiceAgreement = await ServiceAgreement.executeAgreement(ddo,
             serviceDefinitionId, serviceAgreementId, valueHashes, timeoutValues, serviceAgreementHashSignature,
-            consumer, publisher)
+            consumer.getId(), publisher)
 
         return serviceAgreement
     }
@@ -64,7 +69,8 @@ export default class ServiceAgreement extends OceanBase {
 
     private static async executeAgreement(ddo: DDO, serviceDefinitionId: string, serviceAgreementId: string,
                                           valueHashes: string[], timeoutValues: number[],
-                                          serviceAgreementHashSignature: string, consumer: Account, publisher: Account)
+                                          serviceAgreementHashSignature: string, consumerAddress: string,
+                                          publisher: Account)
         : Promise<ServiceAgreement> {
 
         const {serviceAgreement} = await Keeper.getInstance()
@@ -76,7 +82,7 @@ export default class ServiceAgreement extends OceanBase {
         }
 
         const executeAgreementReceipt = await serviceAgreement.executeAgreement(
-            service.templateId, serviceAgreementHashSignature, consumer.getId(), valueHashes,
+            service.templateId, serviceAgreementHashSignature, consumerAddress, valueHashes,
             timeoutValues, serviceAgreementId, ddo.id, publisher.getId())
 
         if (executeAgreementReceipt.events.ExecuteAgreement.returnValues.state === false) {
@@ -87,7 +93,7 @@ export default class ServiceAgreement extends OceanBase {
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.serviceAgreementId,
             ddo,
             publisher,
-            consumer,
+            new Account(consumerAddress),
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.state,
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.status,
         )
