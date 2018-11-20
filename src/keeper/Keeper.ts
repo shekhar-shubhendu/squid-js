@@ -1,5 +1,6 @@
 import OceanAuth from "./contracts/Auth"
 import AccessConditions from "./contracts/conditions/AccessConditions"
+import PaymentConditions from "./contracts/conditions/PaymentConditions"
 import DIDRegistry from "./contracts/DIDRegistry"
 import OceanMarket from "./contracts/Market"
 import ServiceAgreement from "./contracts/ServiceAgreement"
@@ -18,6 +19,7 @@ export default class Keeper {
             Keeper.instance.token = await OceanToken.getInstance()
             Keeper.instance.serviceAgreement = await ServiceAgreement.getInstance()
             Keeper.instance.accessConditions = await AccessConditions.getInstance()
+            Keeper.instance.paymentConditions = await PaymentConditions.getInstance()
             Keeper.instance.didRegistry = await DIDRegistry.getInstance()
         }
         return Keeper.instance
@@ -30,6 +32,7 @@ export default class Keeper {
     public auth: OceanAuth
     public serviceAgreement: ServiceAgreement
     public accessConditions: AccessConditions
+    public paymentConditions: PaymentConditions
     public didRegistry: DIDRegistry
 
     public async getNetworkName(): Promise<string> {

@@ -39,6 +39,20 @@ describe("ServiceAgreementTemplate", () => {
         })
     })
 
+    describe("#getConditions()", () => {
+        it("should setup an Access agreement template correctly", async () => {
+
+            const access: TemplateBase = new Access()
+            access.id = IdGenerator.generatePrefixedId()
+            const serviceAgreementTemplate: ServiceAgreementTemplate =
+                new ServiceAgreementTemplate(access)
+            assert(serviceAgreementTemplate)
+
+            const conds = await serviceAgreementTemplate.getConditions()
+            assert(conds)
+        })
+    })
+
     describe("#getStatus()", () => {
         it("should get the status of a newly deployed agreement template", async () => {
 

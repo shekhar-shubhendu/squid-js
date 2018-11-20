@@ -5,6 +5,8 @@ import ConfigProvider from "../ConfigProvider"
 import Authentication from "../ddo/Authentication"
 import DDOCondition from "../ddo/Condition"
 import DDO from "../ddo/DDO"
+import Event from "../ddo/Event"
+import EventHandlers from "../ddo/EventHandlers"
 import MetaData from "../ddo/MetaData"
 import Parameter from "../ddo/Parameter"
 import Service from "../ddo/Service"
@@ -75,17 +77,39 @@ export default class Ocean {
         const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
-        const ddoConditions: DDOCondition[] = conditions.map((condition: Condition): DDOCondition => {
+        const ddoConditions: DDOCondition[] = conditions.map((condition: Condition, index: number): DDOCondition => {
+            const events: Event[] = [
+                {
+                    name: "PaymentReleased",
+                    actorType: [
+                        "consumer",
+                    ],
+                    handlers: {
+                        moduleName: "serviceAgreement",
+                        functionName: "fulfillAgreement",
+                        version: "0.1",
+                    } as EventHandlers,
+                } as Event,
+            ]
+
+            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: ValuePair) => {
+                return {
+                    ...input,
+                    value: "xxx",
+                } as Parameter
+            })
+
             return {
                 contractName: condition.methodReflection.contractName,
                 methodName: condition.methodReflection.methodName,
                 timeout: condition.timeout,
+                index,
                 conditionKey: condition.condtionKey,
-                parameters: condition.methodReflection.inputs.map((input: ValuePair) => {
-                    return {
-                        ...input,
-                    } as Parameter
-                }),
+                parameters,
+                events,
+                dependencies: condition.dependencies,
+                dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
+                isTerminalCondition: condition.isTerminalCondition,
             } as DDOCondition
         })
         const serviceEndpoint = aquarius.getServiceEndpoint(did)
