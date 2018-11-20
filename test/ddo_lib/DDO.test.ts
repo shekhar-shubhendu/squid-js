@@ -137,7 +137,13 @@ describe("libDDO", () => {
             assert(service)
             assert(service.id === did)
         })
-        
+        it("should add a static proof and validate", async () => {
+            var ddo = new DDO()
+            assert(ddo)
+            const privateKey = ddo.addSignature()
+            assert(privateKey.match('-----BEGIN RSA PRIVATE KEY-----'))
+            ddo.addProof(0, privateKey)
+        })
     })
 
 })
