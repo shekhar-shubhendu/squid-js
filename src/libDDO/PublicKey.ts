@@ -45,26 +45,26 @@ export default class PublicKey {
     }
 
     public decodeValue(): string {
-        var value = this.value
-        var buffer
-        switch(this.type) {
+        let value = this.value
+        let buffer = null
+        switch (this.type) {
             case PublicKey.PEM:
                 value = this.value
-            break;
+                break
             case PublicKey.JWK:
                 // TODO: implement
-            break;
+                break
             case PublicKey.HEX:
                 value = Web3.utils.hexToAscii(this.value)
-            break;
+                break
             case PublicKey.BASE64:
-                buffer = new Buffer(this.value, 'base64')
-                value = buffer.toString('ascii')
-            break;
+                buffer = new Buffer(this.value, "base64")
+                value = buffer.toString("ascii")
+                break
             case PublicKey.BASE85:
-                buffer = new Buffer(this.value, 'base85')
-                value = buffer.toString('ascii')
-            break;
+                buffer = new Buffer(this.value, "base85")
+                value = buffer.toString("ascii")
+                break
         }
         return value
     }

@@ -4,9 +4,8 @@ import Proof from "./Proof"
 import PublicKey from "./PublicKey"
 import Service from "./Service"
 
+import * as ursa from "ursa"
 import * as Web3 from "web3"
-
-const ursa = require('ursa');
 
 interface IDDO {
     id: string
@@ -20,16 +19,18 @@ interface IDDO {
 
 export default class DDO {
 
+    public static CONTEXT: string = "https://w3id.org/future-method/v1"
+
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
-        if ( authenticationType === Authentication.TYPE_RSA ) {   
+        if ( authenticationType === Authentication.TYPE_RSA ) {
 //            var key = ursa.createPublicKey(keyValue, "utf8")
 //            var signatureBuffer = new Buffer(signature, 'ascii')
 //            var textBuffer = new Buffer(text, 'ascii')
-            
+
 //            return key.hashAndVerify("sha256", text, signature, "utf8", false)
-            
-/*            
-            // setup with SHA256 RSA         
+
+/*
+            // setup with SHA256 RSA
             var sig = new jsr.crypto.Signature({"alg": "SHA256withRSA"})
             // init with public PEM key
             sig.init(keyValue)
@@ -43,8 +44,7 @@ export default class DDO {
         }
         return false
     }
-    
-    public static CONTEXT: string = "https://w3id.org/future-method/v1"
+
     public context: string = DDO.CONTEXT
     public did: string
     public created: string
@@ -57,14 +57,14 @@ export default class DDO {
         this.publicKeys = []
         this.authentications = []
         this.services = []
-        
+
         if (typeof did === "string") {
             this.did = did
         }
         if (typeof did === "object") {
             this.readFromData(did)
         }
-        
+
     }
 
     public readFromData(data: IDDO) {
@@ -145,27 +145,25 @@ export default class DDO {
     public toJSON(): string {
         return JSON.stringify(this.toData(), null, 2)
     }
-    
+
     public addSignature(keyType?: string): string {
         if ( keyType == null ) {
             keyType = PublicKey.PEM
         }
         if (keyType === PublicKey.PEM ) {
-            var keys = ursa.generatePrivateKey(1024, 65537)
+            const keys = ursa.generatePrivateKey(1024, 65537)
             const nextIndex = this.publicKeys.length + 1
-            const keyId = (this.did ? this.did : '' )  + "#keys=" + nextIndex
-            var publicKey = new PublicKey({id: keyId, owner: keyId, type: keyType})
+            const keyId = (this.did ? this.did : "" )  + "#keys=" + nextIndex
+            const publicKey = new PublicKey({id: keyId, owner: keyId, type: keyType})
             publicKey.value =  keys.toPublicPem("utf8")
             this.publicKeys.push(publicKey)
-            
-            
             return keys.toPrivatePem("utf8")
         }
         return null
     }
-    
+
     public addService(data): Service {
-        var service = new Service(data)
+        const service = new Service(data)
         if (service.id == null ) {
             service.id = this.did
         }
@@ -277,7 +275,7 @@ export default class DDO {
         const values = this.hashTextList()
         return Web3.utils.sha3(values.join())
     }
-    
+
     public getPublicKey(keyId: string): PublicKey {
         const result = {publicKey: null }
         this.publicKeys.forEach(function(publicKey) {
@@ -305,10 +303,10 @@ export default class DDO {
         }
         const keyValue = publicKey.decodeValue()
         const authentication = this.getAuthentication(publicKey.id)
-        
+
         return DDO.validateSignature(signatureText, keyValue, signatureValue, authentication.type)
     }
-    
+
     public validateProof(signatureText?: string): boolean {
         if ( signatureText == null ) {
             signatureText = this.hashTextList().join()
@@ -322,7 +320,7 @@ export default class DDO {
         const signature = new Buffer(this.proof.signatureValue, "base64")
         return this.validateFromKey(this.proof.creator, signatureText, signature.toString("ascii"))
     }
-    
+
     public isEmpty(): boolean {
         return this.did && this.did.length === 0
                 && this.publicKeys.length === 0

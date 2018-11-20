@@ -7,7 +7,7 @@ interface IAuthentication {
 export default class Authentication {
 
     public static TYPE_RSA = "RsaVerificationKey2018"
-    
+
     public publicKeyId: string
     public type: string
     public value: string
