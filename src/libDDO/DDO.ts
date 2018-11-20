@@ -33,7 +33,7 @@ export default class DDO {
     }
 
     public static signText(text: string, keyValue: string, signType: string): string {
-        const signature = ""
+        let signature = ""
         if ( signType === PublicKey.TYPE_RSA ) {
             const key = ursa.createPrivateKey(keyValue)
 //            console.log("privkey", keyValue, key.toPrivatePem("utf8"))

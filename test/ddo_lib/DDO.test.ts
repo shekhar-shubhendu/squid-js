@@ -114,14 +114,8 @@ describe("libDDO", () => {
         it("should have a valid ddo proof", async () => {
             var ddo = new DDO(jsonDDO)
             assert(ddo)
-            assert(ddo.validate())
-            // TODO: currently the python proof signature is not the same as
-            // the validation signature for nodeJS
-            // FIXME: python does PKCS1_v1_5 padding, but this does not seem to be
-            // supported in ursa (only PKCS1_v1).
-            
-
-//            ddo.validateProof()
+            assert(ddo.validate())            
+            ddo.validateProof()
         })
     })
 
