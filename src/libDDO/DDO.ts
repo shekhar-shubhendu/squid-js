@@ -23,27 +23,13 @@ export default class DDO {
 
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
         if ( authenticationType === Authentication.TYPE_RSA ) {
-//            var key = ursa.createPublicKey(keyValue, "utf8")
-//            var signatureBuffer = new Buffer(signature, 'ascii')
-//            var textBuffer = new Buffer(text, 'ascii')
 
             // FIXME: python does PKCS1_v1_5 padding, but this does not seem to be
             // supported in ursa (only PKCS1_v1).
             
+//            var key = ursa.createPublicKey(keyValue, "utf8")
 //            return key.hashAndVerify("sha256", text, signature, "utf8", ursa.RSA_NO_PADDING)
 
-/*
-            // setup with SHA256 RSA
-            var sig = new jsr.crypto.Signature({"alg": "SHA256withRSA"})
-            // init with public PEM key
-            sig.init(keyValue)
-            // add the hash text
-            sig.updateString(text)
-            // convert the signature to hex
-            var buffer = new Buffer(signature, 'ascii')
-            // verify the signature
-            return sig.verify(buffer.toString('hex'))
-*/
         }
         return false
     }
@@ -94,22 +80,18 @@ export default class DDO {
             this.context = data["@context"]
         }
 
-        this.publicKeys = []
-
         if ( data.hasOwnProperty("publicKey") ) {
             data.publicKey.forEach(function(value) {
                 this.publicKeys.push(new PublicKey(value))
             }, this)
         }
 
-        this.authentications = []
         if ( data.hasOwnProperty("authentication") ) {
             data.authentication.forEach(function(value) {
                 this.authentications.push(new Authentication(value))
             }, this)
         }
 
-        this.services = []
         if ( data.hasOwnProperty("service") ) {
             data.service.forEach(function(value) {
                 this.services.push(new Service(value))
