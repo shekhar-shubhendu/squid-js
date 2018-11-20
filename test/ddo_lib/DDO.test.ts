@@ -4,7 +4,7 @@ import DDO from "../../src/libDDO/DDO"
 import * as jsonDDO from "../testdata/ddoSample1.json"
 
 
-describe("DDO", () => {
+describe("libDDO", () => {
 
     describe("#constructor()", () => {
 

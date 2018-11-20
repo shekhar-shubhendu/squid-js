@@ -1,29 +1,29 @@
-// import PublicKey from "./PublicKey"
 
+interface IAuthentication {
+    publicKey?: string
+    type?: string
+}
 
 export default class Authentication {
 
-
-//    private publicKey?: PublicKey
     public publicKeyId: string
     public type: string
     public value: string
-    
-    public constructor(data?: any) {
-        this.publicKeyId = data['publicKey']
-        this.type = data['type']
-        this.value = ''
-    }
-    
-    public toData(): object {
-        return {
-            'publicKey': this.publicKeyId,
-            'type': this.type
-        }
-    }
-    public isValid(): boolean {
-        return this.publicKeyId != '' && this.type != ''
-    }
-    
-}
 
+    public constructor(data?: IAuthentication) {
+        this.publicKeyId = data.publicKey
+        this.type = data.type
+        this.value = ""
+    }
+
+    public toData(): IAuthentication {
+        return {
+            publicKey: this.publicKeyId,
+            type: this.type,
+        } as IAuthentication
+    }
+
+    public isValid(): boolean {
+        return this.publicKeyId && this.publicKeyId.length > 0 && this.type.length && this.type.length > 0
+    }
+}
