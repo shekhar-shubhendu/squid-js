@@ -4,7 +4,7 @@ import Proof from "./Proof"
 import PublicKey from "./PublicKey"
 import Service from "./Service"
 
-import * as ursa from "ursa"
+import * as ursa from "ursa-optional"
 import * as Web3 from "web3"
 
 interface IDDO {
