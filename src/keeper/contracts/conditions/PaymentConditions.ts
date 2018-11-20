@@ -9,9 +9,9 @@ export default class PaymentConditions extends ContractBase {
         return paymentConditions
     }
 
-    public async lockPayment(serviceAgreementId: any, assetId: any, price: number, publisherAddress: string)
+    public async lockPayment(serviceAgreementId: string, assetId: string, price: number, consumerAddress: string)
         : Promise<Receipt> {
-        return this.send("lockPayment", publisherAddress, [
+        return this.send("lockPayment", consumerAddress, [
             serviceAgreementId, "0x" + assetId, price,
         ])
     }
