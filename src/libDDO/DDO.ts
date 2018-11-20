@@ -23,22 +23,22 @@ export default class DDO {
 
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
         if ( authenticationType === Authentication.TYPE_RSA ) {
+            const key = ursa.createPublicKey(keyValue, "utf8")
+            const buffer = new Buffer(text, "utf8")
 
-            // FIXME: python does PKCS1_v1_5 padding, but this does not seem to be
-            // supported in ursa (only PKCS1_v1).
-            
-//            var key = ursa.createPublicKey(keyValue, "utf8")
-//            return key.hashAndVerify("sha256", text, signature, "utf8", ursa.RSA_NO_PADDING)
-
+//            console.log("valid", signature.length, Web3.utils.sha3(text + signature))
+            return key.hashAndVerify("sha256", buffer.toString("base64"), signature, "base64")
         }
         return false
     }
-    
-    public static signText(text: string, keyValue: string, authenticationType: string): string {
-        var signature = ""
-        if ( authenticationType === Authentication.TYPE_RSA ) {
-            var key = ursa.createPrivateKey(keyValue, "", "utf8")
-            signature = key.hashAndSign("SHA256", text, "utf8", "utf8")
+
+    public static signText(text: string, keyValue: string, signType: string): string {
+        const signature = ""
+        if ( signType === PublicKey.TYPE_RSA ) {
+            const key = ursa.createPrivateKey(keyValue)
+//            console.log("privkey", keyValue, key.toPrivatePem("utf8"))
+            signature = key.hashAndSign("sha256", text, "utf8", "base64")
+//            console.log("sign", signature.length, Web3.utils.sha3(text + signature))
         }
         return signature
     }
@@ -147,16 +147,16 @@ export default class DDO {
         if (keyType === PublicKey.PEM ) {
             // generate the key pairs
             const keys = ursa.generatePrivateKey(1024, 65537)
-            
+
             // add a public key record
             const nextIndex = this.publicKeys.length + 1
             const keyId = (this.did ? this.did : "" )  + "#keys=" + nextIndex
-            const publicKey = new PublicKey({id: keyId, owner: keyId, type: keyType})
+            const publicKey = new PublicKey({id: keyId, owner: keyId, type: PublicKey.TYPE_RSA})
             publicKey.value =  keys.toPublicPem("utf8")
             this.publicKeys.push(publicKey)
-            
+
             // add an authentication record
-            const authentication = new Authentication({ publicKey: publicKey.id, type: publicKey.type})
+            const authentication = new Authentication({ publicKey: publicKey.id, type: Authentication.TYPE_RSA})
             this.authentications.push(authentication)
             return keys.toPrivatePem("utf8")
         }
@@ -172,29 +172,30 @@ export default class DDO {
         return service
     }
 
-    public addProof(authIndex, privateKey, signatureText) {
+    public addProof(authIndex, privateKey, signatureText?) {
         if ( authIndex == null ) {
             authIndex = 0
         }
         const authentication = this.authentications[authIndex]
         // get the public key stored for this authentication
         const publicKey = this.getPublicKey(authentication.publicKeyId)
-        
+
         if ( signatureText == null ) {
             signatureText = this.hashTextList().join()
         }
         const signature = DDO.signText(signatureText, privateKey, publicKey.type)
-        const signatureBuffer = new Buffer(signature, 'ascii')
+//        const signatureBuffer = new Buffer(signature, 'utf8')
         const date = new Date()
-        
+
         this.proof = new Proof({
             created: date.toISOString(),
-            creator: publicKey.id, 
-            type: publicKey.type, 
-            signatureValue: signatureBuffer.toString("base64"),
+            creator: publicKey.id,
+            type: publicKey.type,
+//            signatureValue: signatureBuffer.toString("base64"),
+            signatureValue: signature,
         })
     }
-    
+
     public isProofDefined(): boolean {
         return this.proof != null
     }
@@ -341,8 +342,9 @@ export default class DDO {
         if ( !this.proof.isValid() ) {
             return false
         }
-        const signature = new Buffer(this.proof.signatureValue, "base64")
-        return this.validateFromKey(this.proof.creator, signatureText, signature.toString("ascii"))
+//        const signature = new Buffer(this.proof.signatureValue, "base64")
+//        return this.validateFromKey(this.proof.creator, signatureText, signature.toString("utf8"))
+        return this.validateFromKey(this.proof.creator, signatureText, this.proof.signatureValue)
     }
 
     public isEmpty(): boolean {
