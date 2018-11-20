@@ -27,7 +27,10 @@ export default class DDO {
 //            var signatureBuffer = new Buffer(signature, 'ascii')
 //            var textBuffer = new Buffer(text, 'ascii')
 
-//            return key.hashAndVerify("sha256", text, signature, "utf8", false)
+            // FIXME: python does PKCS1_v1_5 padding, but this does not seem to be
+            // supported in ursa (only PKCS1_v1).
+            
+//            return key.hashAndVerify("sha256", text, signature, "utf8", ursa.RSA_NO_PADDING)
 
 /*
             // setup with SHA256 RSA
