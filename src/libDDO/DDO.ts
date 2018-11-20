@@ -6,6 +6,8 @@ import Service from "./Service"
 
 import * as Web3 from "web3"
 
+//const crypto = require('crypto')
+
 interface IDDO {
     id: string
     created?: string
@@ -18,6 +20,12 @@ interface IDDO {
 
 export default class DDO {
 
+    public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
+        if ( authenticationType === Authentication.TYPE_RSA ) {
+        }
+        return true
+    }
+    
     public static CONTEXT: string = "https://w3id.org/future-method/v1"
     public context: string = DDO.CONTEXT
     public did: string
@@ -219,7 +227,55 @@ export default class DDO {
         const values = this.hashTextList()
         return Web3.utils.sha3(values.join())
     }
+    
+    public getPublicKey(keyId: string): PublicKey {
+        const result = {publicKey: null }
+        this.publicKeys.forEach(function(publicKey) {
+            if ( publicKey.did === keyId ) {
+                this.publicKey = publicKey
+            }
+        }, result)
+        return result.publicKey
+    }
 
+    public getAuthentication(publicKeyId: string): Authentication {
+        const result = {authentication: null }
+        this.authentications.forEach(function(authentication) {
+            if ( authentication.publicKeyId === publicKeyId ) {
+                this.authentication = authentication
+            }
+        }, result)
+        return result.authentication
+    }
+
+    public validateFromKey(keyId: string, signatureText: string, signatureValue: string): boolean {
+        const publicKey = this.getPublicKey(keyId)
+        if ( ! publicKey) {
+            return false
+        }
+        console.log(publicKey)
+        const keyValue = publicKey.decodeValue()
+        console.log(keyValue)
+        
+        const authentication = this.getAuthentication(publicKey.did)
+        
+        return DDO.validateSignature(signatureText, keyValue, signatureValue, authentication.type)
+    }
+    
+    public validateProof(signatureText?: string): boolean {
+        if ( signatureText == null ) {
+            signatureText = this.hashTextList().join()
+        }
+        if ( !this.isProofDefined() ) {
+            return false
+        }
+        if ( !this.proof.isValid() ) {
+            return false
+        }
+        const signature = new Buffer(this.proof.signatureValue, "base64")
+        return this.validateFromKey(this.proof.creator, signatureText, signature.toString("ascii"))
+    }
+    
     public isEmpty(): boolean {
         return this.did && this.did.length === 0
                 && this.publicKeys.length === 0

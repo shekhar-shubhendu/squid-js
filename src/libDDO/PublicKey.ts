@@ -1,4 +1,6 @@
 
+import * as Web3 from "web3"
+
 interface IPublicKey {
     id?: string
     owner?: string
@@ -42,4 +44,28 @@ export default class PublicKey {
             && this.value && this.value.length > 0
     }
 
+    public decodeValue(): string {
+        var value = this.value
+        var buffer
+        switch(this.type) {
+            case PublicKey.PEM:
+                value = this.value
+            break;
+            case PublicKey.JWK:
+                // TODO: implement
+            break;
+            case PublicKey.HEX:
+                value = Web3.utils.hexToAscii(this.value)
+            break;
+            case PublicKey.BASE64:
+                buffer = new Buffer(this.value, 'base64')
+                value = buffer.toString('ascii')
+            break;
+            case PublicKey.BASE85:
+                buffer = new Buffer(this.value, 'base85')
+                value = buffer.toString('ascii')
+            break;
+        }
+        return value
+    }
 }

@@ -109,4 +109,13 @@ describe("libDDO", () => {
         })
     })
 
+    describe('DDO validate proof', () => {
+        it("should have a valid ddo proof", async () => {
+            var ddo = new DDO(jsonDDO)
+            assert(ddo)
+            assert(ddo.validate())
+            assert(ddo.validateProof())
+        })
+    })
+
 })
