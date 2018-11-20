@@ -6,7 +6,7 @@ import Service from "./Service"
 
 import * as Web3 from "web3"
 
-//const crypto = require('crypto')
+const jsr = require('jsrsasign');
 
 interface IDDO {
     id: string
@@ -21,9 +21,19 @@ interface IDDO {
 export default class DDO {
 
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
-        if ( authenticationType === Authentication.TYPE_RSA ) {
+        if ( authenticationType === Authentication.TYPE_RSA ) {   
+            // setup with SHA256 RSA         
+            var sig = new jsr.crypto.Signature({"alg": "SHA256withRSA"})
+            // init with public PEM key
+            sig.init(keyValue)
+            // add the hash text
+            sig.updateString(text)
+            // convert the signature to hex
+            var buffer = new Buffer(signature, 'ascii')
+            // verify the signature
+            return sig.verify(buffer.toString('hex'))
         }
-        return true
+        return false
     }
     
     public static CONTEXT: string = "https://w3id.org/future-method/v1"
@@ -253,10 +263,7 @@ export default class DDO {
         if ( ! publicKey) {
             return false
         }
-        console.log(publicKey)
         const keyValue = publicKey.decodeValue()
-        console.log(keyValue)
-        
         const authentication = this.getAuthentication(publicKey.did)
         
         return DDO.validateSignature(signatureText, keyValue, signatureValue, authentication.type)

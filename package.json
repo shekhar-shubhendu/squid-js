@@ -58,6 +58,7 @@
     "eth-ecies": "^1.0.3",
     "ethereumjs-util": "^6.0.0",
     "jsonwebtoken": "^8.3.0",
+    "jsrsasign": "^8.0.12",
     "node-fetch": "^2.2.1",
     "uuid": "^3.3.2",
     "web3": "1.0.0-beta.36",
