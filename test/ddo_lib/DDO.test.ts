@@ -2,6 +2,7 @@ import {assert} from "chai"
 import DDO from "../../src/libDDO/DDO"
 
 import * as jsonDDO from "../testdata/ddoSample1.json"
+import * as Web3 from "web3"
 
 
 describe("libDDO", () => {
@@ -49,7 +50,7 @@ describe("libDDO", () => {
             assert(ddo)
             assert(ddo.validate())
 
-            ddo.publicKeys[0].did = ''
+            ddo.publicKeys[0].id = ''
             assert(!ddo.validate())
 
         })
@@ -104,7 +105,7 @@ describe("libDDO", () => {
 
             var hash = ddo.calculateHash()
             assert(hash)
-            console.log(hash)
+//            console.log(hash)
 
         })
     })
@@ -118,6 +119,24 @@ describe("libDDO", () => {
             // the validation signature for nodeJS
             ddo.validateProof()
         })
+    })
+
+    describe('DDO creation', () => {
+        it("should add a signature", async () => {
+            var ddo = new DDO()
+            assert(ddo)
+            const privateKey = ddo.addSignature()
+            assert(privateKey.match('-----BEGIN RSA PRIVATE KEY-----'))
+        })
+        it("should add a service", async () => {
+            const did = 'did:op:' + Web3.utils.randomHex(64)
+            var ddo = new DDO(did)
+            assert(ddo)
+            const service = ddo.addService({type: 'metatrippy', serviceEndpoint: 'http://localhost:5000'})
+            assert(service)
+            assert(service.id === did)
+        })
+        
     })
 
 })

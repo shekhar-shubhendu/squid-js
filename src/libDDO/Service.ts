@@ -7,13 +7,13 @@ interface IService {
 
 export default class Service {
 
-    public did: string
+    public id: string
     public endpoint: string
     public type: string
     public values: object
 
     public constructor(data?: IService) {
-        this.did = data.id
+        this.id = data.id
         this.endpoint = data.serviceEndpoint
         this.type = data.type
         this.values = Object.assign({}, data)
@@ -27,7 +27,7 @@ export default class Service {
 
     public toData(): IService {
         let data: IService = {
-            id: this.did,
+            id: this.id,
             serviceEndpoint: this.endpoint,
             type: this.type,
         }
@@ -38,7 +38,7 @@ export default class Service {
     }
 
     public isValid(): boolean {
-        return this.did && this.did.length > 0
+        return this.id && this.id.length > 0
             && this.endpoint && this.endpoint.length > 0
             && this.type && this.type.length > 0
     }

@@ -16,13 +16,13 @@ export default class PublicKey {
     public static BASE64: string = "publicKeyBase64"
     public static BASE85: string = "publicKeyBase85"
 
-    public did: string
+    public id: string
     public owner: string
     public type: string
     public value: string
 
     public constructor(data?: IPublicKey) {
-        this.did = data.id
+        this.id = data.id
         this.owner = data.owner
         this.type = data.type
         this.value = data[PublicKey.PEM]
@@ -30,7 +30,7 @@ export default class PublicKey {
 
     public toData(): IPublicKey {
         return {
-            id: this.did,
+            id: this.id,
             owner: this.owner,
             type: this.type,
             [PublicKey.PEM]: this.value,
@@ -38,7 +38,7 @@ export default class PublicKey {
     }
 
     public isValid(): boolean {
-        return this.did && this.did.length > 0
+        return this.id && this.id.length > 0
             && this.owner && this.owner.length > 0
             && this.type && this.type.length > 0
             && this.value && this.value.length > 0

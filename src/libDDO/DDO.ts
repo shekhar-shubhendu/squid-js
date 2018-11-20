@@ -6,7 +6,7 @@ import Service from "./Service"
 
 import * as Web3 from "web3"
 
-const jsr = require('jsrsasign');
+const ursa = require('ursa');
 
 interface IDDO {
     id: string
@@ -22,6 +22,13 @@ export default class DDO {
 
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
         if ( authenticationType === Authentication.TYPE_RSA ) {   
+//            var key = ursa.createPublicKey(keyValue, "utf8")
+//            var signatureBuffer = new Buffer(signature, 'ascii')
+//            var textBuffer = new Buffer(text, 'ascii')
+            
+//            return key.hashAndVerify("sha256", text, signature, "utf8", false)
+            
+/*            
             // setup with SHA256 RSA         
             var sig = new jsr.crypto.Signature({"alg": "SHA256withRSA"})
             // init with public PEM key
@@ -32,6 +39,7 @@ export default class DDO {
             var buffer = new Buffer(signature, 'ascii')
             // verify the signature
             return sig.verify(buffer.toString('hex'))
+*/
         }
         return false
     }
@@ -46,12 +54,17 @@ export default class DDO {
     public proof: Proof
 
     public constructor(did?: any) {
+        this.publicKeys = []
+        this.authentications = []
+        this.services = []
+        
         if (typeof did === "string") {
             this.did = did
         }
         if (typeof did === "object") {
             this.readFromData(did)
         }
+        
     }
 
     public readFromData(data: IDDO) {
@@ -131,6 +144,33 @@ export default class DDO {
 
     public toJSON(): string {
         return JSON.stringify(this.toData(), null, 2)
+    }
+    
+    public addSignature(keyType?: string): string {
+        if ( keyType == null ) {
+            keyType = PublicKey.PEM
+        }
+        if (keyType === PublicKey.PEM ) {
+            var keys = ursa.generatePrivateKey(1024, 65537)
+            const nextIndex = this.publicKeys.length + 1
+            const keyId = (this.did ? this.did : '' )  + "#keys=" + nextIndex
+            var publicKey = new PublicKey({id: keyId, owner: keyId, type: keyType})
+            publicKey.value =  keys.toPublicPem("utf8")
+            this.publicKeys.push(publicKey)
+            
+            
+            return keys.toPrivatePem("utf8")
+        }
+        return null
+    }
+    
+    public addService(data): Service {
+        var service = new Service(data)
+        if (service.id == null ) {
+            service.id = this.did
+        }
+        this.services.push(service)
+        return service
     }
 
     public isProofDefined(): boolean {
@@ -241,7 +281,7 @@ export default class DDO {
     public getPublicKey(keyId: string): PublicKey {
         const result = {publicKey: null }
         this.publicKeys.forEach(function(publicKey) {
-            if ( publicKey.did === keyId ) {
+            if ( publicKey.id === keyId ) {
                 this.publicKey = publicKey
             }
         }, result)
@@ -264,7 +304,7 @@ export default class DDO {
             return false
         }
         const keyValue = publicKey.decodeValue()
-        const authentication = this.getAuthentication(publicKey.did)
+        const authentication = this.getAuthentication(publicKey.id)
         
         return DDO.validateSignature(signatureText, keyValue, signatureValue, authentication.type)
     }
