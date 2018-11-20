@@ -110,7 +110,7 @@ describe("libDDO", () => {
         })
     })
 
-    describe('DDO validate proof', () => {
+    describe('DDO validate proof from JSON', () => {
         it("should have a valid ddo proof", async () => {
             var ddo = new DDO(jsonDDO)
             assert(ddo)
@@ -128,8 +128,9 @@ describe("libDDO", () => {
             const privateKey = ddo.addSignature()
             assert(privateKey.match('-----BEGIN RSA PRIVATE KEY-----'))
         })
+        
         it("should add a service", async () => {
-            const did = 'did:op:' + Web3.utils.randomHex(64)
+            const did = 'did:op:' + Web3.utils.randomHex(32).substr(2)
             var ddo = new DDO(did)
             assert(ddo)
             const service = ddo.addService({type: 'metatrippy', serviceEndpoint: 'http://localhost:5000'})
