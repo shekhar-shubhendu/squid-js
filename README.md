@@ -21,6 +21,7 @@
 ## Table of Contents
 
   - [Get started](#get-started)
+    - [Examples](#examples)
   - [Development](#development)
     - [Production build](#production-build)
     - [npm releases](#npm-releases)
@@ -49,17 +50,30 @@ const { Ocean, Logger } = require('@oceanprotocol/squid')
 You can then connect to a running [Keeper](https://github.com/oceanprotocol/keeper-contracts) & [Aquarius](https://github.com/oceanprotocol/aquarius) instance, e.g.:
 
 ```js
-const ocean = await new Ocean({
+const ocean: Ocean = await Ocean.getInstance({
+    // the node of the blockchain to connect to, could also be infura
     nodeUri: "http://localhost:8545",
+    // the uri of aquarius
     aquariusUri: "http://localhost:5000",
-    brizoUri: "https://localhost:8030",
+    // the uri of brizo
+    brizoUri: "http://localhost:8030",
+    // the uri to the parity node you want to use for encryption and decryption
     parityUri: "http://localhost:9545",
-    secretStoreUri: "https://secret-store.dev-ocean.com",
-    threshold: 2,
+    // the uri of the secret store that holds the keys
+    secretStoreUri: "http://localhost:12001",
+    // the threshold of nodes from the secre store that have to agree to the decrypt
+    threshold: 0,
+    // the password for the account (in the local parity node) used to sign messages for secret store
     password: "unittest",
+    // the address of the account (in the local parity node) used to sign messages for secret store
     address: "0xed243adfb84a6626eba46178ccb567481c6e655d",
 })
 ```
+
+### Examples
+
+* [Examples](/src/examples/squid)
+* [Tuna](https://github.com/oceanprotocol/tuna/examples/squid)
 
 ## Development
 
@@ -68,6 +82,29 @@ To start development you need to:
 ```bash
 npm i
 npm start
+```
+
+### Test
+
+To start unit tests you need to:
+
+```bash
+ganache-cli &
+npm run test
+```
+
+or to watch for changes
+
+```bash
+ganache-cli &
+npm run test:watch
+```
+
+to create code coverage
+
+```bash
+ganache-cli &
+npm run test:cover
 ```
 
 This will start a watcher for changes of the code.
@@ -83,34 +120,10 @@ npm run build
 For a new **patch release**, execute on the machine where you're logged into your npm account:
 
 ```bash
-npm run release
+./bumpversion path
 ```
 
-In case you have 2FA setup on npm.js, pass a code as One Time Password:
-
-```bash
-npm run release --otp <yourcode>
-```
-
-Command is powered by [`release-it`](https://github.com/webpro/release-it) package, defined in the `package.json`.
-
-That's what the command does without any user interaction:
-
-- create release commit by updating version in `package.json`
-- create tag for that release commit
-- push commit & tag
-- create a new release on GitHub, with change log auto-generated from commit messages
-- publish to npm as a new release
-
-If you want to create a **minor** or **major release**, use these commands:
-
-```bash
-npm run release-minor
-```
-
-```bash
-npm run release-major
-```
+git tag with the latest version and `git push`
 
 ## License
 
