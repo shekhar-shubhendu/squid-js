@@ -4,6 +4,7 @@ import Service from "../../ddo/Service"
 import Keeper from "../../keeper/Keeper"
 import Web3Provider from "../../keeper/Web3Provider"
 import ValuePair from "../../models/ValuePair"
+import Logger from "../../utils/Logger"
 import Account from "../Account"
 import OceanBase from "../OceanBase"
 
@@ -99,7 +100,11 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     private static hashSingleValue(data: ValuePair): string {
-        return Web3Provider.getWeb3().utils.soliditySha3(data).toString("hex")
+        try {
+            return Web3Provider.getWeb3().utils.soliditySha3(data).toString("hex")
+        } catch (err) {
+            Logger.error(`Hashing of ${JSON.stringify(data, null, 2)} failed.`)
+        }
     }
 
     private static hashServiceAgreement(serviceAgreementTemplateId: string, serviceAgreementId: string,
@@ -130,9 +135,14 @@ export default class ServiceAgreement extends OceanBase {
 
         service.conditions.forEach((condition) => {
             condition.parameters.forEach((parameter) => {
-                values.push({type: parameter.type, value: parameter.value} as ValuePair)
+                values.push({
+                    type: parameter.type,
+                    value: parameter.name === "serviceId" ? "0x" + serviceAgreementId : parameter.value,
+                } as ValuePair)
             })
         })
+
+        // Logger.log("Values", JSON.stringify(values, null, 2))
 
         return values
     }

@@ -13,7 +13,7 @@ import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
-import ValuePair from "../models/ValuePair"
+import InputType from "../models/InputType"
 import ValueType from "../models/ValueType"
 import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
@@ -92,12 +92,30 @@ export default class Ocean {
                 } as Event,
             ]
 
-            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: ValuePair) => {
+            const mapParameterValueToName = (name) => {
+
+                switch (name) {
+                    case "price":
+                        return metadata.base.price
+                    case "assetId":
+                        return "0x" + id
+                    case "documentKeyId":
+                        return "0x1234"
+                }
+
+                return null
+            }
+
+            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
                 return {
-                    ...input,
-                    value: "xxx",
+                    name: input.name,
+                    type: input.type,
+                    value: mapParameterValueToName(input.name),
                 } as Parameter
             })
+
+            // Logger.log(`${condition.methodReflection.contractName}.${condition.methodReflection.methodName}`,
+            //    JSON.stringify(parameters, null, 2))
 
             return {
                 contractName: condition.methodReflection.contractName,

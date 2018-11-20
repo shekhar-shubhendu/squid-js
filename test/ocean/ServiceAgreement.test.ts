@@ -7,7 +7,7 @@ import EventHandlers from "../../src/ddo/EventHandlers"
 import MetaData from "../../src/ddo/MetaData"
 import Parameter from "../../src/ddo/Parameter"
 import Service from "../../src/ddo/Service"
-import ValuePair from "../../src/models/ValuePair"
+import InputType from "../../src/models/InputType"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
@@ -28,6 +28,8 @@ let consumerAccount: Account
 let accessService: Service
 let metaDataService: Service
 
+const assetId: string = IdGenerator.generateId()
+
 describe("ServiceAgreement", () => {
 
     before(async () => {
@@ -39,6 +41,7 @@ describe("ServiceAgreement", () => {
         publisherAccount = accounts[1]
         consumerAccount = accounts[2]
 
+        const metadata = new MetaData()
         const serviceAgreementTemplate: ServiceAgreementTemplate =
             new ServiceAgreementTemplate(new Access())
 
@@ -62,10 +65,25 @@ describe("ServiceAgreement", () => {
                 } as Event,
             ]
 
-            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: ValuePair) => {
+            const mapParameterValueToName = (name) => {
+
+                switch (name) {
+                    case "price":
+                        return metadata.base.price
+                    case "assetId":
+                        return "0x" + assetId
+                    case "documentKeyId":
+                        return "0x1234"
+                }
+
+                return null
+            }
+
+            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
                 return {
-                    ...input,
-                    value: "xxx",
+                    name: input.name,
+                    type: input.type,
+                    value: mapParameterValueToName(input.name),
                 } as Parameter
             })
 
@@ -92,7 +110,7 @@ describe("ServiceAgreement", () => {
 
         metaDataService = {
             type: "MetaData",
-            metadata: new MetaData(),
+            metadata,
         } as Service
     })
 
@@ -102,7 +120,6 @@ describe("ServiceAgreement", () => {
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
@@ -123,7 +140,6 @@ describe("ServiceAgreement", () => {
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
@@ -149,7 +165,6 @@ describe("ServiceAgreement", () => {
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
@@ -175,7 +190,6 @@ describe("ServiceAgreement", () => {
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
             const ddo = new DDO({id: did, service: [accessService, metaDataService]})
-            const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
@@ -202,7 +216,6 @@ describe("ServiceAgreement", () => {
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const assetId: string = IdGenerator.generateId()
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
