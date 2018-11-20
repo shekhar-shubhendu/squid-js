@@ -47,6 +47,15 @@ export default class DDO {
         }
         return false
     }
+    
+    public static signText(text: string, keyValue: string, authenticationType: string): string {
+        var signature = ""
+        if ( authenticationType === Authentication.TYPE_RSA ) {
+            var key = ursa.createPrivateKey(keyValue, "", "utf8")
+            signature = key.hashAndSign("SHA256", text, "utf8", "utf8")
+        }
+        return signature
+    }
 
     public context: string = DDO.CONTEXT
     public did: string
@@ -154,12 +163,19 @@ export default class DDO {
             keyType = PublicKey.PEM
         }
         if (keyType === PublicKey.PEM ) {
+            // generate the key pairs
             const keys = ursa.generatePrivateKey(1024, 65537)
+            
+            // add a public key record
             const nextIndex = this.publicKeys.length + 1
             const keyId = (this.did ? this.did : "" )  + "#keys=" + nextIndex
             const publicKey = new PublicKey({id: keyId, owner: keyId, type: keyType})
             publicKey.value =  keys.toPublicPem("utf8")
             this.publicKeys.push(publicKey)
+            
+            // add an authentication record
+            const authentication = new Authentication({ publicKey: publicKey.id, type: publicKey.type})
+            this.authentications.push(authentication)
             return keys.toPrivatePem("utf8")
         }
         return null
@@ -174,6 +190,29 @@ export default class DDO {
         return service
     }
 
+    public addProof(authIndex, privateKey, signatureText) {
+        if ( authIndex == null ) {
+            authIndex = 0
+        }
+        const authentication = this.authentications[authIndex]
+        // get the public key stored for this authentication
+        const publicKey = this.getPublicKey(authentication.publicKeyId)
+        
+        if ( signatureText == null ) {
+            signatureText = this.hashTextList().join()
+        }
+        const signature = DDO.signText(signatureText, privateKey, publicKey.type)
+        const signatureBuffer = new Buffer(signature, 'ascii')
+        const date = new Date()
+        
+        this.proof = new Proof({
+            created: date.toISOString(),
+            creator: publicKey.id, 
+            type: publicKey.type, 
+            signatureValue: signatureBuffer.toString("base64"),
+        })
+    }
+    
     public isProofDefined(): boolean {
         return this.proof != null
     }
