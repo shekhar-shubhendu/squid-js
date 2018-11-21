@@ -5,6 +5,8 @@ import Logger from "../utils/Logger"
 import WebServiceConnectorProvider from "../utils/WebServiceConnectorProvider"
 import SearchQuery from "./query/SearchQuery"
 
+const apiPath = "/api/v1/aquarius/assets/ddo"
+
 export default class Aquarius {
 
     private url: string
@@ -40,7 +42,7 @@ export default class Aquarius {
     public async queryMetadata(query: SearchQuery): Promise<DDO[]> {
 
         const result: DDO[] = await WebServiceConnectorProvider.getConnector()
-            .post(this.url + "/api/v1/aquarius/assets/ddo/query", JSON.stringify(query))
+            .post(`${this.url}${apiPath}/query`, JSON.stringify(query))
             .then((response: any) => {
                 if (response.ok) {
                     return response.json() as DDO[]
@@ -63,7 +65,7 @@ export default class Aquarius {
 
     public async queryMetadataByText(query: SearchQuery): Promise<DDO[]> {
 
-        const fullUrl = new URL(this.url + "/api/v1/aquarius/assets/ddo/query")
+        const fullUrl = new URL(`${this.url}${apiPath}/query`)
         fullUrl.searchParams.append("text", query.text)
         fullUrl.searchParams.append("sort", decodeURIComponent(JSON.stringify(query.sort)))
         fullUrl.searchParams.append("offset", query.offset.toString())
@@ -91,7 +93,7 @@ export default class Aquarius {
     }
 
     public async storeDDO(ddo: DDO): Promise<DDO> {
-        const fullUrl = this.url + `/api/v1/aquarius/assets/ddo`
+        const fullUrl = `${this.url}${apiPath}`
         const result: DDO = await WebServiceConnectorProvider.getConnector()
             .post(fullUrl, DDO.serialize(ddo))
             .then((response: any) => {
@@ -113,7 +115,7 @@ export default class Aquarius {
     }
 
     public async retrieveDDO(did: string): Promise<DDO> {
-        const fullUrl = this.url + `/api/v1/aquarius/assets/ddo/${did}`
+        const fullUrl = `${this.url}${apiPath}/${did}`
         const result = await WebServiceConnectorProvider.getConnector()
             .get(fullUrl)
             .then((response: any) => {
