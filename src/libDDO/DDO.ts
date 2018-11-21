@@ -19,7 +19,7 @@ interface IDDO {
 
 export default class DDO {
 
-    public static CONTEXT: string = "https://w3id.org/future-method/v1"
+    public static CONTEXT: string = "https://w3id.org/did/v1"
 
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
         if ( authenticationType === Authentication.TYPE_RSA ) {
