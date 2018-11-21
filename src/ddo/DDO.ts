@@ -38,9 +38,7 @@ export default class DDO {
             throw new Error("serviceDefinitionId not set")
         }
 
-        const service: Service = this.service.find((s) => {
-            return s.serviceDefinitionId === serviceDefinitionId
-        })
+        const service: Service = this.service.find((s) => s.serviceDefinitionId === serviceDefinitionId)
 
         return service
     }
@@ -51,9 +49,7 @@ export default class DDO {
             throw new Error("serviceType not set")
         }
 
-        const service: Service = this.service.find((s) => {
-            return s.type === serviceType
-        })
+        const service: Service = this.service.find((s) => s.type === serviceType)
 
         return service
     }
