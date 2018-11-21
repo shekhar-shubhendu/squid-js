@@ -15,11 +15,11 @@ export default class ContractHandler {
         }
     }
 
-    public static set(name: string, contractInstance: Contract) {
+    protected static set(name: string, contractInstance: Contract) {
         ContractHandler.contracts.set(name, contractInstance)
     }
 
-    public static has(name: string): boolean {
+    protected static has(name: string): boolean {
         return ContractHandler.contracts.has(name)
     }
 

@@ -1,66 +1,130 @@
 import Condition from "../../ddo/Condition"
 import DDO from "../../ddo/DDO"
+import Service from "../../ddo/Service"
 import Keeper from "../../keeper/Keeper"
 import Web3Provider from "../../keeper/Web3Provider"
 import ValuePair from "../../models/ValuePair"
+import Logger from "../../utils/Logger"
 import Account from "../Account"
 import OceanBase from "../OceanBase"
 
 export default class ServiceAgreement extends OceanBase {
 
-    public static async signServiceAgreement(assetId: string, ddo: DDO, serviceAgreementId: string, consumer: Account,
-                                             publisher: Account):
-        Promise<ServiceAgreement> {
+    public static async signServiceAgreement(assetId: string,
+                                             ddo: DDO,
+                                             serviceDefinitionId: string,
+                                             serviceAgreementId: string,
+                                             consumer: Account): Promise<string> {
 
-        const values: ValuePair[] = ServiceAgreement.getValuesFromDDO(ddo, serviceAgreementId)
+        // Logger.log("signing SA", serviceAgreementId)
+
+        const service: Service = ddo.findServiceById(serviceDefinitionId)
+        const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
         const valueHashes = ServiceAgreement.createValueHashes(values)
-        const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromDDO(ddo)
+        const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
 
-        const serviceAgreementHashSignature = await ServiceAgreement.createSAHashSignature(ddo, serviceAgreementId,
-            values, valueHashes, timeoutValues, consumer)
-
-        const serviceAgreement: ServiceAgreement = await ServiceAgreement.executeAgreement(ddo,
-            serviceAgreementId, values, valueHashes, timeoutValues, serviceAgreementHashSignature, consumer, publisher)
-
-        return serviceAgreement
-    }
-
-    public static async createSAHashSignature(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
-                                              valueHashes: string[], timeoutValues: number[], consumer: Account):
-        Promise<string> {
-
-        const conditionKeys: string[] = ddo.service[0].conditions.map((condition) => {
-            return condition.conditionKey
-        })
-
-        const serviceAgreementHash = ServiceAgreement.hashServiceAgreement(ddo.service[0].templateId,
-            serviceAgreementId, conditionKeys, valueHashes, timeoutValues)
-
-        const serviceAgreementHashSignature =
-            await Web3Provider.getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
+        const serviceAgreementHashSignature = await ServiceAgreement
+            .createSAHashSignature(
+                service,
+                serviceAgreementId,
+                values,
+                valueHashes,
+                timeoutValues,
+                consumer)
 
         return serviceAgreementHashSignature
     }
 
-    private static async executeAgreement(ddo: DDO, serviceAgreementId: string, values: ValuePair[],
-                                          valueHashes: string[], timeoutValues: number[],
-                                          serviceAgreementHashSignature: string, consumer: Account,
+    public static async executeServiceAgreement(assetId: string,
+                                                ddo: DDO,
+                                                serviceDefinitionId: string,
+                                                serviceAgreementId: string,
+                                                serviceAgreementHashSignature: string,
+                                                consumer: Account,
+                                                publisher: Account): Promise<ServiceAgreement> {
+
+        // Logger.log("executing SA", serviceAgreementId)
+
+        const service: Service = ddo.findServiceById(serviceDefinitionId)
+        const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
+        const valueHashes = ServiceAgreement.createValueHashes(values)
+        const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
+
+        // todo get consumer from ddo
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement.executeAgreement(ddo,
+            serviceDefinitionId, serviceAgreementId, valueHashes, timeoutValues, serviceAgreementHashSignature,
+            consumer.getId(), publisher)
+
+        return serviceAgreement
+    }
+
+    private static async createSAHashSignature(service: Service,
+                                               serviceAgreementId: string,
+                                               values: ValuePair[],
+                                               valueHashes: string[],
+                                               timeoutValues: number[],
+                                               consumer: Account):
+        Promise<string> {
+
+        if (!service.templateId) {
+            throw new Error("TemplateId not found in ddo.")
+        }
+
+        const conditionKeys: string[] = service.conditions.map((condition) => {
+            return condition.conditionKey
+        })
+
+        const serviceAgreementHash = ServiceAgreement
+            .hashServiceAgreement(
+                service.templateId,
+                serviceAgreementId,
+                conditionKeys,
+                valueHashes,
+                timeoutValues)
+
+        const serviceAgreementHashSignature = await Web3Provider
+            .getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
+
+        return serviceAgreementHashSignature
+    }
+
+    private static async executeAgreement(ddo: DDO,
+                                          serviceDefinitionId: string,
+                                          serviceAgreementId: string,
+                                          valueHashes: string[],
+                                          timeoutValues: number[],
+                                          serviceAgreementHashSignature: string,
+                                          consumerAddress: string,
                                           publisher: Account): Promise<ServiceAgreement> {
 
         const {serviceAgreement} = await Keeper.getInstance()
-        const executeAgreementReceipt = await serviceAgreement.executeAgreement(
-            ddo.service[0].templateId, serviceAgreementHashSignature, consumer.getId(), valueHashes,
-            timeoutValues, serviceAgreementId, ddo.id, publisher.getId())
+
+        const service: Service = ddo.findServiceById(serviceDefinitionId)
+
+        if (!service.templateId) {
+            throw new Error(`TemplateId not found in service "${service.type}" ddo.`)
+        }
+
+        const executeAgreementReceipt = await serviceAgreement
+            .executeAgreement(
+                service.templateId,
+                serviceAgreementHashSignature,
+                consumerAddress,
+                valueHashes,
+                timeoutValues,
+                serviceAgreementId,
+                ddo.id,
+                publisher.getId())
 
         if (executeAgreementReceipt.events.ExecuteAgreement.returnValues.state === false) {
-            throw new Error("signing service agreement failed.")
+            throw new Error("executing service agreement failed.")
         }
 
         return new ServiceAgreement(
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.serviceAgreementId,
             ddo,
             publisher,
-            consumer,
+            new Account(consumerAddress),
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.state,
             executeAgreementReceipt.events.ExecuteAgreement.returnValues.status,
         )
@@ -73,12 +137,18 @@ export default class ServiceAgreement extends OceanBase {
     }
 
     private static hashSingleValue(data: ValuePair): string {
-        return Web3Provider.getWeb3().utils.soliditySha3(data).toString("hex")
+        try {
+            return Web3Provider.getWeb3().utils.soliditySha3(data).toString("hex")
+        } catch (err) {
+            Logger.error(`Hashing of ${JSON.stringify(data, null, 2)} failed.`)
+        }
     }
 
-    private static hashServiceAgreement(serviceAgreementTemplateId: string, serviceAgreementId: string,
-                                        conditionKeys: string[], valueHashes: string[], timeouts: number[])
-        : string {
+    private static hashServiceAgreement(serviceAgreementTemplateId: string,
+                                        serviceAgreementId: string,
+                                        conditionKeys: string[],
+                                        valueHashes: string[],
+                                        timeouts: number[]): string {
         const args = [
             {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
             {type: "bytes32[]", value: conditionKeys} as ValuePair,
@@ -90,29 +160,49 @@ export default class ServiceAgreement extends OceanBase {
         return Web3Provider.getWeb3().utils.soliditySha3(...args).toString("hex")
     }
 
-    private static getTimeoutValuesFromDDO(ddo: DDO): number[] {
-        const timeoutValues: number[] = ddo.service[0].conditions.map((condition: Condition) => {
+    private static getTimeoutValuesFromService(service: Service): number[] {
+        const timeoutValues: number[] = service.conditions.map((condition: Condition) => {
             return condition.timeout
         })
 
         return timeoutValues
     }
 
-    private static getValuesFromDDO(ddo: DDO, serviceAgreementId: string): ValuePair[] {
-        const values: ValuePair[] = [
-            {type: "bool", value: true} as ValuePair,
-            {type: "bool", value: false} as ValuePair,
-            {type: "bool", value: false} as ValuePair,
-            {type: "uint", value: 120} as ValuePair,
-            {type: "string", value: serviceAgreementId} as ValuePair,
-        ]
+    private static getValuesFromService(service: Service, serviceAgreementId: string): ValuePair[] {
+
+        const values: ValuePair[] = []
+
+        service.conditions.forEach((condition) => {
+            condition.parameters.forEach((parameter) => {
+                values.push({
+                    type: parameter.type,
+                    value: parameter.name === "serviceId" ? "0x" + serviceAgreementId : parameter.value,
+                } as ValuePair)
+            })
+        })
+
+        // Logger.log("Values", JSON.stringify(values, null, 2))
 
         return values
     }
 
-    private constructor(serviceAgreementId: string, ddo: DDO, private publisher: Account, consumer: Account,
-                        state: boolean, status: boolean) {
+    private constructor(serviceAgreementId: string,
+                        ddo: DDO,
+                        private publisher: Account,
+                        consumer: Account,
+                        state: boolean,
+                        status: boolean) {
         super(serviceAgreementId)
+    }
+
+    public async lockPayment(assetId: string, price: number, consumer: Account): Promise<boolean> {
+        const {paymentConditions} = await Keeper.getInstance()
+
+        const lockPaymentRceipt =
+            await paymentConditions.lockPayment(this.getId(), assetId, price,
+                consumer.getId())
+
+        return lockPaymentRceipt.status
     }
 
     public async grantAccess(assetId: string, documentId: string): Promise<boolean> {

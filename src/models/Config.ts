@@ -3,6 +3,10 @@ export default class Config {
     // the url to the aquarius
     public aquariusUri: string
 
+    /* Brizo Config */
+    // the url to the brizo
+    public brizoUri: string
+
     /* Keeper Config */
     // the uri to the node we want to connect to, not need if web3Provider is set
     public nodeUri?: string

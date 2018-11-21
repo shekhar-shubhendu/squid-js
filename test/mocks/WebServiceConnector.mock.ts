@@ -1,7 +1,7 @@
-import AquariusConnector from "../../src/aquarius/AquariusConnector"
+import WebServiceConnector from "../../src/utils/WebServiceConnector"
 
 // @ts-ignore
-export default class AquariusConnectorMock extends AquariusConnector {
+export default class WebServiceConnectorMock extends WebServiceConnector {
 
     constructor(private returnData: any) {
         super()
@@ -14,10 +14,10 @@ export default class AquariusConnectorMock extends AquariusConnector {
             resolve({
                 ok: true,
                 json: () => {
-                    return this.returnData ? this.returnData : []
+                    return this.returnData ? this.returnData : {}
                 },
                 text: () => {
-                    return this.returnData ? this.returnData.toString() : ""
+                    return this.returnData ? JSON.stringify(this.returnData.toString()) : ""
                 },
             })
         })

@@ -17,7 +17,9 @@ export default class TestContractHandler extends ContractHandler {
         await TestContractHandler.deployContracts(deployerAddress)
 
         // register templates
+        Logger.log(`Registering Access Template from ${deployerAddress}`)
         await new ServiceAgreementTemplate(new Access()).register(deployerAddress)
+        Logger.log(`Registering FitchainCompute Template from ${deployerAddress}`)
         await new ServiceAgreementTemplate(new FitchainCompute()).register(deployerAddress)
     }
 
@@ -78,7 +80,7 @@ export default class TestContractHandler extends ContractHandler {
 
         // dont redeploy if there is already something loaded
         if (ContractHandler.has(name)) {
-            return ContractHandler.get(name)
+            return await ContractHandler.get(name)
         }
 
         const web3 = Web3Provider.getWeb3()

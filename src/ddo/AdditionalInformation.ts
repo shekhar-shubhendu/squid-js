@@ -12,4 +12,5 @@ export default class AdditionalInformation {
             mediaType: "text/turtle",
         }as StructuredMarkup,
     ]
+    public checksum: string
 }
