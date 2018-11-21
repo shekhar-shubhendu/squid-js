@@ -34,6 +34,10 @@ export default class ServiceAgreementTemplate extends OceanBase {
                 return this.compressDependencies(method.dependencies, method.dependencyTimeoutFlags)
             }))
 
+        const fulfillmentIndices: number[] = this.template.Methods
+            .map((method: Method, i: number) => method.isTerminalCondition ? i : undefined)
+            .filter((index: number) => index !== undefined)
+
         const {serviceAgreement} = await Keeper.getInstance()
 
         const methodReflections = await this.getMethodReflections()
@@ -57,7 +61,9 @@ export default class ServiceAgreementTemplate extends OceanBase {
                 methodReflections,
                 dependencyMatrix,
                 Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
-                this.template.fulfilmentOperator, templateOwnerAddress)
+                fulfillmentIndices,
+                this.template.fulfillmentOperator,
+                templateOwnerAddress)
 
         const {serviceTemplateId, provider} = receipt.events.SetupAgreementTemplate.returnValues
 
