@@ -61,9 +61,13 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
     const service: Service = ddo.findServiceByType("Access")
 
-    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(ddo.id, service.serviceDefinitionId,
-        serviceAgreementSignatureResult.serviceAgreementId, serviceAgreementSignatureResult.serviceAgreementSignature,
-        consumer, publisher)
+    const serviceAgreement: ServiceAgreement = await ocean.executeServiceAgreement(
+        ddo.id,
+        service.serviceDefinitionId,
+        serviceAgreementSignatureResult.serviceAgreementId,
+        serviceAgreementSignatureResult.serviceAgreementSignature,
+        consumer,
+        publisher)
     Logger.log("ServiceAgreement Id:", serviceAgreement.getId())
 
 })()
