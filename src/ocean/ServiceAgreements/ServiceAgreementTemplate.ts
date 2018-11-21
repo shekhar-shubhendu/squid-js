@@ -51,10 +51,13 @@ export default class ServiceAgreementTemplate extends OceanBase {
             return false
         }
 
-        const receipt = await serviceAgreement.setupAgreementTemplate(
-            this.template.id, methodReflections, dependencyMatrix,
-            Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
-            this.template.fulfilmentOperator, templateOwnerAddress)
+        const receipt = await serviceAgreement
+            .setupAgreementTemplate(
+                this.template.id,
+                methodReflections,
+                dependencyMatrix,
+                Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
+                this.template.fulfilmentOperator, templateOwnerAddress)
 
         const {serviceTemplateId, provider} = receipt.events.SetupAgreementTemplate.returnValues
 
@@ -100,8 +103,8 @@ export default class ServiceAgreementTemplate extends OceanBase {
                 dependencies: method.dependencies,
                 dependencyTimeoutFlags: method.dependencyTimeoutFlags,
                 isTerminalCondition: method.isTerminalCondition,
-                condtionKey: ServiceAgreementTemplate.generateConditionsKey(this.getId(),
-                    methodReflection),
+                condtionKey: ServiceAgreementTemplate
+                    .generateConditionsKey(this.getId(), methodReflection),
             } as Condition
         })
 
