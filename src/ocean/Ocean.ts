@@ -93,44 +93,45 @@ export default class Ocean {
                     } as Event,
                 ]
 
-            const mapParameterValueToName = (name) => {
+                const mapParameterValueToName = (name) => {
 
-                switch (name) {
-                    case "price":
-                        return metadata.base.price
-                    case "assetId":
-                        return "0x" + id
-                    case "documentKeyId":
-                        return "0x1234"
+                    switch (name) {
+                        case "price":
+                            return metadata.base.price
+                        case "assetId":
+                            return "0x" + id
+                        case "documentKeyId":
+                            return "0x1234"
+                    }
+
+                    return null
                 }
 
-                return null
-            }
+                const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
+                    return {
+                        name: input.name,
+                        type: input.type,
+                        value: mapParameterValueToName(input.name),
+                    } as Parameter
+                })
 
-            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
+                // Logger.log(`${condition.methodReflection.contractName}.${condition.methodReflection.methodName}`,
+                //    JSON.stringify(parameters, null, 2))
+
                 return {
-                    name: input.name,
-                    type: input.type,
-                    value: mapParameterValueToName(input.name),
-                } as Parameter
+                    contractName: condition.methodReflection.contractName,
+                    methodName: condition.methodReflection.methodName,
+                    timeout: condition.timeout,
+                    index,
+                    conditionKey: condition.condtionKey,
+                    parameters,
+                    events,
+                    dependencies: condition.dependencies,
+                    dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
+                    isTerminalCondition: condition.isTerminalCondition,
+                } as DDOCondition
             })
 
-            // Logger.log(`${condition.methodReflection.contractName}.${condition.methodReflection.methodName}`,
-            //    JSON.stringify(parameters, null, 2))
-
-            return {
-                contractName: condition.methodReflection.contractName,
-                methodName: condition.methodReflection.methodName,
-                timeout: condition.timeout,
-                index,
-                conditionKey: condition.condtionKey,
-                parameters,
-                events,
-                dependencies: condition.dependencies,
-                dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
-                isTerminalCondition: condition.isTerminalCondition,
-            } as DDOCondition
-        })
         const serviceEndpoint = aquarius.getServiceEndpoint(did)
 
         // create ddo itself
