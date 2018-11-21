@@ -10,8 +10,8 @@ import {Account, Logger, Ocean} from "../squid"
         aquariusUri: "http://localhost:5000",
         brizoUri: "http://localhost:8030",
         parityUri: "http://localhost:9545",
-        secretStoreUri: "https://secret-store.dev-ocean.com",
-        threshold: 2,
+        secretStoreUri: "http://localhost:12001",
+        threshold: 0,
         password: "unittest",
         address: "0xed243adfb84a6626eba46178ccb567481c6e655d",
     })
