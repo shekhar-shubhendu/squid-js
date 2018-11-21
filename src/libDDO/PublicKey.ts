@@ -8,22 +8,27 @@ interface IPublicKey {
 export default class PublicKey {
 
     public static TYPE_RSA: string = "RsaSignatureAuthentication2018"
-    public static STORE_AS_PEM: string = "publicKeyPem"
-    public static STORE_AS_JWK: string = "publicKeyJwk"
-    public static STORE_AS_HEX: string = "publicKeyHex"
-    public static STORE_AS_BASE64: string = "publicKeyBase64"
-    public static STORE_AS_BASE85: string = "publicKeyBase85"
+    public static STORE_TYPES = {
+        PEM: "publicKeyPem",
+        JWK: "publicKeyJwk",
+        HEX: "publicKeyHex",
+        BASE64: "publicKeyBase64",
+        BASE85:  "publicKeyBase85",
+    }
 
     public id: string
     public owner: string
     public type: string
+    public storeType: string
     public value: string
 
     public constructor(data?: IPublicKey) {
         this.id = data.id
         this.owner = data.owner
         this.type = data.type
-        this.value = data[PublicKey.STORE_AS_PEM]
+        if ( data ) {
+            this._readValue(data)
+        }
     }
 
     public toData(): IPublicKey {
@@ -31,7 +36,7 @@ export default class PublicKey {
             id: this.id,
             owner: this.owner,
             type: this.type,
-            [PublicKey.STORE_AS_PEM]: this.value,
+            [this.storeType]: this.value,
         } as IPublicKey
     }
 
@@ -45,26 +50,39 @@ export default class PublicKey {
     public decodeValue(): string {
         let value = this.value
         let buffer = null
-        switch (this.type) {
-            case PublicKey.STORE_AS_PEM:
+        switch (this.storeType) {
+            case PublicKey.STORE_TYPES.PEM:
                 value = this.value
                 break
-            case PublicKey.STORE_AS_JWK:
+            case PublicKey.STORE_TYPES.JWK:
                 // TODO: implement
                 break
-            case PublicKey.STORE_AS_HEX:
+            case PublicKey.STORE_TYPES.HEX:
                 buffer = Buffer.from(this.value, "hex")
                 value = buffer.toString("binary")
                 break
-            case PublicKey.STORE_AS_BASE64:
+            case PublicKey.STORE_TYPES.BASE64:
                 buffer = Buffer.from(this.value, "base64")
                 value = buffer.toString("binary")
                 break
-            case PublicKey.STORE_AS_BASE85:
+            case PublicKey.STORE_TYPES.BASE85:
                 buffer = Buffer.from(this.value, "base85")
                 value = buffer.toString("binary")
                 break
         }
         return value
     }
+
+    private _readValue(data: IPublicKey) {
+        for ( const key in PublicKey.STORE_TYPES) {
+            if ( PublicKey.STORE_TYPES.hasOwnProperty(key) ) {
+                const storeType = PublicKey.STORE_TYPES[key]
+                if (data.hasOwnProperty(storeType) ) {
+                    this.storeType = key
+                    this.value = data[storeType]
+                }
+            }
+        }
+    }
+
 }
