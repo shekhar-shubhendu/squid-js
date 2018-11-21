@@ -142,8 +142,21 @@ describe("libDDO", () => {
             const privateKey = ddo.addSignature()
             assert(privateKey.match("-----BEGIN RSA PRIVATE KEY-----"))
             ddo.addProof(0, privateKey)
+//            console.log(ddo.toJSON())
             assert(ddo.validateProof())
         })
+
+        it("should add a static embedded proof and validate", async () => {
+            const did = "did:op:" + Web3.utils.randomHex(32).substr(2)
+            const ddo = new DDO(did)
+            assert(ddo)
+            const privateKey = ddo.addSignature("pem", true)
+            assert(privateKey.match("-----BEGIN RSA PRIVATE KEY-----"))
+            ddo.addProof(0, privateKey)
+//            console.log(ddo.toJSON())
+            assert(ddo.validateProof())
+        })
+
     })
 
 })

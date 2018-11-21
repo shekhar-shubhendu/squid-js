@@ -1,6 +1,8 @@
 
+import PublicKey from "./PublicKey"
+
 interface IAuthentication {
-    publicKey?: string
+    publicKey?: any
     type?: string
 }
 
@@ -8,21 +10,30 @@ export default class Authentication {
 
     public static TYPE_RSA = "RsaVerificationKey2018"
 
-    public publicKeyId: string
+    public publicKeyId?: string
+    public publicKey?: PublicKey
     public type: string
     public value: string
 
     public constructor(data?: IAuthentication) {
-        this.publicKeyId = data.publicKey
+
+        if (typeof data.publicKey === "string" ) {
+            this.publicKeyId = data.publicKey
+        } else {
+            this.publicKey = new PublicKey(data.publicKey)
+        }
         this.type = data.type
-        this.value = ""
     }
 
     public toData(): IAuthentication {
-        return {
-            publicKey: this.publicKeyId,
+        const data: IAuthentication = {
             type: this.type,
-        } as IAuthentication
+            publicKey: this.publicKeyId,
+        }
+        if ( data.publicKey == null && this.publicKey != null ) {
+            data.publicKey = this.publicKey.toData()
+        }
+        return data
     }
 
     public isValid(): boolean {

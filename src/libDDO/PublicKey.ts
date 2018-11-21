@@ -22,10 +22,16 @@ export default class PublicKey {
     public storeType: string
     public value: string
 
-    public constructor(data?: IPublicKey) {
+    public constructor(data?: any) {
         this.id = data.id
         this.owner = data.owner
         this.type = data.type
+        if ( data.hasOwnProperty("storeType") ) {
+            this.storeType = data.storeType
+        }
+        if ( data.hasOwnProperty("value") ) {
+            this.value = data.value
+        }
         if ( data ) {
             this._readValue(data)
         }
@@ -78,7 +84,7 @@ export default class PublicKey {
             if ( PublicKey.STORE_TYPES.hasOwnProperty(key) ) {
                 const storeType = PublicKey.STORE_TYPES[key]
                 if (data.hasOwnProperty(storeType) ) {
-                    this.storeType = key
+                    this.storeType = storeType
                     this.value = data[storeType]
                 }
             }

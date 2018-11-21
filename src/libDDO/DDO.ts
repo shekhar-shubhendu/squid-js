@@ -148,10 +148,12 @@ export default class DDO {
         return JSON.stringify(this.toData(), null, 2)
     }
 
-    public addSignature(encoding?: string): string {
+    public addSignature(encoding?: string, isEmbedded?: boolean): string {
         if ( encoding == null ) {
             encoding = DDO.ENCODING_TYPES.PEM
         }
+        isEmbedded = isEmbedded == null ? false : isEmbedded
+
         encoding = encoding.toLowerCase()
         // generate the key pairs
         const keys = ursa.generatePrivateKey(1024, 65537)
@@ -159,26 +161,32 @@ export default class DDO {
         // add a public key record
         const nextIndex = this.publicKeys.length + 1
         const keyId = (this.did ? this.did : "" )  + "#keys=" + nextIndex
-        const publicKey = new PublicKey({id: keyId, owner: keyId, type: PublicKey.TYPE_RSA})
+        const publicKeyObj = new PublicKey({id: keyId, owner: keyId, type: PublicKey.TYPE_RSA})
         switch ( encoding ) {
             case DDO.ENCODING_TYPES.PEM:
-                publicKey.value =  keys.toPublicPem("utf8")
-                publicKey.storeType = PublicKey.STORE_TYPES.PEM
+                publicKeyObj.value =  keys.toPublicPem("utf8")
+                publicKeyObj.storeType = PublicKey.STORE_TYPES.PEM
                 break
             case DDO.ENCODING_TYPES.HEX:
-                publicKey.value =  keys.toPublicPem("hex")
-                publicKey.storeType = PublicKey.STORE_TYPES.HEX
+                publicKeyObj.value =  keys.toPublicPem("hex")
+                publicKeyObj.storeType = PublicKey.STORE_TYPES.HEX
                 break
             case DDO.ENCODING_TYPES.BASE64:
-                publicKey.value =  keys.toPublicPem("base64")
-                publicKey.storeType = PublicKey.STORE_TYPES.BASE64
+                publicKeyObj.value =  keys.toPublicPem("base64")
+                publicKeyObj.storeType = PublicKey.STORE_TYPES.BASE64
                 break
         }
-        this.publicKeys.push(publicKey)
+        if ( isEmbedded ) {
+            const authentication = new Authentication({ publicKey: publicKeyObj, type: Authentication.TYPE_RSA})
+            this.authentications.push(authentication)
+        } else {
+            // add the public key
+            this.publicKeys.push(publicKeyObj)
 
-        // add an authentication record
-        const authentication = new Authentication({ publicKey: publicKey.id, type: Authentication.TYPE_RSA})
-        this.authentications.push(authentication)
+            // add an authentication record
+            const authentication = new Authentication({ publicKey: publicKeyObj.id, type: Authentication.TYPE_RSA})
+            this.authentications.push(authentication)
+        }
         return keys.toPrivatePem("utf8")
 
         return null
@@ -198,8 +206,14 @@ export default class DDO {
             authIndex = 0
         }
         const authentication = this.authentications[authIndex]
-        // get the public key stored for this authentication
-        const publicKey = this.getPublicKey(authentication.publicKeyId)
+
+        let publicKey = null
+        if ( authentication.publicKey ) {
+            publicKey = authentication.publicKey
+        } else {
+            // get the public key stored for this authentication
+            publicKey = this.getPublicKey(authentication.publicKeyId)
+        }
 
         if ( signatureText == null ) {
             signatureText = this.hashTextList().join()
@@ -338,17 +352,31 @@ export default class DDO {
             if ( authentication.publicKeyId === publicKeyId ) {
                 this.authentication = authentication
             }
+            // look for embedded public keys in the authentication record
+            if ( authentication.publicKey && authentication.publicKey.id === publicKeyId ) {
+                this.authentication = authentication
+            }
         }, result)
         return result.authentication
     }
 
     public validateFromKey(keyId: string, signatureText: string, signatureValue: string): boolean {
-        const publicKey = this.getPublicKey(keyId)
-        if ( ! publicKey) {
+        let publicKey = this.getPublicKey(keyId)
+        let authentication = null
+        if ( publicKey) {
+            authentication = this.getAuthentication(publicKey.id)
+        } else {
+            authentication = this.getAuthentication(keyId)
+            if ( authentication ) {
+                publicKey = authentication.publicKey
+            }
+        }
+        if ( authentication == null ) {
             return false
         }
-        let keyEncoding = "utf-8"
-        switch ( publicKey.storeType) {
+
+        let keyEncoding = "utf8"
+        switch ( publicKey.storeType ) {
             case PublicKey.STORE_TYPES.PEM:
                 keyEncoding = "utf8"
                 break
@@ -359,8 +387,6 @@ export default class DDO {
                 keyEncoding = "base64"
                 break
         }
-
-        const authentication = this.getAuthentication(publicKey.id)
 
         return DDO.validateSignature(signatureText,
             publicKey.value,
