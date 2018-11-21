@@ -24,10 +24,8 @@ export default class DDO {
     public static validateSignature(text: string, keyValue: string, signature: string, authenticationType: string) {
         if ( authenticationType === Authentication.TYPE_RSA ) {
             const key = ursa.createPublicKey(keyValue, "utf8")
-            const buffer = new Buffer(text, "utf8")
-
 //            console.log("valid", signature.length, Web3.utils.sha3(text + signature))
-            return key.hashAndVerify("sha256", buffer.toString("base64"), signature, "base64")
+            return key.hashAndVerify("sha256", text, signature, "binary")
         }
         return false
     }
@@ -36,8 +34,7 @@ export default class DDO {
         let signature = ""
         if ( signType === PublicKey.TYPE_RSA ) {
             const key = ursa.createPrivateKey(keyValue)
-//            console.log("privkey", keyValue, key.toPrivatePem("utf8"))
-            signature = key.hashAndSign("sha256", text, "utf8", "base64")
+            signature = key.hashAndSign("sha256", text, "binary", "binary")
 //            console.log("sign", signature.length, Web3.utils.sha3(text + signature))
         }
         return signature
@@ -184,15 +181,14 @@ export default class DDO {
             signatureText = this.hashTextList().join()
         }
         const signature = DDO.signText(signatureText, privateKey, publicKey.type)
-//        const signatureBuffer = new Buffer(signature, 'utf8')
+        const signatureBuffer = Buffer.from(signature, "binary")
         const date = new Date()
 
         this.proof = new Proof({
             created: date.toISOString(),
             creator: publicKey.id,
             type: publicKey.type,
-//            signatureValue: signatureBuffer.toString("base64"),
-            signatureValue: signature,
+            signatureValue: signatureBuffer.toString("base64"),
         })
     }
 
@@ -342,9 +338,8 @@ export default class DDO {
         if ( !this.proof.isValid() ) {
             return false
         }
-//        const signature = new Buffer(this.proof.signatureValue, "base64")
-//        return this.validateFromKey(this.proof.creator, signatureText, signature.toString("utf8"))
-        return this.validateFromKey(this.proof.creator, signatureText, this.proof.signatureValue)
+        const signature = Buffer.from(this.proof.signatureValue, "base64")
+        return this.validateFromKey(this.proof.creator, signatureText, signature.toString("binary"))
     }
 
     public isEmpty(): boolean {
