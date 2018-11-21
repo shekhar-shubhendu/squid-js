@@ -88,11 +88,11 @@ describe("libDDO", () => {
             assert(ddo)
             assert(ddo.validate())
 
-            const service = ddo.getService("Metadata")
-            assert(service)
+            const serviceFound = ddo.getService("Metadata")
+            assert(serviceFound)
 
-            const service = ddo.getService("MetadataCannotFind")
-            assert(service == null)
+            const serviceNotFound = ddo.getService("MetadataCannotFind")
+            assert(serviceNotFound == null)
 
 //            var item = ddo.findServiceKeyValue("serviceDefinitionId", "test")
         })

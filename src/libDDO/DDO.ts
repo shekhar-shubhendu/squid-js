@@ -139,9 +139,9 @@ export default class DDO {
 
     public addSignature(keyType?: string): string {
         if ( keyType == null ) {
-            keyType = PublicKey.PEM
+            keyType = PublicKey.STORE_AS_PEM
         }
-        if (keyType === PublicKey.PEM ) {
+        if (keyType === PublicKey.STORE_AS_PEM ) {
             // generate the key pairs
             const keys = ursa.generatePrivateKey(1024, 65537)
 

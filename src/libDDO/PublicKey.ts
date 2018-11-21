@@ -1,6 +1,4 @@
 
-import * as Web3 from "web3"
-
 interface IPublicKey {
     id?: string
     owner?: string
@@ -10,11 +8,11 @@ interface IPublicKey {
 export default class PublicKey {
 
     public static TYPE_RSA: string = "RsaSignatureAuthentication2018"
-    public static PEM: string = "publicKeyPem"
-    public static JWK: string = "publicKeyJwk"
-    public static HEX: string = "publicKeyHex"
-    public static BASE64: string = "publicKeyBase64"
-    public static BASE85: string = "publicKeyBase85"
+    public static STORE_AS_PEM: string = "publicKeyPem"
+    public static STORE_AS_JWK: string = "publicKeyJwk"
+    public static STORE_AS_HEX: string = "publicKeyHex"
+    public static STORE_AS_BASE64: string = "publicKeyBase64"
+    public static STORE_AS_BASE85: string = "publicKeyBase85"
 
     public id: string
     public owner: string
@@ -25,7 +23,7 @@ export default class PublicKey {
         this.id = data.id
         this.owner = data.owner
         this.type = data.type
-        this.value = data[PublicKey.PEM]
+        this.value = data[PublicKey.STORE_AS_PEM]
     }
 
     public toData(): IPublicKey {
@@ -33,7 +31,7 @@ export default class PublicKey {
             id: this.id,
             owner: this.owner,
             type: this.type,
-            [PublicKey.PEM]: this.value,
+            [PublicKey.STORE_AS_PEM]: this.value,
         } as IPublicKey
     }
 
@@ -48,22 +46,23 @@ export default class PublicKey {
         let value = this.value
         let buffer = null
         switch (this.type) {
-            case PublicKey.PEM:
+            case PublicKey.STORE_AS_PEM:
                 value = this.value
                 break
-            case PublicKey.JWK:
+            case PublicKey.STORE_AS_JWK:
                 // TODO: implement
                 break
-            case PublicKey.HEX:
-                value = Web3.utils.hexToAscii(this.value)
+            case PublicKey.STORE_AS_HEX:
+                buffer = Buffer.from(this.value, "hex")
+                value = buffer.toString("binary")
                 break
-            case PublicKey.BASE64:
-                buffer = new Buffer(this.value, "base64")
-                value = buffer.toString("ascii")
+            case PublicKey.STORE_AS_BASE64:
+                buffer = Buffer.from(this.value, "base64")
+                value = buffer.toString("binary")
                 break
-            case PublicKey.BASE85:
-                buffer = new Buffer(this.value, "base85")
-                value = buffer.toString("ascii")
+            case PublicKey.STORE_AS_BASE85:
+                buffer = Buffer.from(this.value, "base85")
+                value = buffer.toString("binary")
                 break
         }
         return value
