@@ -10,9 +10,11 @@ import OceanBase from "../OceanBase"
 
 export default class ServiceAgreement extends OceanBase {
 
-    public static async signServiceAgreement(assetId: string, ddo: DDO, serviceDefinitionId: string,
-                                             serviceAgreementId: string, consumer: Account):
-        Promise<string> {
+    public static async signServiceAgreement(assetId: string,
+                                             ddo: DDO,
+                                             serviceDefinitionId: string,
+                                             serviceAgreementId: string,
+                                             consumer: Account): Promise<string> {
 
         // Logger.log("signing SA", serviceAgreementId)
 
@@ -21,15 +23,25 @@ export default class ServiceAgreement extends OceanBase {
         const valueHashes = ServiceAgreement.createValueHashes(values)
         const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
 
-        const serviceAgreementHashSignature = await ServiceAgreement.createSAHashSignature(service, serviceAgreementId,
-            values, valueHashes, timeoutValues, consumer)
+        const serviceAgreementHashSignature = await ServiceAgreement
+            .createSAHashSignature(
+                service,
+                serviceAgreementId,
+                values,
+                valueHashes,
+                timeoutValues,
+                consumer)
 
         return serviceAgreementHashSignature
     }
 
-    public static async executeServiceAgreement(assetId: string, ddo: DDO, serviceDefinitionId: string,
-                                                serviceAgreementId: string, serviceAgreementHashSignature: string,
-                                                consumer: Account, publisher: Account): Promise<ServiceAgreement> {
+    public static async executeServiceAgreement(assetId: string,
+                                                ddo: DDO,
+                                                serviceDefinitionId: string,
+                                                serviceAgreementId: string,
+                                                serviceAgreementHashSignature: string,
+                                                consumer: Account,
+                                                publisher: Account): Promise<ServiceAgreement> {
 
         // Logger.log("executing SA", serviceAgreementId)
 
@@ -46,8 +58,12 @@ export default class ServiceAgreement extends OceanBase {
         return serviceAgreement
     }
 
-    private static async createSAHashSignature(service: Service, serviceAgreementId: string, values: ValuePair[],
-                                               valueHashes: string[], timeoutValues: number[], consumer: Account):
+    private static async createSAHashSignature(service: Service,
+                                               serviceAgreementId: string,
+                                               values: ValuePair[],
+                                               valueHashes: string[],
+                                               timeoutValues: number[],
+                                               consumer: Account):
         Promise<string> {
 
         if (!service.templateId) {
@@ -58,20 +74,28 @@ export default class ServiceAgreement extends OceanBase {
             return condition.conditionKey
         })
 
-        const serviceAgreementHash = ServiceAgreement.hashServiceAgreement(service.templateId,
-            serviceAgreementId, conditionKeys, valueHashes, timeoutValues)
+        const serviceAgreementHash = ServiceAgreement
+            .hashServiceAgreement(
+                service.templateId,
+                serviceAgreementId,
+                conditionKeys,
+                valueHashes,
+                timeoutValues)
 
-        const serviceAgreementHashSignature =
-            await Web3Provider.getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
+        const serviceAgreementHashSignature = await Web3Provider
+            .getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
 
         return serviceAgreementHashSignature
     }
 
-    private static async executeAgreement(ddo: DDO, serviceDefinitionId: string, serviceAgreementId: string,
-                                          valueHashes: string[], timeoutValues: number[],
-                                          serviceAgreementHashSignature: string, consumerAddress: string,
-                                          publisher: Account)
-        : Promise<ServiceAgreement> {
+    private static async executeAgreement(ddo: DDO,
+                                          serviceDefinitionId: string,
+                                          serviceAgreementId: string,
+                                          valueHashes: string[],
+                                          timeoutValues: number[],
+                                          serviceAgreementHashSignature: string,
+                                          consumerAddress: string,
+                                          publisher: Account): Promise<ServiceAgreement> {
 
         const {serviceAgreement} = await Keeper.getInstance()
 
@@ -81,9 +105,16 @@ export default class ServiceAgreement extends OceanBase {
             throw new Error(`TemplateId not found in service "${service.type}" ddo.`)
         }
 
-        const executeAgreementReceipt = await serviceAgreement.executeAgreement(
-            service.templateId, serviceAgreementHashSignature, consumerAddress, valueHashes,
-            timeoutValues, serviceAgreementId, ddo.id, publisher.getId())
+        const executeAgreementReceipt = await serviceAgreement
+            .executeAgreement(
+                service.templateId,
+                serviceAgreementHashSignature,
+                consumerAddress,
+                valueHashes,
+                timeoutValues,
+                serviceAgreementId,
+                ddo.id,
+                publisher.getId())
 
         if (executeAgreementReceipt.events.ExecuteAgreement.returnValues.state === false) {
             throw new Error("executing service agreement failed.")
@@ -113,9 +144,11 @@ export default class ServiceAgreement extends OceanBase {
         }
     }
 
-    private static hashServiceAgreement(serviceAgreementTemplateId: string, serviceAgreementId: string,
-                                        conditionKeys: string[], valueHashes: string[], timeouts: number[])
-        : string {
+    private static hashServiceAgreement(serviceAgreementTemplateId: string,
+                                        serviceAgreementId: string,
+                                        conditionKeys: string[],
+                                        valueHashes: string[],
+                                        timeouts: number[]): string {
         const args = [
             {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
             {type: "bytes32[]", value: conditionKeys} as ValuePair,
@@ -153,8 +186,12 @@ export default class ServiceAgreement extends OceanBase {
         return values
     }
 
-    private constructor(serviceAgreementId: string, ddo: DDO, private publisher: Account, consumer: Account,
-                        state: boolean, status: boolean) {
+    private constructor(serviceAgreementId: string,
+                        ddo: DDO,
+                        private publisher: Account,
+                        consumer: Account,
+                        state: boolean,
+                        status: boolean) {
         super(serviceAgreementId)
     }
 

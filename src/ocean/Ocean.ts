@@ -77,20 +77,21 @@ export default class Ocean {
         const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
-        const ddoConditions: DDOCondition[] = conditions.map((condition: Condition, index: number): DDOCondition => {
-            const events: Event[] = [
-                {
-                    name: "PaymentReleased",
-                    actorType: [
-                        "consumer",
-                    ],
-                    handlers: {
-                        moduleName: "serviceAgreement",
-                        functionName: "fulfillAgreement",
-                        version: "0.1",
-                    } as EventHandlers,
-                } as Event,
-            ]
+        const ddoConditions: DDOCondition[] = conditions
+            .map((condition: Condition, index: number): DDOCondition => {
+                const events: Event[] = [
+                    {
+                        name: "PaymentReleased",
+                        actorType: [
+                            "consumer",
+                        ],
+                        handlers: {
+                            moduleName: "serviceAgreement",
+                            functionName: "fulfillAgreement",
+                            version: "0.1",
+                        } as EventHandlers,
+                    } as Event,
+                ]
 
             const mapParameterValueToName = (name) => {
 
@@ -180,12 +181,19 @@ export default class Ocean {
 
         const storedDdo = await aquarius.storeDDO(ddo)
 
-        await didRegistry.registerAttribute(id, ValueType.DID, "Metadata", serviceEndpoint, publisher.getId())
+        await didRegistry.registerAttribute(
+            id,
+            ValueType.DID,
+            "Metadata",
+            serviceEndpoint,
+            publisher.getId())
 
         return storedDdo
     }
 
-    public async signServiceAgreement(did: string, serviceDefinitionId: string, consumer: Account): Promise<any> {
+    public async signServiceAgreement(did: string,
+                                      serviceDefinitionId: string,
+                                      consumer: Account): Promise<any> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
@@ -204,25 +212,44 @@ export default class Ocean {
         }
     }
 
-    public async initializeServiceAgreement(did: string, serviceDefinitionId: string, serviceAgreementId: string,
-                                            serviceAgreementSignature: string, consumer: Account) {
-        const result = await BrizoProvider.getBrizo().initializeServiceAgreement(did, serviceAgreementId,
-            serviceDefinitionId, serviceAgreementSignature, await consumer.getPublicKey())
+    public async initializeServiceAgreement(did: string,
+                                            serviceDefinitionId: string,
+                                            serviceAgreementId: string,
+                                            serviceAgreementSignature: string,
+                                            consumer: Account) {
+        const result = await BrizoProvider
+            .getBrizo()
+            .initializeServiceAgreement(
+                did,
+                serviceAgreementId,
+                serviceDefinitionId,
+                serviceAgreementSignature,
+                await consumer.getPublicKey())
 
         Logger.log(result)
     }
 
-    public async executeServiceAgreement(did: string, serviceDefinitionId: string, serviceAgreementId: string,
-                                         serviceAgreementSignature: string, consumer: Account, publisher: Account)
-        : Promise<ServiceAgreement> {
+    public async executeServiceAgreement(did: string,
+                                         serviceDefinitionId: string,
+                                         serviceAgreementId: string,
+                                         serviceAgreementSignature: string,
+                                         consumer: Account,
+                                         publisher: Account): Promise<ServiceAgreement> {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
 
-        const serviceAgrement: ServiceAgreement = await ServiceAgreement.executeServiceAgreement(id,
-            ddo, serviceDefinitionId, serviceAgreementId, serviceAgreementSignature, consumer, publisher)
+        const serviceAgreement: ServiceAgreement = await ServiceAgreement
+            .executeServiceAgreement(
+                id,
+                ddo,
+                serviceDefinitionId,
+                serviceAgreementId,
+                serviceAgreementSignature,
+                consumer,
+                publisher)
 
-        return serviceAgrement
+        return serviceAgreement
     }
 
     public async searchAssets(query: SearchQuery): Promise<DDO[]> {
