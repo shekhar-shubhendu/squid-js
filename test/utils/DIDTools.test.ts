@@ -1,9 +1,9 @@
 import * as assert from "assert"
-import * as didTools from "../src/DID"
+import * as didTools from "../../src/utils/DIDTools"
 
 import * as Web3 from "web3"
 
-describe("DID Tests", () => {
+describe("DIDTools Tests", () => {
 
     describe("did generate", () => {
 
@@ -68,7 +68,7 @@ describe("DID Tests", () => {
             const testId = Web3.utils.randomHex(32).substring(2)
             const testMethod = "op"
             const validDID = "did:" + testMethod + ":" + testId
-            assert(didTools.DIDToId(validDID) === testId)
+            assert(didTools.didToId(validDID) === testId)
         })
 
         it("should convert an Ocean DID to an array of bytes", async () => {
@@ -76,7 +76,7 @@ describe("DID Tests", () => {
             const byteId = Web3.utils.hexToBytes("0x" + testId)
             const testMethod = "op"
             const validDID = "did:" + testMethod + ":" + testId
-            const bufferTest = Buffer.from(didTools.DIDToIdBytes(validDID))
+            const bufferTest = Buffer.from(didTools.didToIdBytes(validDID))
             const bufferValid = Buffer.from(byteId)
             assert(Buffer.compare(bufferTest, bufferValid) === 0 )
         })

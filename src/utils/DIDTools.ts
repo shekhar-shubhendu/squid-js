@@ -121,7 +121,7 @@ export function idToDID(id: string, method?: string): string {
  * :return a hex string, without the leading '0x'
  * :return null if the DID is invalid
  */
-export function DIDToId(did: string): string {
+export function didToId(did: string): string {
     const result = didParse(did)
     if (result && result.idHex ) {
         return result.idHex
@@ -129,7 +129,7 @@ export function DIDToId(did: string): string {
     return null
 }
 
-export function DIDToIdBytes(did: string): Uint8Array {
+export function didToIdBytes(did: string): Uint8Array {
     const result = didParse(did)
     if (result && result.idHex) {
         return Web3.utils.hexToBytes("0x" + result.idHex)
