@@ -35,14 +35,14 @@ export default class DIDResolved {
 
     public isURL(): boolean {
         const item = this.getLastItem()
-        return item && item.valueType == "URL"
+        return item && item.valueType === "URL"
     }
-    
+
     public isDDO(): boolean {
         const item = this.getLastItem()
-        return item && item.valueType == "DDO"
+        return item && item.valueType === "DDO"
     }
-    
+
     public getValue(): string {
         const item = this.getLastItem()
         let result: string = null
