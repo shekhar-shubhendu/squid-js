@@ -1,7 +1,7 @@
 /*
- * 
+ *
  * DDO Library to parse, create and validate DDO JSON data
- * 
+ *
  */
 import Authentication from "./Authentication"
 import Proof from "./Proof"
@@ -32,14 +32,14 @@ export default class DDO {
 
     /*
      * Function to validate a signed text using the public key
-     * 
+     *
      * :param text: text string to hash to create the signature on
      * :param keyValue: public key of the signer
      * :param encoding: encoding of the public key, can be 'utf8', 'hex'
-     * :param signature: binary value of the signature that was created by the 
+     * :param signature: binary value of the signature that was created by the
      * users private key
      * :param authenticationType: Type of authentication, at the moment it's "RsaVerificationKey2018"
-     * 
+     *
      * :return true if the signature was valid with the text
      */
     public static validateSignature(
@@ -59,13 +59,13 @@ export default class DDO {
 
     /*
      * Function to sign a some text using the private key
-     * 
-     * :param text: text to sign 
+     *
+     * :param text: text to sign
      * :param keyValue: private key in PEM format
      * :param signType: at the moment only "RsaSignatureAuthentication2018" is supported
-     * 
+     *
      * :return signature in binary format
-     * 
+     *
      */
     public static signText(text: string, keyValue: string, signType: string): string {
         let signature = ""
@@ -187,12 +187,12 @@ export default class DDO {
 
     /*
      * Add a signature to the DDO
-     * 
+     *
      * :param encoding: optional type of encoding of the public key 'hex', 'pem'. Defaults to 'pem'
      * :param isEmbedded: optional if set to true then embedd the public key in
      * the authorization record
      * :return the private key used to sign in 'pem' format
-     * 
+     *
      */
     public addSignature(encoding?: string, isEmbedded?: boolean): string {
         if ( encoding == null ) {
@@ -236,11 +236,11 @@ export default class DDO {
         return keys.toPrivatePem("utf8")
     }
 
-    /* 
+    /*
      * Add a service to the DDO
-     * 
+     *
      * :param data: data of the service record
-     * 
+     *
      * :return The Service object
      */
     public addService(data): Service {
@@ -254,13 +254,13 @@ export default class DDO {
 
     /*
      * Add proof to the DDO
-     * 
-     * :param authIndex: index of the authorization record 
+     *
+     * :param authIndex: index of the authorization record
      * :param privateKey: PEM of the private key
      * :param signatureText: optional signature text, if none provided
-     * then the 'this.hashTextList()' will be called to get the standard 
+     * then the 'this.hashTextList()' will be called to get the standard
      * hash text
-     * 
+     *
      */
     public addProof(authIndex, privateKey, signatureText?) {
         if ( authIndex == null ) {
@@ -291,7 +291,7 @@ export default class DDO {
         })
     }
 
-    /* 
+    /*
      * return: true if a static has been defined in DDO
      */
     public isProofDefined(): boolean {
@@ -299,9 +299,9 @@ export default class DDO {
     }
 
     /*
-     * Validate the DDO for the correct data and fields, if a static 
+     * Validate the DDO for the correct data and fields, if a static
      * proof is defined, then also validate the static proof
-     * 
+     *
      * :return true if this DDO is valid
      */
     public validate(): boolean {
@@ -357,7 +357,7 @@ export default class DDO {
     }
     /*
      * :param serviceType: service.type to find in the DDO
-     * 
+     *
      * :return a valid service object if found, else null
      */
     public getService(serviceType: string): Service {
@@ -372,17 +372,17 @@ export default class DDO {
 
     /*
      * Find a service based on it's key value
-     * 
+     *
      * e.g.
      *      service.ServiceAgreement = "test"
      * so calling
      *  this function with:
-     * 
+     *
      *  findServiceKeyValue("ServiceAgreement", "test")
-     * 
+     *
      * :param key: The key to search for
      * :param value: the key value to match
-     * 
+     *
      * :return a service object if found else return null
      */
     public findServiceKeyValue(key: string, value: string): Service {
@@ -398,7 +398,7 @@ export default class DDO {
     /*
      * Generate a list of strings for hashing
      * This is used as the default hash data for signing static proofs
-     * 
+     *
      * :return a string list
      */
     public hashTextList(): string[] {
@@ -436,7 +436,7 @@ export default class DDO {
 
     /*
      * Get a public key in this DDO
-     * 
+     *
      * :param keyId: public key id to find
      * :return the PublicKey object or null for not found
      */
@@ -451,10 +451,10 @@ export default class DDO {
     }
 
     /* Get an authentication object based on it's public key id
-     * 
+     *
      * This method will search the list of public keys in the DDO and
      * also the embedded public keys in the authentication records
-     * 
+     *
      * :param publicKeyId: the public key id to use to search
      * :return if found return the Authentication object or null
      */
@@ -475,15 +475,15 @@ export default class DDO {
     /*
      * Validate a signature using a specified public key id. The public
      * key id can be from the list of public keys, or embedded in an authorization record
-     * 
+     *
      * :param keyId: The public key to validate the signature with
-     * :param signatureText: optional text to use to validate the signature text, if 
+     * :param signatureText: optional text to use to validate the signature text, if
      * none provided then use the stand hashTextList
      * :param signatureValue: the singnature in binary format to validate against
-     * 
+     *
      * :return true if the signature, signatureText and keyId are all valid and have been
      * signed
-     * 
+     *
      */
     public validateFromKey(keyId: string, signatureText: string, signatureValue: string): boolean {
         let publicKey = this.getPublicKey(keyId)
@@ -521,14 +521,14 @@ export default class DDO {
         )
     }
 
-    /* 
+    /*
      * Validate a static proof
-     * 
-     * :param signatureText: text to validate the proof against, if not 
+     *
+     * :param signatureText: text to validate the proof against, if not
      * provided then the 'hashTextList' will be used.
-     * 
+     *
      * :return true if the proof is valid
-     * 
+     *
      */
     public validateProof(signatureText?: string): boolean {
         if ( signatureText == null ) {
@@ -544,7 +544,7 @@ export default class DDO {
         return this.validateFromKey(this.proof.creator, signatureText, signature.toString("binary"))
     }
 
-    /* 
+    /*
      * :return true if this DDO object is empty
      */
     public isEmpty(): boolean {
