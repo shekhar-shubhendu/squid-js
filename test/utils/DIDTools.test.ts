@@ -1,9 +1,9 @@
 import * as assert from "assert"
-import * as didTools from "../src/DID"
+import * as didTools from "../../src/utils/DIDTools"
 
 import * as Web3 from "web3"
 
-describe("DID Tests", () => {
+describe("DIDTools Tests", () => {
 
     describe("did generate", () => {
 
