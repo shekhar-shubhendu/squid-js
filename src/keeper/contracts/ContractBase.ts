@@ -60,16 +60,18 @@ export default abstract class ContractBase {
         if (!this.contract.methods[name]) {
             throw new Error(`Method "${name}" is not part of contract "${this.contractName}"`)
         }
+        // Logger.log(name, args)
         const method = this.contract.methods[name]
         try {
-            const tx = method(...args)
-            const estimatedGas = await tx.estimateGas(args, {
+            const methodInstance = method(...args)
+            const estimatedGas = await methodInstance.estimateGas(args, {
                 from,
             })
-            return tx.send({
+            const tx = methodInstance.send({
                 from,
                 gas: estimatedGas,
             })
+            return tx
         } catch (err) {
             const mappedArgs = this.searchMethod(name).inputs.map((input, i) => {
                 return {
@@ -87,6 +89,7 @@ export default abstract class ContractBase {
         if (!this.contract.methods[name]) {
             throw new Error(`Method ${name} is not part of contract ${this.contractName}`)
         }
+        // Logger.log(name)
         try {
             const method = this.contract.methods[name](...args)
             return method.call(from ? {from} : null)
