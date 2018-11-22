@@ -82,9 +82,22 @@ describe("DIDResolver", () => {
             assert(didResolved)
             assert(didResolved.isURL())
             assert(didResolved.getValue() === testURL)
+            
+            // test circular link
+            const didIdFirst = DIDTools.didToId(didList[0])
+
+            const receiptLastCircular = await didRegistry.registerAttribute(didIdLast, ValueType.DID, providerKey,
+                didIdFirst, ownerAccount.getId())
+            assert(receiptLastCircular)
+            
+            // resolve from the first DID in the chain
+            const didResolvedCircular = await didResolver.resolve(didList[0])
+            assert(didResolvedCircular)
+            assert(didResolvedCircular.isDID())
 
         })
 
+        
     })
 
 })

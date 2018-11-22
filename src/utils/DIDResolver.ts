@@ -30,14 +30,22 @@ export default class DIDResolver {
     }
 
     public async resolve(did: string, maxHopCount?: number): Promise<DIDResolved> {
-
+        
         maxHopCount = maxHopCount ? maxHopCount : 0
 
         let didId = DIDTools.didToId(did)
         const resolved = new DIDResolved()
+
         let data: DIDRecord = await this.getDID(didId)
         while ( data && (maxHopCount === 0 || resolved.hopCount() < maxHopCount) ) {
+            // need to search after the result
+            if ( resolved.isDIDIdVisited(data.didId) ) {
+                // error circular ref
+                // TODO: raise an error
+                break
+            }
             resolved.addData(data)
+            
             didId = null
             if (data.valueType === "URL" || data.valueType === "DDO" ) {
                 data = null
@@ -56,6 +64,9 @@ export default class DIDResolver {
                 // only look if we have another id to find
                 if ( didId ) {
                     data = await this.getDID(didId)
+                }
+                else {
+                    data = null
                 }
             }
         }

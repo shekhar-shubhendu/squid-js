@@ -43,6 +43,11 @@ export default class DIDResolved {
         return item && item.valueType === "DDO"
     }
 
+    public isDID(): boolean {
+        const item = this.getLastItem()
+        return item && (item.valueType === "DID"  || item.valueType === "DIDRef")
+    }
+
     public getValue(): string {
         const item = this.getLastItem()
         let result: string = null
@@ -54,5 +59,14 @@ export default class DIDResolved {
             }
         }
         return result
+    }
+    
+    public isDIDIdVisited(didId: string): boolean {
+        for ( let item of this.items) {
+            if ( item.didId === didId ) {
+                return true
+            }
+        }
+        return false
     }
 }
