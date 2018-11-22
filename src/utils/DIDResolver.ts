@@ -38,22 +38,25 @@ export default class DIDResolver {
         let data: DIDRecord = await this.getDID(didId)
         while ( data && (maxHopCount === 0 || resolved.hopCount() < maxHopCount) ) {
             resolved.addData(data)
+            didId = null
             if (data.valueType === "URL" || data.valueType === "DDO" ) {
                 data = null
                 break
             } else {
-                if ( data.value.match(/^[0-9a-fA-Fx]+/) ) {
+                if ( data.value.match(/^[0-9a-fA-FxX]+/) ) {
                     // get the hex value of the chain
                     didId = Web3.utils.toHex("0x" + data.value.replace(/^0x/, "")).substring(2)
                 } else if ( data.value.match(/^did:op/) ) {
                     // if the DID value is another Ocean DID then get the id
                     didId = DIDTools.didToId(data.value)
                 } else {
-                    // check for unusall values in the 'DID' record, http, ftp, {xxx
-                    data = null
+                    // somethings wrong with this value, so stop
                     break
                 }
-                data = await this.getDID(didId)
+                // only look if we have another id to find
+                if ( didId ) {
+                    data = await this.getDID(didId)
+                }
             }
         }
         return resolved
