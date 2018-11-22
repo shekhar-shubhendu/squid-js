@@ -9,7 +9,7 @@ import DIDRecord from "../models/DIDRecord"
 // import ValueType from "../models/ValueType"
 
 // import * as Web3 from "web3"
-import * as DIDTools from "../DID"
+import * as DIDTools from "../utils/DIDTools"
 
 export default class DIDResolved {
     public items: DIDRecord[]
@@ -33,6 +33,16 @@ export default class DIDResolved {
         return result
     }
 
+    public isURL(): boolean {
+        const item = this.getLastItem()
+        return item && item.valueType == "URL"
+    }
+    
+    public isDDO(): boolean {
+        const item = this.getLastItem()
+        return item && item.valueType == "DDO"
+    }
+    
     public getValue(): string {
         const item = this.getLastItem()
         let result: string = null

@@ -10,7 +10,7 @@ import Ocean from "../../src/ocean/Ocean"
 import config from "../config"
 import TestContractHandler from "./TestContractHandler"
 
-import * as DIDTools from "../../src/DID"
+import * as DIDTools from "../../src/utils/DIDTools"
 
 import DIDResolver from "../../src/utils/DIDResolver"
 
@@ -32,7 +32,7 @@ describe("DIDResolver", () => {
             const testId = IdGenerator.generateId()
 
             const did = DIDTools.idToDID(testId)
-            const didId = DIDTools.DIDToId(did)
+            const didId = DIDTools.didToId(did)
             const ownerAccount: Account = (await ocean.getAccounts())[0]
             const providerKey = Web3Provider.getWeb3().utils.fromAscii("provider")
             const testURL = "http://localhost:5000"
@@ -42,7 +42,11 @@ describe("DIDResolver", () => {
             assert(receipt.events.DIDAttributeRegistered)
 
             const didResolver = new DIDResolver(didRegistry)
+            assert(didResolver)
+            
             const didResolved = await didResolver.resolve(did)
+            assert(didResolved)
+            assert(didResolved.isURL())
 
         })
 

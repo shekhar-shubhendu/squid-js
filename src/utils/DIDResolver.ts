@@ -11,7 +11,7 @@ import DIDRegistry from "../keeper/contracts/DIDRegistry"
 import ValueType from "../models/ValueType"
 
 import * as Web3 from "web3"
-import * as DIDTools from "../DID"
+import * as DIDTools from "../utils/DIDTools"
 
 /*
  *
@@ -37,7 +37,7 @@ export default class DIDResolver {
 
         maxHopCount = maxHopCount === undefined ? 0 : maxHopCount
 
-        let didId = DIDTools.DIDToId(did)
+        let didId = DIDTools.didToId(did)
         const resolved = new DIDResolved()
         let data: DIDRecord = await this.getDID(didId)
         while ( data && (maxHopCount === 0 || resolved.hopCount() < maxHopCount) ) {
