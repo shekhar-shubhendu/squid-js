@@ -96,7 +96,6 @@ export default class DDO {
         if (typeof did === "object") {
             this.readFromData(did)
         }
-
     }
 
     /*
@@ -195,10 +194,8 @@ export default class DDO {
      *
      */
     public addSignature(encoding?: string, isEmbedded?: boolean): string {
-        if ( encoding == null ) {
-            encoding = DDO.ENCODING_TYPES.PEM
-        }
-        isEmbedded = isEmbedded == null ? false : isEmbedded
+        encoding = encoding ? encoding : DDO.ENCODING_TYPES.PEM
+        isEmbedded = isEmbedded ? isEmbedded : false
 
         encoding = encoding.toLowerCase()
         // generate the key pairs
@@ -262,10 +259,8 @@ export default class DDO {
      * hash text
      *
      */
-    public addProof(authIndex, privateKey, signatureText?) {
-        if ( authIndex == null ) {
-            authIndex = 0
-        }
+    public addProof(privateKey: string, authIndex?: number, signatureText?: string) {
+        authIndex = authIndex ? authIndex : 0
         const authentication = this.authentications[authIndex]
 
         let publicKey = null
@@ -531,9 +526,8 @@ export default class DDO {
      *
      */
     public validateProof(signatureText?: string): boolean {
-        if ( signatureText == null ) {
-            signatureText = this.hashTextList().join()
-        }
+        signatureText = signatureText ? signatureText : this.hashTextList().join()
+
         if ( !this.isProofDefined() ) {
             return false
         }
