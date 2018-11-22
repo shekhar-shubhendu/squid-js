@@ -131,8 +131,9 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const mappedDependencyTimeoutFlags: number[] = []
 
         this.template.Methods.forEach((m, i) => {
-            mappedDependencies.push(dependencies.findIndex((d) => d === m.name) > -1 ? i : 0)
-            mappedDependencyTimeoutFlags.push(dependencyTimeoutFlags[i] ? dependencyTimeoutFlags[i] : 0)
+            const di = dependencies.findIndex((d) => d === m.name)
+            mappedDependencies.push(di > -1 ? 1 : 0)
+            mappedDependencyTimeoutFlags.push(dependencyTimeoutFlags[i] ? 1 : 0)
         })
 
         Logger.log("========================")
