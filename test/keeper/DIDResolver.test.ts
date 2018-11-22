@@ -7,15 +7,15 @@ import ValueType from "../../src/models/ValueType"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
-//import Logger from "../src/utils/Logger"
 import config from "../config"
 import TestContractHandler from "./TestContractHandler"
-import DIDResolver from "../../src/DIDResolver"
+
 import * as DIDTools from "../../src/DID"
+
+import DIDResolver from "../../src/utils/DIDResolver"
 
 let ocean: Ocean
 let didRegistry: DIDRegistry
-
 
 describe("DIDResolver", () => {
 
@@ -30,24 +30,22 @@ describe("DIDResolver", () => {
 
         it("should register an attribute as a new DID and resolve", async () => {
             const testId = IdGenerator.generateId()
-            
+
             const did = DIDTools.idToDID(testId)
             const didId = DIDTools.DIDToId(did)
             const ownerAccount: Account = (await ocean.getAccounts())[0]
             const providerKey = Web3Provider.getWeb3().utils.fromAscii("provider")
-            const data = "my nice provider, is nice"
-            const receipt = await didRegistry.registerAttribute(didId, ValueType.DID, providerKey,
-                data, ownerAccount.getId())
+            const testURL = "http://localhost:5000"
+            const receipt = await didRegistry.registerAttribute(didId, ValueType.URL, providerKey,
+                testURL, ownerAccount.getId())
             assert(receipt.status)
             assert(receipt.events.DIDAttributeRegistered)
 
             const didResolver = new DIDResolver(didRegistry)
-            didResolver.resolve(did)
+            const didResolved = await didResolver.resolve(did)
 
         })
-        
+
     })
 
-
 })
-
