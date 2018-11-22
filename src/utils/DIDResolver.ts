@@ -31,7 +31,7 @@ export default class DIDResolver {
 
     public async resolve(did: string, maxHopCount?: number): Promise<DIDResolved> {
 
-        maxHopCount = maxHopCount === undefined ? 0 : maxHopCount
+        maxHopCount = maxHopCount ? maxHopCount : 0
 
         let didId = DIDTools.didToId(did)
         const resolved = new DIDResolved()
