@@ -47,6 +47,41 @@ describe("DIDResolver", () => {
             const didResolved = await didResolver.resolve(did)
             assert(didResolved)
             assert(didResolved.isURL())
+            assert(didResolved.getValue() == testURL)
+
+        })
+        it("should register chain of attributes and resolve", async () => {
+            const didList: string[] = []
+            const chainLength = 10
+            const testURL = "http://localhost:5000"
+            const ownerAccount: Account = (await ocean.getAccounts())[0]
+            const providerKey = Web3Provider.getWeb3().utils.fromAscii("provider")
+
+            for ( let index = 0; index < chainLength; index ++ ) {
+                let did = DIDTools.idToDID(IdGenerator.generateId())
+                didList.push(did)
+            }
+            
+            for ( let index = 0; index < chainLength - 1; index ++ ) {
+                let didId = DIDTools.didToId(didList[index])
+                let nextDIDId = DIDTools.didToId(didList[index + 1])
+                let receipt = await didRegistry.registerAttribute(didId, ValueType.DID, providerKey,
+                    nextDIDId, ownerAccount.getId())
+                assert(receipt)
+            }
+            const didId = DIDTools.didToId(didList[didList.length - 1])
+            const receipt = await didRegistry.registerAttribute(didId, ValueType.URL, providerKey,
+                testURL, ownerAccount.getId())
+            assert(receipt)
+        
+            const didResolver = new DIDResolver(didRegistry)
+            assert(didResolver)
+            
+            // resolve from the first DID in the chain
+            const didResolved = await didResolver.resolve(didList[0])
+            assert(didResolved)
+            assert(didResolved.isURL())
+            assert(didResolved.getValue() == testURL)
 
         })
 

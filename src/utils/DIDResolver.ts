@@ -46,7 +46,17 @@ export default class DIDResolver {
                 data = null
                 break
             } else {
-                didId = Web3.utils.toHex(data.value).substring(2)
+                if ( data.value.match(/^[0-9a-fA-Fx]+/) ) {
+                    // get the hex value of the chain
+                    didId = Web3.utils.toHex("0x" + data.value.replace(/^0x/, "")).substring(2)
+                } else if ( data.value.match(/^did:op/) ) {
+                    // if the DID value is another Ocean DID then get the id
+                    didId = DIDTools.didToId(data.value)
+                } else {
+                    // check for unusall values in the 'DID' record, http, ftp, {xxx
+                    data = null
+                    break
+                }
                 data = await this.getDID(didId)
             }
         }
