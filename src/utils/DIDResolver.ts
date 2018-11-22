@@ -1,6 +1,6 @@
 /*
 
-DIDResolver module to resolve Ocean DID's off the block chain
+    DIDResolver module to resolve Ocean DID's off the block chain
 
 */
 import {assert} from "chai"
@@ -20,10 +20,6 @@ import * as DIDTools from "../utils/DIDTools"
  * :param max_hop_count: max number of hops allowed to find the destination URL/DDO
  * :return DIDResolved object: URL or DDO of the resolved DID
  * :return null: if the DID cannot be resolved
- * :raises TypeError: on non 32byte value as the DID
- * :raises TypeError: on any of the resolved values are not string/DID bytes.
- * :raises OceanDIDCircularReference: on the chain being pointed back to itself.
- * :raises OceanDIDNotFound: if no DID can be found to resolve.
  *
  */
 export default class DIDResolver {
