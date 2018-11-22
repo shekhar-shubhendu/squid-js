@@ -11,12 +11,12 @@ const OCEAN_DID_METHOD = "op"
 
 /*
  * This function generates all types of DID's including ocean DID's
- * 
+ *
  * :param didId: string to of the 'id' part of the DID
  * :param path: option path part of the DID
  * :param fragment: option fragment of the DID
  * :param method: option method of the DID, defaults to 'op'
- * 
+ *
  * :return string generated DID, in the format did:<method>:<didId>[/<path>][#<fragment>]
  */
 export function didGenerate(didId: string, path?: string, fragment?: string, method?: string) {
@@ -82,7 +82,7 @@ export function didParse(did: string): IDIDParse {
 
 /*
  * Validate a Ocean DID, return true if valid, else false
- * 
+ *
  * :param did: string to validate as an Ocean DID
  * :return true if the DID is valid
  */
@@ -93,19 +93,19 @@ export function isDIDValid(did: string): boolean {
 
 /*
  * Function to convert a hex id string to an Ocean DID
- * 
+ *
  * :param id: can be a hex string with or without the leading '0x'
  * :param method: if empty, default to 'op'
  * :return a valid DID
- * :return '0' for a 0 DID 
+ * :return '0' for a 0 DID
  */
-export function idToDID(id: string, method?:string): string {
+export function idToDID(id: string, method?: string): string {
     method = method === undefined ? OCEAN_DID_METHOD : method
     method = method.toLowerCase().replace(/[^a-z0-9]/g, "")
 
     // remove any leading 0x
     id = id.replace(/^0x/, "")
-    
+
     // return an empty DID if == 0
     if ( id.match(/^0+$/) ) {
         return "0"
@@ -115,9 +115,9 @@ export function idToDID(id: string, method?:string): string {
 
 /*
  * Function to convert an Ocean DID to an Ocean Id
- * 
+ *
  * :param did: string of the did to convert to an Ocean id
- * 
+ *
  * :return a hex string, without the leading '0x'
  * :return null if the DID is invalid
  */
