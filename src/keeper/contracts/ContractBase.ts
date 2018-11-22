@@ -60,19 +60,25 @@ export default abstract class ContractBase {
         if (!this.contract.methods[name]) {
             throw new Error(`Method "${name}" is not part of contract "${this.contractName}"`)
         }
+        const method = this.contract.methods[name]
         try {
-            const tx = this.contract.methods[name](...args)
-            const gas = await tx.estimateGas(args, {
+            const tx = method(...args)
+            const estimatedGas = await tx.estimateGas(args, {
                 from,
             })
             return tx.send({
                 from,
-                gas,
+                gas: estimatedGas,
             })
         } catch (err) {
-            const argString = JSON.stringify(args, null, 2)
+            const mappedArgs = this.searchMethod(name).inputs.map((input, i) => {
+                return {
+                    name: input.name,
+                    value: args[i],
+                }
+            })
             Logger.error(`Sending transaction "${name}" on contract "${this.contractName}" failed.`)
-            Logger.error(`Args: ${argString} From: ${from}`)
+            Logger.error(`Parameters: ${JSON.stringify(mappedArgs, null, 2)} from: ${from}`)
             throw err
         }
     }

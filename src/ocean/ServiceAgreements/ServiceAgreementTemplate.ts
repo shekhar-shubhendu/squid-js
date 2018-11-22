@@ -31,9 +31,12 @@ export default class ServiceAgreementTemplate extends OceanBase {
 
         const dependencyMatrix: number[] =
             await Promise.all(this.template.Methods.map(async (method: Method) => {
-                // tslint:disable-next-line
-                return method.dependency | method.timeout
+                return this.compressDependencies(method.dependencies, method.dependencyTimeoutFlags)
             }))
+
+        const fulfillmentIndices: number[] = this.template.Methods
+            .map((method: Method, i: number) => method.isTerminalCondition ? i : undefined)
+            .filter((index: number) => index !== undefined)
 
         const {serviceAgreement} = await Keeper.getInstance()
 
@@ -41,25 +44,41 @@ export default class ServiceAgreementTemplate extends OceanBase {
 
         const owner = await this.getOwner()
 
-        if (!owner.getId().startsWith("0x0")) {
-            Logger.error(`Template with id "${this.template.id}" already registered.`)
+        if (owner.getId() === templateOwnerAddress) {
+            // tslint:disable-next-line
+            Logger.error(`Template with id "${this.template.id}" is already registered to your account "${templateOwnerAddress}".`)
             return false
         }
 
-        const receipt = await serviceAgreement.setupAgreementTemplate(
-            this.template.id, methodReflections, dependencyMatrix,
-            Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
-            templateOwnerAddress)
-
-        const templateId = receipt.events.SetupAgreementTemplate.returnValues.serviceTemplateId
-
-        if (templateId !== this.template.id) {
-            // tslint:disable-next-line
-            throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${templateId}`)
+        if (!owner.getId().startsWith("0x0")) {
+            Logger.error(`Template with id "${this.template.id}" already registered by someone else.`)
+            return false
         }
 
-        if (receipt.status) {
-            Logger.error("Registering template failed")
+        const receipt = await serviceAgreement
+            .setupAgreementTemplate(
+                this.template.id,
+                methodReflections,
+                dependencyMatrix,
+                Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
+                fulfillmentIndices,
+                this.template.fulfillmentOperator,
+                templateOwnerAddress)
+
+        const {serviceTemplateId, provider} = receipt.events.SetupAgreementTemplate.returnValues
+
+        if (serviceTemplateId !== this.template.id) {
+            // tslint:disable-next-line
+            throw new Error(`TemplateId missmatch on ${this.template.templateName}! Should be "${this.template.id}" but is ${serviceTemplateId}`)
+        }
+
+        if (provider !== templateOwnerAddress) {
+            // tslint:disable-next-line
+            throw new Error(`Template owner missmatch on ${this.template.templateName}! Should be "${templateOwnerAddress}" but is ${provider}`)
+        }
+
+        if (!receipt.status) {
+            Logger.error(`Registering template failed, status was "false".`)
         }
 
         return receipt.status
@@ -83,23 +102,54 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const methodReflections = await this.getMethodReflections()
 
         const conditions: Condition[] = methodReflections.map((methodReflection, i) => {
+            const method: Method = this.template.Methods[i]
             return {
                 methodReflection,
-                timeout: this.template.Methods[i].timeout,
-                condtionKey: ServiceAgreementTemplate.generateConditionsKey(this.getId(),
-                    methodReflection),
+                timeout: method.timeout,
+                dependencies: method.dependencies,
+                dependencyTimeoutFlags: method.dependencyTimeoutFlags,
+                isTerminalCondition: method.isTerminalCondition,
+                condtionKey: ServiceAgreementTemplate
+                    .generateConditionsKey(this.getId(), methodReflection),
             } as Condition
         })
 
         return conditions
     }
 
+    private compressDependencies(dependencies: string[], dependencyTimeoutFlags: number[]): number {
+
+        if (dependencies.length !== dependencyTimeoutFlags.length) {
+            throw new Error("Deps and timeouts need the same length")
+        }
+
+        // map name to index
+        const mappedDependencies: number[] = dependencies.map((dep: string) => {
+            return this.template.Methods.findIndex((m) => m.name === dep)
+        })
+
+        let compressedDependencyValue = 0
+        const numBits = 2  // 1st for dependency, 2nd for timeout flag
+        for (let i = 0; i < mappedDependencies.length; i++) {
+            const dependencyIndex = mappedDependencies[i]
+            const timeout = dependencyTimeoutFlags[i]
+            const offset = i * numBits
+            // tslint:disable-next-line
+            compressedDependencyValue |= dependencyIndex * 2 ** (offset + 0)  // the dependency bit
+            // tslint:disable-next-line
+            compressedDependencyValue |= timeout * 2 ** (offset + 1) // the timeout bit
+        }
+
+        return compressedDependencyValue
+    }
+
     private async getMethodReflections(): Promise<MethodReflection[]> {
-        const methodReflections: MethodReflection[] =
-            await Promise.all(this.template.Methods.map(async (method: Method) => {
-                const methodReflection = await ContractReflector.reflectContractMethod(method.path)
-                return methodReflection
-            }))
+        const methodReflections: MethodReflection[] = []
+        for (const method of this.template.Methods) {
+            methodReflections.push(
+                await ContractReflector.reflectContractMethod(method.contractName, method.methodName),
+            )
+        }
         return methodReflections
     }
 }

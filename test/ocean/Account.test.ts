@@ -75,4 +75,14 @@ describe("Account", () => {
             assert(tokensGranted === tokens)
         })
     })
+
+    describe("#getPublicKey()", () => {
+
+        it("should get the public key of an account", async () => {
+            const publicKey = await accounts[1].getPublicKey()
+            assert(publicKey)
+
+            assert(publicKey.length === 128)
+        })
+    })
 })
