@@ -16,12 +16,12 @@ export default class ServiceAgreement extends ContractBase {
                                         name: any,
                                         fulfillmentIndices: number[],
                                         fulfillmentOperator: number,
-                                        ownerAddress: string)
-        : Promise<Receipt> {
+                                        ownerAddress: string): Promise<Receipt> {
 
         return this.send("setupAgreementTemplate", ownerAddress, [
             templateId, methodReflections.map((r) => r.address),
-            methodReflections.map((r) => r.signature), dependencyMatrix, name, fulfillmentIndices, fulfillmentOperator,
+            methodReflections.map((r) => r.signature), dependencyMatrix, name, fulfillmentIndices,
+            fulfillmentOperator,
         ])
     }
 

@@ -35,14 +35,10 @@ export default class ServiceAgreementTemplate extends OceanBase {
             }))
 
         const fulfillmentIndices: number[] = this.template.Methods
-            .map((method: Method, i: number) => method.isTerminalCondition ? i : undefined)
-            .filter((index: number) => index !== undefined)
-
-        Logger.log(dependencyMatrix, fulfillmentIndices, this.template.fulfillmentOperator)
+            .map((method: Method, i: number) => method.isTerminalCondition ? i : null)
+            .filter((index: number) => index !== null)
 
         const {serviceAgreement} = await Keeper.getInstance()
-
-        const methodReflections = await this.getMethodReflections()
 
         const owner = await this.getOwner()
 
@@ -60,7 +56,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const receipt = await serviceAgreement
             .setupAgreementTemplate(
                 this.template.id,
-                methodReflections,
+                await this.getMethodReflections(),
                 dependencyMatrix,
                 Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
                 fulfillmentIndices,
@@ -126,21 +122,20 @@ export default class ServiceAgreementTemplate extends OceanBase {
             throw new Error("Deps and timeouts need the same length")
         }
 
-        // map name to index
         const mappedDependencies: number[] = []
         const mappedDependencyTimeoutFlags: number[] = []
 
         this.template.Methods.forEach((m, i) => {
             const di = dependencies.findIndex((d) => d === m.name)
             mappedDependencies.push(di > -1 ? 1 : 0)
-            mappedDependencyTimeoutFlags.push(dependencyTimeoutFlags[i] ? 1 : 0)
+            mappedDependencyTimeoutFlags.push((di > -1 && dependencyTimeoutFlags[di]) ? 1 : 0)
         })
 
         if (mappedDependencies.length !== mappedDependencyTimeoutFlags.length) {
             throw new Error("Deps and timeouts need the same length")
         }
 
-        Logger.log(dependencies, mappedDependencies, dependencyTimeoutFlags, mappedDependencyTimeoutFlags)
+        // Logger.log(dependencies, mappedDependencies, dependencyTimeoutFlags, mappedDependencyTimeoutFlags)
 
         let compressedDependencyValue: number = 0
         const numBits: number = 2  // 1st for dependency, 2nd for timeout flag

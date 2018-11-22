@@ -205,8 +205,10 @@ export default class ServiceAgreement extends OceanBase {
         super(serviceAgreementId)
     }
 
-    public async lockPayment(assetId: string, price: number, consumer: Account): Promise<boolean> {
-        const {paymentConditions} = await Keeper.getInstance()
+    public async buyAsset(assetId: string, price: number, consumer: Account): Promise<boolean> {
+        const {paymentConditions, token} = await Keeper.getInstance()
+
+        await token.approve(paymentConditions.getAddress(), price, consumer.getId())
 
         const lockPaymentReceipt =
             await paymentConditions.lockPayment(this.getId(), assetId, price,
@@ -222,7 +224,7 @@ export default class ServiceAgreement extends OceanBase {
             await accessConditions.grantAccess(this.getId(), assetId, documentId,
                 this.publisher.getId())
 
-        return grantAccessReceipt.status
+        return !!grantAccessReceipt.events.AccessGranted
     }
 
     public async getStatus() {

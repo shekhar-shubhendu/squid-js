@@ -60,7 +60,7 @@ export default abstract class ContractBase {
         if (!this.contract.methods[name]) {
             throw new Error(`Method "${name}" is not part of contract "${this.contractName}"`)
         }
-        // Logger.log(name)
+        // Logger.log(name, args)
         const method = this.contract.methods[name]
         try {
             const methodInstance = method(...args)
