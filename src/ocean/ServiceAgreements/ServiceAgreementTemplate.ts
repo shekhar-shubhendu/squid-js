@@ -136,8 +136,6 @@ export default class ServiceAgreementTemplate extends OceanBase {
             mappedDependencyTimeoutFlags.push(dependencyTimeoutFlags[i] ? 1 : 0)
         })
 
-        Logger.log("========================")
-
         if (mappedDependencies.length !== mappedDependencyTimeoutFlags.length) {
             throw new Error("Deps and timeouts need the same length")
         }
@@ -154,10 +152,6 @@ export default class ServiceAgreementTemplate extends OceanBase {
             // tslint:disable-next-line
             compressedDependencyValue |= t * 2 ** (offset + 1) // the timeout bit
         })
-
-        Logger.log(compressedDependencyValue)
-
-        Logger.log("========================")
 
         return compressedDependencyValue
     }
