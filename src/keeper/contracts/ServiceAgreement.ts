@@ -10,8 +10,11 @@ export default class ServiceAgreement extends ContractBase {
         return serviceAgreement
     }
 
-    public async setupAgreementTemplate(templateId: string, methodReflections: MethodReflection[],
-                                        dependencyMatrix: number[], name: any, fulfillmentIndices: number[],
+    public async setupAgreementTemplate(templateId: string,
+                                        methodReflections: MethodReflection[],
+                                        dependencyMatrix: number[],
+                                        name: any,
+                                        fulfillmentIndices: number[],
                                         fulfillmentOperator: number,
                                         ownerAddress: string)
         : Promise<Receipt> {

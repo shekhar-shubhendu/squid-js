@@ -12,8 +12,8 @@ import TemplateBase from "./Templates/TemplateBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
-    private static generateConditionsKey(serviceAgreementTemplateId: string, methodReflection: MethodReflection)
-        : string {
+    private static generateConditionsKey(serviceAgreementTemplateId: string,
+                                         methodReflection: MethodReflection): string {
         const values = [
             {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
             {type: "address", value: methodReflection.address} as ValuePair,
@@ -106,6 +106,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
             return {
                 methodReflection,
                 timeout: method.timeout,
+                parameters: method.parameters,
                 dependencies: method.dependencies,
                 dependencyTimeoutFlags: method.dependencyTimeoutFlags,
                 isTerminalCondition: method.isTerminalCondition,

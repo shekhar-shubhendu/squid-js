@@ -19,18 +19,12 @@ export default class ServiceAgreement extends OceanBase {
         // Logger.log("signing SA", serviceAgreementId)
 
         const service: Service = ddo.findServiceById(serviceDefinitionId)
-        const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
-        const valueHashes = ServiceAgreement.createValueHashes(values)
+        const values: ValuePair[][] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
+        const valueHashes: string[] = ServiceAgreement.createValueHashes(values)
         const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
 
-        const serviceAgreementHashSignature = await ServiceAgreement
-            .createSAHashSignature(
-                service,
-                serviceAgreementId,
-                values,
-                valueHashes,
-                timeoutValues,
-                consumer)
+        const serviceAgreementHashSignature = await ServiceAgreement.createSAHashSignature(service, serviceAgreementId,
+            valueHashes, timeoutValues, consumer)
 
         return serviceAgreementHashSignature
     }
@@ -46,8 +40,8 @@ export default class ServiceAgreement extends OceanBase {
         // Logger.log("executing SA", serviceAgreementId)
 
         const service: Service = ddo.findServiceById(serviceDefinitionId)
-        const values: ValuePair[] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
-        const valueHashes = ServiceAgreement.createValueHashes(values)
+        const values: ValuePair[][] = ServiceAgreement.getValuesFromService(service, serviceAgreementId)
+        const valueHashes: string[] = ServiceAgreement.createValueHashes(values)
         const timeoutValues: number[] = ServiceAgreement.getTimeoutValuesFromService(service)
 
         // todo get consumer from ddo
@@ -60,11 +54,9 @@ export default class ServiceAgreement extends OceanBase {
 
     private static async createSAHashSignature(service: Service,
                                                serviceAgreementId: string,
-                                               values: ValuePair[],
                                                valueHashes: string[],
                                                timeoutValues: number[],
-                                               consumer: Account):
-        Promise<string> {
+                                               consumer: Account): Promise<string> {
 
         if (!service.templateId) {
             throw new Error("TemplateId not found in ddo.")
@@ -74,13 +66,16 @@ export default class ServiceAgreement extends OceanBase {
             return condition.conditionKey
         })
 
-        const serviceAgreementHash = ServiceAgreement
-            .hashServiceAgreement(
-                service.templateId,
-                serviceAgreementId,
-                conditionKeys,
-                valueHashes,
-                timeoutValues)
+        if (conditionKeys.length !== valueHashes.length) {
+            throw new Error("Hashing SA failed!")
+        }
+
+        const serviceAgreementHash = ServiceAgreement.hashServiceAgreement(
+            service.templateId,
+            serviceAgreementId,
+            conditionKeys,
+            valueHashes,
+            timeoutValues)
 
         const serviceAgreementHashSignature = await Web3Provider
             .getWeb3().eth.sign(serviceAgreementHash, consumer.getId())
@@ -130,18 +125,31 @@ export default class ServiceAgreement extends OceanBase {
         )
     }
 
-    private static createValueHashes(valuePairs: ValuePair[]): any[] {
-        return valuePairs.map((valuePair) => {
-            return ServiceAgreement.hashSingleValue(valuePair)
+    private static createValueHashes(parameterValuePairs: ValuePair[][]): string[] {
+
+        const hashes: string[] = []
+        parameterValuePairs.map((valuePairs: ValuePair[]) => {
+
+            hashes.push(ServiceAgreement.hashValuePairArray(valuePairs))
         })
+
+        return hashes
     }
 
-    private static hashSingleValue(data: ValuePair): string {
+    private static hashValuePairArray(valuePairs: ValuePair[]): string {
+        let hash: string
         try {
-            return Web3Provider.getWeb3().utils.soliditySha3(data).toString("hex")
+            hash = Web3Provider.getWeb3().utils.soliditySha3(...valuePairs).toString("hex")
         } catch (err) {
-            Logger.error(`Hashing of ${JSON.stringify(data, null, 2)} failed.`)
+            Logger.error(`Hashing of ${JSON.stringify(valuePairs, null, 2)} failed.`)
+            throw err
         }
+
+        if (!hash) {
+            throw new Error("hashValuePairArray failed to create hash.")
+        }
+
+        return hash
     }
 
     private static hashServiceAgreement(serviceAgreementTemplateId: string,
@@ -168,20 +176,22 @@ export default class ServiceAgreement extends OceanBase {
         return timeoutValues
     }
 
-    private static getValuesFromService(service: Service, serviceAgreementId: string): ValuePair[] {
+    private static getValuesFromService(service: Service, serviceAgreementId: string): ValuePair[][] {
 
-        const values: ValuePair[] = []
+        const values: ValuePair[][] = []
 
-        service.conditions.forEach((condition) => {
+        service.conditions.forEach((condition, i) => {
+            const contionValues: ValuePair[] = []
             condition.parameters.forEach((parameter) => {
-                values.push({
+
+                contionValues.push({
                     type: parameter.type,
                     value: parameter.name === "serviceId" ? "0x" + serviceAgreementId : parameter.value,
                 } as ValuePair)
             })
-        })
 
-        // Logger.log("Values", JSON.stringify(values, null, 2))
+            values[i] = contionValues
+        })
 
         return values
     }
@@ -198,11 +208,11 @@ export default class ServiceAgreement extends OceanBase {
     public async lockPayment(assetId: string, price: number, consumer: Account): Promise<boolean> {
         const {paymentConditions} = await Keeper.getInstance()
 
-        const lockPaymentRceipt =
+        const lockPaymentReceipt =
             await paymentConditions.lockPayment(this.getId(), assetId, price,
                 consumer.getId())
 
-        return lockPaymentRceipt.status
+        return lockPaymentReceipt.status
     }
 
     public async grantAccess(assetId: string, documentId: string): Promise<boolean> {
