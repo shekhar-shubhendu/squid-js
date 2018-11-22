@@ -19,6 +19,7 @@ describe("DID Tests", () => {
             assert(did === validDID)
 
         })
+        
         it("should parse a valid DID", async () => {
             const testId = Web3.utils.randomHex(32) + "abcdefghijklmnopqrstuvwxyz"
             const testMethod = "op"
@@ -41,7 +42,7 @@ describe("DID Tests", () => {
             assert(result.id === testId)
             assert(result.path === "/testpath")
             assert(result.fragment === "#fragment")
-            assert(result.idHex === "0x" + testId)
+            assert(result.idHex === testId)
 
         })
 
@@ -51,6 +52,33 @@ describe("DID Tests", () => {
             const validDID = "did:" + testMethod + ":" + testId
             assert(didTools.isDIDValid(validDID))
             assert(!didTools.isDIDValid(validDID + "abcdef"))
+        })
+        
+        it("should convert an Ocean Id to an Ocean DID", async () => {
+            const testId = Web3.utils.randomHex(32).substring(2)
+            const testMethod = "op"
+            const validDID = "did:" + testMethod + ":" + testId
+            assert(didTools.idToDID(testId) == validDID)
+            assert(didTools.idToDID("0x" + testId) === validDID)
+            assert(didTools.idToDID("0x00") === "0")
+            assert(didTools.idToDID("00") === "0")
+        })
+        
+        it("should convert an Ocean DID to an Ocean id", async () => {
+            const testId = Web3.utils.randomHex(32).substring(2)
+            const testMethod = "op"
+            const validDID = "did:" + testMethod + ":" + testId
+            assert(didTools.DIDToId(validDID) === testId)
+        })
+
+        it("should convert an Ocean DID to an array of bytes", async () => {
+            const testId = Web3.utils.randomHex(32).substring(2)
+            const byteId = Web3.utils.hexToBytes("0x" + testId)
+            const testMethod = "op"
+            const validDID = "did:" + testMethod + ":" + testId        
+            const bufferTest = Buffer.from(didTools.DIDToIdBytes(validDID))
+            const bufferValid = Buffer.from(byteId)
+            assert(Buffer.compare(bufferTest, bufferValid) === 0 )
         })
 
     })
