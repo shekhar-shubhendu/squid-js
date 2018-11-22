@@ -38,6 +38,8 @@ export default class ServiceAgreementTemplate extends OceanBase {
             .map((method: Method, i: number) => method.isTerminalCondition ? i : undefined)
             .filter((index: number) => index !== undefined)
 
+        Logger.log(dependencyMatrix, fulfillmentIndices, this.template.fulfillmentOperator)
+
         const {serviceAgreement} = await Keeper.getInstance()
 
         const methodReflections = await this.getMethodReflections()
@@ -128,18 +130,29 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const mappedDependencies: number[] = dependencies.map((dep: string) => {
             return this.template.Methods.findIndex((m) => m.name === dep)
         })
+        Logger.log("========================")
 
-        let compressedDependencyValue = 0
-        const numBits = 2  // 1st for dependency, 2nd for timeout flag
-        for (let i = 0; i < mappedDependencies.length; i++) {
-            const dependencyIndex = mappedDependencies[i]
-            const timeout = dependencyTimeoutFlags[i]
-            const offset = i * numBits
+        Logger.log(dependencies, mappedDependencies, dependencyTimeoutFlags)
+
+        let compressedDependencyValue: number = 0
+        const numBits: number = 2  // 1st for dependency, 2nd for timeout flag
+        mappedDependencies.forEach((d: number, i: number) => {
+            const timeout: number = dependencyTimeoutFlags[i]
+            const offset: number = i * numBits
+            Logger.log("index", i, "offset", offset)
+            const depShift: number = d * 2 ** (offset + 0)
+            Logger.log("ds", depShift)
             // tslint:disable-next-line
-            compressedDependencyValue |= dependencyIndex * 2 ** (offset + 0)  // the dependency bit
+            compressedDependencyValue ^= depShift // the dependency bit
+            const timeShift: number = timeout * 2 ** (offset + 1)
+            Logger.log("ts", timeShift)
             // tslint:disable-next-line
-            compressedDependencyValue |= timeout * 2 ** (offset + 1) // the timeout bit
-        }
+            compressedDependencyValue ^= timeShift // the timeout bit
+        })
+
+        Logger.log(compressedDependencyValue)
+
+        Logger.log("========================")
 
         return compressedDependencyValue
     }

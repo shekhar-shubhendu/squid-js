@@ -14,7 +14,6 @@ import Condition from "../../src/ocean/ServiceAgreements/Condition"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
-import Logger from "../../src/utils/Logger"
 import WebServiceConnectorProvider from "../../src/utils/WebServiceConnectorProvider"
 import config from "../config"
 import TestContractHandler from "../keeper/TestContractHandler"
@@ -209,8 +208,6 @@ describe("ServiceAgreement", () => {
             // get funds
             await consumerAccount.requestTokens(metaDataService.metadata.base.price)
 
-            Logger.log(await consumerAccount.getBalance())
-
             const paid: boolean = await serviceAgreement.lockPayment(assetId, metaDataService.metadata.base.price,
                 consumerAccount)
             assert(paid)
@@ -218,7 +215,7 @@ describe("ServiceAgreement", () => {
     })
 
     describe("#grantAccess()", () => {
-        xit("should grant access in that service agreement", async () => {
+        it("should grant access in that service agreement", async () => {
 
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
@@ -246,6 +243,29 @@ describe("ServiceAgreement", () => {
 
             const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, IdGenerator.generateId())
             assert(accessGranted)
+        })
+
+        xit("should fail to grant grant access if there is no payment", async () => {
+
+            const id: string = IdGenerator.generateId()
+            const did: string = `did:op:${id}`
+            const ddo = new DDO({id: did, service: [accessService]})
+            const serviceAgreementId: string = IdGenerator.generateId()
+
+            // @ts-ignore
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, accessService.serviceDefinitionId,
+                    serviceAgreementId, consumerAccount)
+            assert(serviceAgreementSignature)
+
+            const serviceAgreement: ServiceAgreement =
+                await ServiceAgreement.executeServiceAgreement(assetId, ddo, accessService.serviceDefinitionId,
+                    serviceAgreementId, serviceAgreementSignature, consumerAccount, publisherAccount)
+            assert(serviceAgreement)
+
+            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, IdGenerator.generateId())
+            assert(!accessGranted)
         })
     })
 })
