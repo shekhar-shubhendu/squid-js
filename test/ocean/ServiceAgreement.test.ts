@@ -187,7 +187,7 @@ describe("ServiceAgreement", () => {
     })
 
     describe("#lockPayment()", () => {
-        it("should lock the payment in that service agreement", async () => {
+        xit("should lock the payment in that service agreement", async () => {
 
             const id: string = IdGenerator.generateId()
             const did: string = `did:op:${id}`
