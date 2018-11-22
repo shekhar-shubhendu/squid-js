@@ -143,11 +143,11 @@ export default class ServiceAgreementTemplate extends OceanBase {
             const depShift: number = d * 2 ** (offset + 0)
             Logger.log("ds", depShift)
             // tslint:disable-next-line
-            compressedDependencyValue ^= depShift // the dependency bit
+            compressedDependencyValue |= depShift // the dependency bit
             const timeShift: number = timeout * 2 ** (offset + 1)
             Logger.log("ts", timeShift)
             // tslint:disable-next-line
-            compressedDependencyValue ^= timeShift // the timeout bit
+            compressedDependencyValue |= timeShift // the timeout bit
         })
 
         Logger.log(compressedDependencyValue)
