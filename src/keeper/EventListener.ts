@@ -13,12 +13,16 @@ export default class EventListener {
     }
 
     public static unsubscribe(event): boolean {
-
-        EventListener.events = EventListener.events.splice(
-            EventListener.events.findIndex((e) => e === event),
-            1)
-
+        event.stopListen()
+        const i = EventListener.events.indexOf(event)
+        if (i > -1) {
+            EventListener.events.splice(i, 1)
+        }
         return true
+    }
+
+    public static count() {
+        return EventListener.events.length
     }
 
     private static events: Event[] = []

@@ -24,44 +24,51 @@ describe("EventListener", () => {
         assert(accounts)
     })
 
-    describe("#subscribe()", () => {
+    describe("#listen()", () => {
 
-        it("should subscribe to an event", (done) => {
+        it("should listen to an event", (done) => {
 
             const acc = accounts[1]
-            const countBefore = EventListener.count()
 
             const event = EventListener.subscribe("OceanToken",
                 "Transfer",
                 {
                     to: acc.getId(),
                 })
-            assert(event)
 
-            const countAfter = EventListener.count()
-            assert(countBefore + 1 === countAfter, `${countBefore}${countAfter}`)
+            event.listen((events) => {
 
-            done()
+                assert(events)
+                assert(events.length === 2)
+                done()
+            })
+
+            const {market} = keeper
+
+            market.requestTokens(400, acc.getId())
+            market.requestTokens(400, acc.getId())
         })
     })
 
-    describe("#unsubscribe()", () => {
+    describe("#listenOnce()", () => {
 
-        it("should unsubscribe from an event", (done) => {
+        xit("should listen once", async () => {
 
-            const countBefore = EventListener.count()
+            const acc = accounts[1]
+
             const event = EventListener.subscribe("OceanToken",
                 "Transfer",
-                {})
-            const count = EventListener.count()
+                {
+                    to: acc.getId(),
+                })
 
-            const unsubscribed = EventListener.unsubscribe(event)
-            assert(unsubscribed)
+            const events = await event.listenOnce()
 
-            const countAfter = EventListener.count()
-            assert(count > countBefore, `${count}${countAfter}`)
-            assert(countBefore === countAfter, `${countBefore}${countAfter}`)
-            done()
+            assert(events, "no events")
+
+            const {market} = keeper
+
+            market.requestTokens(400, acc.getId())
         })
     })
 

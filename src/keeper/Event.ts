@@ -1,9 +1,11 @@
 import GenericContract from "./contracts/GenericContract"
+import EventListener from "./EventListener"
 
 export default class Event {
 
     private poller
     private lastBlock: number = 0
+    private interval: number = 200
 
     constructor(private contractName: string,
                 private eventName: string,
@@ -16,7 +18,16 @@ export default class Event {
     }
 
     public listen(callback: any) {
-        this.poller = setTimeout(() => this.handler(callback), 200)
+        this.poller = setTimeout(
+            () => this.handler(callback),
+            this.interval)
+    }
+
+    public async listenOnce() {
+        this.listen((events: any[]) => {
+            EventListener.unsubscribe(this)
+            return events
+        })
     }
 
     private async handler(callback: any) {
