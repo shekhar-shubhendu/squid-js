@@ -56,6 +56,9 @@ export default class Keeper {
                     case 42:
                         network = "Kovan"
                         break
+                    case 8996:
+                        network = "Ocean_POA_net_local"
+                        break
                     case 8995:
                         network = "Ocean_POA_AWS"
                         break
