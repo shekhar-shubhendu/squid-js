@@ -52,19 +52,25 @@ describe("EventListener", () => {
 
     describe("#listenOnce()", () => {
 
-        xit("should listen once", async () => {
+        it("should listen once", (done) => {
 
             const acc = accounts[1]
 
+            const countBefore = EventListener.count()
             const event = EventListener.subscribe("OceanToken",
                 "Transfer",
                 {
                     to: acc.getId(),
                 })
 
-            const events = await event.listenOnce()
+            event.listenOnce(
+                (data: any) => {
 
-            assert(events, "no events")
+                    assert(data)
+                    assert(data.blockNumber)
+                    assert(EventListener.count() === countBefore)
+                    done()
+                })
 
             const {market} = keeper
 

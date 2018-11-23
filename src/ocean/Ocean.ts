@@ -124,7 +124,7 @@ export default class Ocean {
 
         const storedDdo = await aquarius.storeDDO(ddo)
 
-        Logger.log(JSON.stringify(storedDdo, null, 2))
+        // Logger.log(JSON.stringify(storedDdo, null, 2))
 
         await didRegistry.registerAttribute(
             assetId,

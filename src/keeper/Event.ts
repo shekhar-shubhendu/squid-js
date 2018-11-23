@@ -26,10 +26,12 @@ export default class Event {
             this.interval)
     }
 
-    public async listenOnce() {
+    public listenOnce(callback: any) {
         this.listen((events: any[]) => {
-            EventListener.unsubscribe(this)
-            return events
+            if (events) {
+                EventListener.unsubscribe(this)
+                callback(events[0])
+            }
         })
     }
 
