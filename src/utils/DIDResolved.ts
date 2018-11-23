@@ -5,6 +5,7 @@ DIDResolver module to resolve Ocean DID's off the block chain
 */
 
 import DIDRecord from "../models/DIDRecord"
+import ValueType from "../models/ValueType"
 import * as DIDTools from "../utils/DIDTools"
 
 export default class DIDResolved {

@@ -7,12 +7,11 @@ import ValueType from "../../src/models/ValueType"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
+import DIDResolver from "../../src/utils/DIDResolver"
 import config from "../config"
-import TestContractHandler from "./TestContractHandler"
+import TestContractHandler from "../keeper/TestContractHandler"
 
 import * as DIDTools from "../../src/utils/DIDTools"
-
-import DIDResolver from "../../src/utils/DIDResolver"
 
 let ocean: Ocean
 let didRegistry: DIDRegistry
@@ -82,14 +81,14 @@ describe("DIDResolver", () => {
             assert(didResolved)
             assert(didResolved.isURL())
             assert(didResolved.getValue() === testURL)
-            
+
             // test circular link
             const didIdFirst = DIDTools.didToId(didList[0])
 
             const receiptLastCircular = await didRegistry.registerAttribute(didIdLast, ValueType.DID, providerKey,
                 didIdFirst, ownerAccount.getId())
             assert(receiptLastCircular)
-            
+
             // resolve from the first DID in the chain
             const didResolvedCircular = await didResolver.resolve(didList[0])
             assert(didResolvedCircular)
@@ -97,7 +96,6 @@ describe("DIDResolver", () => {
 
         })
 
-        
     })
 
 })
