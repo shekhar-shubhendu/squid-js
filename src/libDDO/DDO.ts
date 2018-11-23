@@ -15,10 +15,10 @@ interface IDDO {
     id: string
     created?: string
     ["@context"]: string
-    publicKey?: []
-    authentication?: []
-    service?: []
-    proof?: {}
+    publicKey?: any[]
+    authentication?: any[]
+    service?: any[]
+    proof?: any
 }
 
 export default class DDO {
@@ -117,22 +117,26 @@ export default class DDO {
             this.context = data["@context"]
         }
 
+        this.publicKeys = []
+        this.authentications = []
+        this.services = []
+
         if ( data.hasOwnProperty("publicKey") ) {
-            data.publicKey.forEach(function(value) {
+            for (const value of data.publicKey) {
                 this.publicKeys.push(new PublicKey(value))
-            }, this)
+            }
         }
 
         if ( data.hasOwnProperty("authentication") ) {
-            data.authentication.forEach(function(value) {
+            for (const value of data.authentication) {
                 this.authentications.push(new Authentication(value))
-            }, this)
+            }
         }
 
         if ( data.hasOwnProperty("service") ) {
-            data.service.forEach(function(value) {
+            for (const value of data.service) {
                 this.services.push(new Service(value))
-            }, this)
+            }
         }
 
         if ( data.hasOwnProperty("proof") ) {
@@ -152,23 +156,23 @@ export default class DDO {
         }
         if ( this.publicKeys.length > 0 ) {
             data.publicKey = []
-            this.publicKeys.forEach(function(publicKey) {
-                this.push(publicKey.toData())
-            }, data.publicKey)
+            for ( const publicKey of this.publicKeys ) {
+                data.publicKey.push(publicKey.toData())
+            }
         }
 
         if ( this.authentications.length > 0 ) {
             data.authentication = []
-            this.authentications.forEach(function(authentication) {
-                this.push(authentication.toData())
-            }, data.authentication )
+            for ( const authentication of this.authentications) {
+                data.authentication.push(authentication.toData())
+            }
         }
 
         if ( this.services.length > 0 ) {
             data.service = []
-            this.services.forEach(function(service) {
-                this.push(service.toData())
-            }, data.service)
+            for ( const service of this.services ) {
+                data.service.push(service.toData())
+            }
         }
 
         if ( this.isProofDefined() ) {
@@ -315,32 +319,20 @@ export default class DDO {
             return false
         }
 
-        const result = { isValid: true }
-        this.publicKeys.forEach(function(publicKey) {
+        for ( const publicKey of this.publicKeys) {
             if ( !publicKey.isValid() ) {
-                this.isValid = false
+                return false
             }
-        }, result)
-        if ( ! result.isValid ) {
-            return false
         }
-
-        this.authentications.forEach(function(authentication) {
+        for ( const authentication of this.authentications) {
             if ( !authentication.isValid() ) {
-                this.isValid = false
+                return false
             }
-        }, result)
-        if ( ! result.isValid ) {
-            return false
         }
-
-        this.services.forEach(function(service) {
+        for ( const service of this.services) {
             if ( !service.isValid() ) {
-                this.isValid = false
+                return false
             }
-        }, result)
-        if ( ! result.isValid ) {
-            return false
         }
 
         if ( this.isProofDefined() ) {
@@ -356,13 +348,12 @@ export default class DDO {
      * :return a valid service object if found, else null
      */
     public getService(serviceType: string): Service {
-        const result = { service: null }
-        this.services.forEach(function(service) {
+        for ( const service of this.services) {
             if (service.type === serviceType ) {
-                this.service = service
+                return service
             }
-        }, result)
-        return result.service
+        }
+        return null
     }
 
     /*
@@ -381,13 +372,12 @@ export default class DDO {
      * :return a service object if found else return null
      */
     public findServiceKeyValue(key: string, value: string): Service {
-        const result = { service: null }
-        this.services.forEach(function(service) {
+        for ( const service of this.services) {
             if (service.values[key] === value) {
-                this.service = service
+                return service
             }
-        }, result)
-        return result.service
+        }
+        return null
     }
 
     /*
@@ -403,20 +393,21 @@ export default class DDO {
             values.push(this.created)
         }
 
-        this.publicKeys.forEach(function(publicKey) {
-            this.push(publicKey.type)
-            this.push(publicKey.value)
-        }, values)
+        for ( const publicKey of this.publicKeys) {
+            values.push(publicKey.type)
+            values.push(publicKey.value)
+        }
 
-        this.authentications.forEach(function(authentication) {
-            this.push(authentication.type)
-            this.push(authentication.value)
-        }, values)
+        for ( const authentication of this.authentications) {
+            values.push(authentication.type)
+            values.push(authentication.value)
+        }
 
-        this.services.forEach(function(service) {
-            this.push(service.type)
-            this.push(service.endpoint)
-        }, values)
+        for ( const service of this.services) {
+            values.push(service.type)
+            values.push(service.endpoint)
+        }
+
         return values
     }
 
@@ -435,14 +426,16 @@ export default class DDO {
      * :param keyId: public key id to find
      * :return the PublicKey object or null for not found
      */
-    public getPublicKey(keyId: string): PublicKey {
-        const result = {publicKey: null }
-        this.publicKeys.forEach(function(publicKey) {
+    public getPublicKey(keyId: any): PublicKey {
+        if ( typeof keyId === "number" ) {
+            return this.publicKeys[keyId]
+        }
+        for ( const publicKey of this.publicKeys ) {
             if ( publicKey.id === keyId ) {
-                this.publicKey = publicKey
+                return publicKey
             }
-        }, result)
-        return result.publicKey
+        }
+        return null
     }
 
     /* Get an authentication object based on it's public key id
@@ -453,18 +446,17 @@ export default class DDO {
      * :param publicKeyId: the public key id to use to search
      * :return if found return the Authentication object or null
      */
+
     public getAuthentication(publicKeyId: string): Authentication {
-        const result = {authentication: null }
-        this.authentications.forEach(function(authentication) {
+        for ( const authentication of this.authentications ) {
             if ( authentication.publicKeyId === publicKeyId ) {
-                this.authentication = authentication
+                return authentication
             }
-            // look for embedded public keys in the authentication record
             if ( authentication.publicKey && authentication.publicKey.id === publicKeyId ) {
-                this.authentication = authentication
+                return authentication
             }
-        }, result)
-        return result.authentication
+        }
+        return null
     }
 
     /*

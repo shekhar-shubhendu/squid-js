@@ -1,7 +1,7 @@
 import {assert} from "chai"
 import DDO from "../../src/libDDO/DDO"
+import IdGenerator from "../../src/ocean/IdGenerator"
 
-import * as Web3 from "web3"
 import * as jsonDDO from "../testdata/ddoSample1.json"
 
 describe("libDDO", () => {
@@ -83,6 +83,22 @@ describe("libDDO", () => {
         })
     })
     describe("DDO access data", () => {
+        it("should find the correct public key", async () => {
+            const did = "did:op:" + IdGenerator.generateId()
+            const ddo = new DDO(did)
+            assert(ddo)
+            for( let i = 0; i < 5; i ++ ) {
+                const privateKey = ddo.addSignature()
+                assert(privateKey)
+            }
+            const publicKey = ddo.getPublicKey(4)
+            assert(publicKey)
+            
+            const publicKeyId = ddo.getPublicKey(did + "#keys=5")
+            assert(publicKeyId)
+            assert(publicKeyId.id == publicKey.id)
+        })
+        
         it("should find a service in the ddo", async () => {
             const ddo = new DDO(jsonDDO)
             assert(ddo)
@@ -128,7 +144,7 @@ describe("libDDO", () => {
         })
 
         it("should add a service", async () => {
-            const did = "did:op:" + Web3.utils.randomHex(32).substr(2)
+            const did = "did:op:" + IdGenerator.generateId()
             const ddo = new DDO(did)
             assert(ddo)
             const service = ddo.addService({type: "metatrippy", serviceEndpoint: "http://localhost:5000"})
@@ -136,7 +152,7 @@ describe("libDDO", () => {
             assert(service.id === did)
         })
         it("should add a static proof and validate", async () => {
-            const did = "did:op:" + Web3.utils.randomHex(32).substr(2)
+            const did = "did:op:" + IdGenerator.generateId()
             const ddo = new DDO(did)
             assert(ddo)
             const privateKey = ddo.addSignature()
@@ -147,7 +163,7 @@ describe("libDDO", () => {
         })
 
         it("should add a static embedded proof and validate", async () => {
-            const did = "did:op:" + Web3.utils.randomHex(32).substr(2)
+            const did = "did:op:" + IdGenerator.generateId()
             const ddo = new DDO(did)
             assert(ddo)
             const privateKey = ddo.addSignature("pem", true)
