@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "resolveJsonModule": true,
+    "moduleResolution": "node",
     "lib": [
       "es6",
       "es7"

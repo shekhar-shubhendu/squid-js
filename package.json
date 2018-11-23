@@ -1,8 +1,11 @@
 {
   "name": "@oceanprotocol/squid",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "JavaScript client library for Ocean Protocol",
   "main": "dist/squid.js",
+  "module": "dist/esm/squid.js",
+  "browser": "dist/umd/squid.min.js",
+  "files": ["dist/umd"],
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha -w --watch-extensions js,ts,json",
@@ -10,7 +13,13 @@
     "clean": "rm -rf ./dist/ ./doc/ ./coverage ./.nyc_output",
     "lint": "tslint -c tslint.json 'src/**/*.ts' 'test/**/*.ts'",
     "start": "npm link @oceanprotocol/keeper-contracts @oceanprotocol/secret-store-client && npm run build:watch",
-    "build": "npm run clean && npm run lint && tsc && npm run doc",
+    "build": "npm run clean && npm run lint && tsc && npm run build:all && npm run doc",
+    "build:all": "npm run build:es2015 && npm run build:esm && npm run build:cjs && npm run build:umd && npm run build:umd:min",
+    "build:es2015": "tsc --module es2015 --target es2015 --outDir dist/es2015",
+    "build:esm": "tsc --module es2015 --target es5 --outDir dist/esm",
+    "build:cjs": "tsc --module commonjs --target es5 --outDir dist/cjs",
+    "build:umd": "rollup dist/esm/squid.js --format umd --name squid --sourceMap --file dist/umd/squid.js",
+    "build:umd:min": "cd dist/umd && uglifyjs --compress --mangle --comments -o squid.min.js -- squid.js && gzip squid.min.js -c > squid.min.js.gz",
     "build:watch": "tsc -w",
     "doc": "typedoc --mode modules --out ./doc/ ./src/",
     "run": "ts-node",
@@ -68,10 +77,12 @@
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
+    "rollup": "^0.67.3",
     "source-map-support": "^0.5.9",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.1.6"
+    "typescript": "^3.1.6",
+    "uglify-js": "^3.4.9"
   }
 }
