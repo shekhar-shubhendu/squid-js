@@ -1,4 +1,9 @@
-
+/*
+ *
+ * Servic class to provide access to the DDO service
+ *
+ *
+ */
 interface IService {
     id?: string
     serviceEndpoint?: string
@@ -25,6 +30,11 @@ export default class Service {
         delete dataRef.type
     }
 
+    /*
+     * convert this object to data
+     *
+     * :return IService data type
+     */
     public toData(): IService {
         let data: IService = {
             id: this.id,
@@ -37,6 +47,11 @@ export default class Service {
         return data as IService
     }
 
+    /*
+     * Validate the structure of this object's data
+     *
+     * :return true if the data is valid
+     */
     public isValid(): boolean {
         return this.id && this.id.length > 0
             && this.endpoint && this.endpoint.length > 0

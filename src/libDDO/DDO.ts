@@ -3,6 +3,7 @@
  * DDO Library to parse, create and validate DDO JSON data
  *
  */
+
 import Authentication from "./Authentication"
 import Proof from "./Proof"
 import PublicKey from "./PublicKey"

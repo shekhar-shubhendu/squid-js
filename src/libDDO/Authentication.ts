@@ -1,3 +1,8 @@
+/*
+ * Class to provide DDO Authentication
+ *
+ *
+ */
 
 import PublicKey from "./PublicKey"
 
@@ -25,6 +30,11 @@ export default class Authentication {
         this.type = data.type
     }
 
+    /*
+     * Convert this authentication object to data for exporting
+     *
+     * :return IAuthentication data type
+     */
     public toData(): IAuthentication {
         const data: IAuthentication = {
             type: this.type,
@@ -36,6 +46,11 @@ export default class Authentication {
         return data
     }
 
+    /*
+     * validate the sturcture of this object
+     *
+     * :return ture if the authentiacion object is valid
+     */
     public isValid(): boolean {
         return this.publicKeyId && this.publicKeyId.length > 0 && this.type.length && this.type.length > 0
     }

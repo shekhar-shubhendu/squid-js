@@ -1,3 +1,10 @@
+/*
+ *
+ * Proof class
+ *
+ *
+ */
+
 interface IProof {
     created?: string
     creator?: string
@@ -19,6 +26,9 @@ export default class Proof {
         this.signatureValue = data.signatureValue
     }
 
+    /*
+     * Return data for a proof
+     */
     public toData(): IProof {
         return {
             created: this.created,
@@ -28,6 +38,12 @@ export default class Proof {
         } as IProof
     }
 
+    /*
+     * check to see if this proof object is valid, only check the consistancy
+     * of the object, this does not check the proof signatue
+     *
+     * :return true if the proof object is valid and complete
+     */
     public isValid(): boolean {
         return this.created && this.created.length > 0
             && this.creator && this.creator.length > 0

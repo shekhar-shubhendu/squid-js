@@ -1,4 +1,7 @@
-
+/*
+ * Class to provide access to the DDO public key
+ *
+ */
 interface IPublicKey {
     id?: string
     owner?: string
@@ -37,6 +40,11 @@ export default class PublicKey {
         }
     }
 
+    /*
+     * Convert  this object to a IPublicKey data type
+     *
+     * :return IPublicKey data type
+     */
     public toData(): IPublicKey {
         return {
             id: this.id,
@@ -46,6 +54,11 @@ export default class PublicKey {
         } as IPublicKey
     }
 
+    /*
+     * Validate the structure of this object
+     *
+     * :return true if this object data is valid
+     */
     public isValid(): boolean {
         return this.id && this.id.length > 0
             && this.owner && this.owner.length > 0
@@ -53,6 +66,11 @@ export default class PublicKey {
             && this.value && this.value.length > 0
     }
 
+    /*
+     * Decode the public key storage into binary format
+     *
+     * :return binary format of the public key
+     */
     public decodeValue(): string {
         let value = this.value
         let buffer = null
