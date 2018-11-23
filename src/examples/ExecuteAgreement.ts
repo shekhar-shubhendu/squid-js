@@ -54,6 +54,8 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
     const accessService = ddo.findServiceByType("Access")
 
+    await consumer.requestTokens(metaData.base.price)
+
     const serviceAgreementSignatureResult: any = await ocean.signServiceAgreement(ddo.id,
         accessService.serviceDefinitionId, consumer)
     Logger.log("ServiceAgreement Id:", serviceAgreementSignatureResult.serviceAgreementId)

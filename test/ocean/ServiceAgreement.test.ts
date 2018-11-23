@@ -60,7 +60,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -79,7 +79,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -103,7 +103,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -127,7 +127,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService, metaDataService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -156,7 +156,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -178,7 +178,7 @@ describe("ServiceAgreement", () => {
             assert(paid)
 
             // todo: use document id
-            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId)
+            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId, publisherAccount)
             assert(accessGranted)
         })
 
@@ -186,7 +186,7 @@ describe("ServiceAgreement", () => {
 
             const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
-            const serviceAgreementId: string = IdGenerator.generateId()
+            const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
@@ -201,7 +201,7 @@ describe("ServiceAgreement", () => {
             assert(serviceAgreement)
 
             // todo: use document id
-            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId)
+            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId, publisherAccount)
             assert(!accessGranted)
         })
     })

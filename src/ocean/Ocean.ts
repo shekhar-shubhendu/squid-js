@@ -4,9 +4,13 @@ import BrizoProvider from "../brizo/BrizoProvider"
 import ConfigProvider from "../ConfigProvider"
 import Authentication from "../ddo/Authentication"
 import Condition from "../ddo/Condition"
+import Contract from "../ddo/Contract"
 import DDO from "../ddo/DDO"
+import Event from "../ddo/Event"
+import EventHandlers from "../ddo/EventHandlers"
 import MetaData from "../ddo/MetaData"
 import Service from "../ddo/Service"
+import ContractEvent from "../keeper/Event"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
@@ -18,6 +22,8 @@ import IdGenerator from "./IdGenerator"
 import ServiceAgreement from "./ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "./ServiceAgreements/ServiceAgreementTemplate"
 import Access from "./ServiceAgreements/Templates/Access"
+
+import EventListener from "../keeper/EventListener"
 
 export default class Ocean {
 
@@ -105,6 +111,21 @@ export default class Ocean {
                     serviceDefinitionId: accessServiceDefinitionId,
                     // the id of the service agreement template
                     templateId: serviceAgreementTemplate.getId(),
+                    serviceAgreementContract: {
+                        contractName: "ServiceAgreement",
+                        fulfillmentOperator: template.fulfillmentOperator,
+                        events: [
+                            {
+                                name: "ExecuteAgreement",
+                                actorType: ["consumer"],
+                                handlers: {
+                                    moduleName: "payment",
+                                    functionName: "lockPayment",
+                                    version: "0.1",
+                                } as EventHandlers,
+                            } as Event,
+                        ],
+                    } as Contract,
                     conditions,
                 } as Service,
                 {
@@ -142,11 +163,35 @@ export default class Ocean {
 
         const ddo = await AquariusProvider.getAquarius().retrieveDDO(did)
         const id = did.replace("did:op:", "")
-        const serviceAgreementId: string = IdGenerator.generateId()
+        const serviceAgreementId: string = IdGenerator.generatePrefixedId()
 
         try {
             const serviceAgreementSignature: string = await ServiceAgreement.signServiceAgreement(id,
                 ddo, serviceDefinitionId, serviceAgreementId, consumer)
+
+            const accessService: Service = ddo.findServiceByType("Access")
+            const metadataService: Service = ddo.findServiceByType("Metadata")
+
+            const event: ContractEvent = EventListener.subscribe(accessService.serviceAgreementContract.contractName,
+                accessService.serviceAgreementContract.events[0].name, {
+                    serviceAgreementId,
+                })
+
+            const price = metadataService.metadata.base.price
+            const balance = await consumer.getOceanBalance()
+            if (balance < price) {
+                throw new Error(`Not enough ocean tokens! Should have ${price} but has ${balance}`)
+            }
+
+            event.listenOnce((data) => {
+
+                new ServiceAgreement(serviceAgreementId)
+                    .buyAsset(id,
+                        metadataService.metadata.base.price,
+                        consumer,
+                    )
+            })
+
             return {
                 serviceAgreementId,
                 serviceAgreementSignature,
