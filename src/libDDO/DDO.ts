@@ -98,15 +98,15 @@ export default class DDO {
             this.did = did
         }
         if (typeof did === "object") {
-            this.readFromData(did)
+            this.fromData(did)
         }
     }
 
     /*
-     * Read from a data structur, this can be a JSON
+     * Read from a data structure, this can be a JSON
      * :param data: data to import
      */
-    public readFromData(data: IDDO) {
+    public fromData(data: IDDO) {
         if (data.hasOwnProperty("id") ) {
             this.did = data.id
         }
