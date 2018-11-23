@@ -49,7 +49,7 @@ export default class DIDResolver {
             resolved.addData(data)
 
             didId = null
-            if (data.valueType === "URL" || data.valueType === "DDO" ) {
+            if (data.valueType === ValueType.URL || data.valueType === ValueType.DDO ) {
                 data = null
                 break
             } else {
@@ -106,7 +106,8 @@ export default class DIDResolver {
                 didId: event.returnValues.did,
                 blockNumber: event.returnValues.updateAt,
                 owner: event.returnValues.owner,
-                valueType: ValueType[event.returnValues.valueType],
+                // crazy.. convert from a string number -> enum string -> enum number ( sigh )
+                valueType:  ValueType[ValueType[event.returnValues.valueType]],
                 key: event.returnValues.key,
                 value: event.returnValues.value,
             } as DIDRecord

@@ -49,7 +49,7 @@ export default class DIDResolved {
      */
     public isURL(): boolean {
         const item = this.getLastItem()
-        return item && item.valueType === "URL"
+        return item && item.valueType === ValueType.URL
     }
 
     /*
@@ -57,7 +57,7 @@ export default class DIDResolved {
      */
     public isDDO(): boolean {
         const item = this.getLastItem()
-        return item && item.valueType === "DDO"
+        return item && item.valueType === ValueType.DDO
     }
 
     /*
@@ -65,7 +65,7 @@ export default class DIDResolved {
      */
     public isDID(): boolean {
         const item = this.getLastItem()
-        return item && (item.valueType === "DID"  || item.valueType === "DIDRef")
+        return item && (item.valueType === ValueType.DID || item.valueType === ValueType.DIDRef)
     }
 
     /*
@@ -109,7 +109,7 @@ export default class DIDResolved {
         const item = this.getLastItem()
         let result: string = null
         if ( item ) {
-            if ( item.valueType === "DID" ) {
+            if ( item.valueType === ValueType.DID ) {
                 result = DIDTools.idToDID(item.value)
             } else {
                 result = item.value
