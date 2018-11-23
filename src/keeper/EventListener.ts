@@ -2,11 +2,9 @@ import Event from "./Event"
 
 export default class EventListener {
 
-    private static events: Event[] = []
-
-    public subscribe(contractName: string,
-                     eventName: string,
-                     filter: any): Event {
+    public static subscribe(contractName: string,
+                            eventName: string,
+                            filter: any): Event {
 
         const event = new Event(contractName, eventName, filter)
         EventListener.events.push(event)
@@ -14,7 +12,7 @@ export default class EventListener {
         return event
     }
 
-    public unsubscribe(event): boolean {
+    public static unsubscribe(event): boolean {
 
         EventListener.events = EventListener.events.splice(
             EventListener.events.findIndex((e) => e === event),
@@ -22,4 +20,6 @@ export default class EventListener {
 
         return true
     }
+
+    private static events: Event[] = []
 }

@@ -28,10 +28,9 @@ describe("EventListener", () => {
 
         it("should subscribe to an event", (done) => {
 
-            const eventListener = new EventListener()
             const acc = accounts[1]
 
-            const event = eventListener.subscribe("OceanToken",
+            const event = EventListener.subscribe("OceanToken",
                 "Transfer",
                 {
                     to: acc.getId(),
@@ -55,13 +54,11 @@ describe("EventListener", () => {
 
         it("should subscribe to an event", (done) => {
 
-            const eventListener = new EventListener()
-
-            const event = eventListener.subscribe("OceanToken",
+            const event = EventListener.subscribe("OceanToken",
                 "Transfer",
                 {})
 
-            const unsubscribed = eventListener.unsubscribe(event)
+            const unsubscribed = EventListener.unsubscribe(event)
             assert(unsubscribed)
 
             done()
