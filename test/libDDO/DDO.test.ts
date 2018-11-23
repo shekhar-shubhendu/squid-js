@@ -87,7 +87,7 @@ describe("libDDO", () => {
             const did = "did:op:" + IdGenerator.generateId()
             const ddo = new DDO(did)
             assert(ddo)
-            for( let i = 0; i < 5; i ++ ) {
+            for ( let i = 0; i < 5; i ++ ) {
                 const privateKey = ddo.addSignature()
                 assert(privateKey)
             }
