@@ -13,15 +13,6 @@ import ValueType from "../models/ValueType"
 import * as Web3 from "web3"
 import * as DIDTools from "../utils/DIDTools"
 
-/*
- *
- * Resolve a DID to an URL/DDO or later an internal/extrenal DID
- * :param did: 32 byte value or DID string to resolver, this is part of the ocean DID did:op:<32 byte value>
- * :param max_hop_count: max number of hops allowed to find the destination URL/DDO
- * :return DIDResolved object: URL or DDO of the resolved DID
- * :return null: if the DID cannot be resolved
- *
- */
 export default class DIDResolver {
 
     public didRegistry
@@ -29,6 +20,17 @@ export default class DIDResolver {
         this.didRegistry = didRegistry
     }
 
+    /*
+     *
+     * Resolve a DID to an URL/DDO or later an internal/extrenal DID
+     *
+     * :param did: 32 byte value or DID string to resolver, this is part of the ocean DID did:op:<32 byte value>
+     * :param max_hop_count: max number of hops allowed to find the destination URL/DDO
+     *
+     * :return DIDResolved object: URL or DDO of the resolved DID
+     * :return null: if the DID cannot be resolved
+     *
+     */
     public async resolve(did: string, maxHopCount?: number): Promise<DIDResolved> {
 
         maxHopCount = maxHopCount ? maxHopCount : 0
@@ -72,7 +74,14 @@ export default class DIDResolver {
         return resolved
     }
 
-    public async getDID(didId): Promise<DIDRecord> {
+    /*
+     * Internal method to get the actual DID record
+     *
+     * :param didId: 32 byte id to find
+     *
+     * :return DIDRecord of the found DID, if not then return null
+     */
+    private async getDID(didId): Promise<DIDRecord> {
 
         let record: DIDRecord = null
 
@@ -80,7 +89,7 @@ export default class DIDResolver {
         const filterOwner: string = await this.didRegistry.getOwner(didId)
         assert(blockNumber > 0 )
 
-        // filter on the blockNumber only
+        // filter on the blockNumber, owner and didId
         const filterOptions = {
             fromBlock: blockNumber,
             toBlock: blockNumber,
@@ -91,6 +100,7 @@ export default class DIDResolver {
         }
         const events = await this.didRegistry.getEventData("DIDAttributeRegistered", filterOptions)
         if ( events && events.length > 0 ) {
+            // only get the last event, since this should be the latest
             const event = events[events.length - 1]
             record = {
                 didId: event.returnValues.did,
@@ -99,7 +109,6 @@ export default class DIDResolver {
                 valueType: ValueType[event.returnValues.valueType],
                 key: event.returnValues.key,
                 value: event.returnValues.value,
-
             } as DIDRecord
         }
         return record

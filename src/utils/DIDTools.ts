@@ -13,18 +13,18 @@ const OCEAN_DID_METHOD = "op"
  * This function generates all types of DID's including ocean DID's
  *
  * :param didId: string to of the 'id' part of the DID
- * :param path: option path part of the DID
- * :param fragment: option fragment of the DID
- * :param method: option method of the DID, defaults to 'op'
+ * :param path: optional path part of the DID
+ * :param fragment: optional fragment of the DID
+ * :param method: optional method of the DID, defaults to 'op'
  *
  * :return string generated DID, in the format did:<method>:<didId>[/<path>][#<fragment>]
  */
 export function didGenerate(didId: string, path?: string, fragment?: string, method?: string) {
-    method = method === undefined ? OCEAN_DID_METHOD : method
+    method = method ? method : OCEAN_DID_METHOD
     method = method.toLowerCase().replace(/[^a-z0-9]/g, "")
     didId = didId.replace(/[^a-zA-Z0-9-.]/g, "")
     const did = ["did:", method, ":", didId]
-    if (path) {
+    if ( path ) {
         did.push("/")
         did.push(path)
     }
@@ -47,7 +47,9 @@ interface IDIDParse {
  * The function didParse will parse all types of DID's including Ocean DID
  * If this is a Ocean DID the function will return record with the value
  * `idHex` set to a hex string ( without the leading 0x ).
+ * 
  * :param did: did string to parse
+ * 
  * :return ParseRecord
  *      method - method of DID
  *      id - id of the DID
@@ -58,9 +60,6 @@ interface IDIDParse {
 export function didParse(did: string): IDIDParse {
 
     let result: IDIDParse = null
-    if ( typeof did !== "string" ) {
-        throw TypeError("DID must be a string")
-    }
     const match = did.match(/^did:([a-z0-9]+):([a-zA-Z0-9-.]+)(.*)/)
     if ( match ) {
 
@@ -84,6 +83,7 @@ export function didParse(did: string): IDIDParse {
  * Validate a Ocean DID, return true if valid, else false
  *
  * :param did: string to validate as an Ocean DID
+ * 
  * :return true if the DID is valid
  */
 export function isDIDValid(did: string): boolean {
@@ -96,11 +96,12 @@ export function isDIDValid(did: string): boolean {
  *
  * :param id: can be a hex string with or without the leading '0x'
  * :param method: if empty, default to 'op'
+ * 
  * :return a valid DID
  * :return '0' for a 0 DID
  */
 export function idToDID(id: string, method?: string): string {
-    method = method === undefined ? OCEAN_DID_METHOD : method
+    method = method ? method : OCEAN_DID_METHOD
     method = method.toLowerCase().replace(/[^a-z0-9]/g, "")
 
     // remove any leading 0x
@@ -123,15 +124,23 @@ export function idToDID(id: string, method?: string): string {
  */
 export function didToId(did: string): string {
     const result = didParse(did)
-    if (result && result.idHex ) {
+    if ( result && result.idHex ) {
         return result.idHex
     }
     return null
 }
 
+/*
+ * Convert an Ocean DID string to 32 bytes
+ * 
+ * :param did: string starting with "did:op:"
+ * 
+ * :return 32 byte array of the Id in the DID
+ * :return null if the DID is a invalid Ocean DID
+ */
 export function didToIdBytes(did: string): Uint8Array {
     const result = didParse(did)
-    if (result && result.idHex) {
+    if ( result && result.idHex ) {
         return Web3.utils.hexToBytes("0x" + result.idHex)
     }
     return null
