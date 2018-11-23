@@ -2,11 +2,7 @@
  * Class to provide access to the DDO public key
  *
  */
-interface IPublicKey {
-    id?: string
-    owner?: string
-    type?: string
-}
+import IPublicKey from "./IPublicKey"
 
 export default class PublicKey {
 
@@ -28,7 +24,7 @@ export default class PublicKey {
     public constructor(data?: any) {
         this.id = data.id
         this.owner = data.owner
-        this.type = data.type
+        this.type = data.type ? data.type : PublicKey.TYPE_RSA
         if ( data.hasOwnProperty("storeType") ) {
             this.storeType = data.storeType
         }

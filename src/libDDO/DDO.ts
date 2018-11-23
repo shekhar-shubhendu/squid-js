@@ -5,6 +5,9 @@
  */
 
 import Authentication from "./Authentication"
+import IAuthentication from "./IAuthentication"
+import IPublicKey from "./IPublicKey"
+import IService from "./IService"
 import Proof from "./Proof"
 import PublicKey from "./PublicKey"
 import Service from "./Service"
@@ -245,13 +248,43 @@ export default class DDO {
      *
      * :return The Service object
      */
-    public addService(data): Service {
+    public addService(data: IService): Service {
         const service = new Service(data)
         if (service.id == null ) {
             service.id = this.did
         }
         this.services.push(service)
         return service
+    }
+
+    /*
+     * Add a public key to the DDO
+     *
+     * :param data: data with the type IPublicKey
+     *
+     * :return PublicKey object created and added to the list
+     */
+    public addPublicKey(data: IPublicKey): PublicKey {
+        const publicKey = new PublicKey(data)
+        if ( publicKey.id == null) {
+            const nextIndex = this.publicKeys.length + 1
+            publicKey.id = this.did + "#keys-" + nextIndex
+        }
+        this.publicKeys.push(publicKey)
+        return publicKey
+    }
+
+    /*
+     * Add a authentication data to the DDO
+     *
+     * :param data: data with the type IAuthentication
+     *
+     * :return Authentication object created and added to the list
+     */
+    public addAuthentication(data: IAuthentication): Authentication {
+        const authentication = new Authentication(data)
+        this.authentications.push(authentication)
+        return authentication
     }
 
     /*

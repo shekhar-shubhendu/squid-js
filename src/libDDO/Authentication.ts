@@ -6,10 +6,7 @@
 
 import PublicKey from "./PublicKey"
 
-interface IAuthentication {
-    publicKey?: any
-    type?: string
-}
+import IAuthentication from "./IAuthentication"
 
 export default class Authentication {
 
@@ -27,7 +24,7 @@ export default class Authentication {
         } else {
             this.publicKey = new PublicKey(data.publicKey)
         }
-        this.type = data.type
+        this.type = data.type ? data.type : Authentication.TYPE_RSA
     }
 
     /*

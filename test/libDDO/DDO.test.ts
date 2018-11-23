@@ -1,10 +1,24 @@
 import {assert} from "chai"
+import ConfigProvider from "../../src/ConfigProvider"
 import DDO from "../../src/libDDO/DDO"
+import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
+import Ocean from "../../src/ocean/Ocean"
+import config from "../config"
+import TestContractHandler from "../keeper/TestContractHandler"
 
+import PublicKey from "../../src/libDDO/PublicKey"
 import * as jsonDDO from "../testdata/ddoSample1.json"
 
+let ocean: Ocean
+
 describe("libDDO", () => {
+
+    before(async () => {
+        ConfigProvider.setConfig(config)
+        await TestContractHandler.prepareContracts()
+        ocean = await Ocean.getInstance(config)
+    })
 
     describe("#constructor()", () => {
 
@@ -147,9 +161,16 @@ describe("libDDO", () => {
             const did = "did:op:" + IdGenerator.generateId()
             const ddo = new DDO(did)
             assert(ddo)
-            const service = ddo.addService({type: "metatrippy", serviceEndpoint: "http://localhost:5000"})
+            const testServiceType = "metatrippy"
+            const testServiceURL = "http://localhost:5555"
+            const service = ddo.addService({
+                type: testServiceType,
+                serviceEndpoint: testServiceURL,
+            })
             assert(service)
             assert(service.id === did)
+            assert(service.type === testServiceType )
+            assert(service.endpoint === testServiceURL )
         })
         it("should add a static proof and validate", async () => {
             const did = "did:op:" + IdGenerator.generateId()
@@ -172,7 +193,33 @@ describe("libDDO", () => {
 //            console.log(ddo.toJSON())
             assert(ddo.validateProof())
         })
+    })
 
+    describe("DDO signing", () => {
+        it("should add an Ethereum account public key", async () => {
+
+            const ownerAccount: Account = (await ocean.getAccounts())[0]
+            assert(ownerAccount)
+
+            const did = "did:op:" + IdGenerator.generateId()
+            const ddo = new DDO(did)
+            assert(ddo)
+            // add the public key
+            const publicKey = ddo.addPublicKey({
+                value: await ownerAccount.getPublicKey(),
+                storeType: "hex",
+                owner: ownerAccount.getId(),
+            })
+
+            // add the authentication record
+            const authentication = ddo.addAuthentication({ publicKey: publicKey.id })
+
+            assert(publicKey.id === authentication.publicKeyId)
+            assert(publicKey.owner === ownerAccount.getId())
+            assert(publicKey.type === PublicKey.TYPE_RSA)
+            const data: any = publicKey.toData()
+            assert(data.hex === publicKey.value)
+        })
     })
 
 })

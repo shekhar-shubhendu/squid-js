@@ -4,11 +4,8 @@
  *
  *
  */
-interface IService {
-    id?: string
-    serviceEndpoint?: string
-    type?: string
-}
+
+import IService from "./IService"
 
 export default class Service {
 
