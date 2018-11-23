@@ -122,7 +122,7 @@ describe("ServiceAgreement", () => {
         })
     })
 
-    describe("#buyAsset()", () => {
+    describe("#payAsset()", () => {
         it("should lock the payment in that service agreement", async () => {
 
             const did: string = `did:op:${assetId}`
@@ -145,7 +145,7 @@ describe("ServiceAgreement", () => {
             // get funds
             await consumerAccount.requestTokens(metaDataService.metadata.base.price)
 
-            const paid: boolean = await serviceAgreement.buyAsset(assetId, metaDataService.metadata.base.price,
+            const paid: boolean = await serviceAgreement.payAsset(assetId, metaDataService.metadata.base.price,
                 consumerAccount)
             assert(paid)
         })
@@ -173,7 +173,7 @@ describe("ServiceAgreement", () => {
             // get funds
             await consumerAccount.requestTokens(metaDataService.metadata.base.price)
 
-            const paid: boolean = await serviceAgreement.buyAsset(assetId, metaDataService.metadata.base.price,
+            const paid: boolean = await serviceAgreement.payAsset(assetId, metaDataService.metadata.base.price,
                 consumerAccount)
             assert(paid)
 

@@ -172,21 +172,23 @@ export default class Ocean {
             const accessService: Service = ddo.findServiceByType("Access")
             const metadataService: Service = ddo.findServiceByType("Metadata")
 
-            const event: ContractEvent = EventListener.subscribe(accessService.serviceAgreementContract.contractName,
-                accessService.serviceAgreementContract.events[0].name, {
-                    serviceAgreementId,
-                })
-
             const price = metadataService.metadata.base.price
             const balance = await consumer.getOceanBalance()
             if (balance < price) {
                 throw new Error(`Not enough ocean tokens! Should have ${price} but has ${balance}`)
             }
 
+            const event: ContractEvent = EventListener.subscribe(
+                accessService.serviceAgreementContract.contractName,
+                accessService.serviceAgreementContract.events[0].name, {
+                    serviceAgreementId,
+                })
+
             event.listenOnce((data) => {
 
-                new ServiceAgreement(serviceAgreementId)
-                    .buyAsset(id,
+                Logger.log("Paying asset")
+                new ServiceAgreement(data.returnValues.serviceAgreementId)
+                    .payAsset(id,
                         metadataService.metadata.base.price,
                         consumer,
                     )

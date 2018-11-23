@@ -195,8 +195,7 @@ export default class ServiceAgreement extends OceanBase {
         super(serviceAgreementId)
     }
 
-    // todo: sync with samer
-    public async buyAsset(assetId: string, price: number, consumer: Account): Promise<boolean> {
+    public async payAsset(assetId: string, price: number, consumer: Account): Promise<boolean> {
         const {paymentConditions, token} = await Keeper.getInstance()
 
         await token.approve(paymentConditions.getAddress(), price, consumer.getId())
