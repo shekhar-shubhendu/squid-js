@@ -1,4 +1,7 @@
+import Event from "../Event"
+import EventHandler from "../EventHandler"
 import Method from "../Method"
+import Parameter from "../Parameter"
 import TemplateBase from "./TemplateBase"
 
 export default class Access extends TemplateBase {
@@ -15,11 +18,22 @@ export default class Access extends TemplateBase {
                 {
                     name: "assetId",
                     type: "bytes32",
-                },
+                } as Parameter,
                 {
                     name: "price",
                     type: "uint256",
-                },
+                } as Parameter,
+            ],
+            events: [
+                {
+                    name: "PaymentLocked",
+                    actorType: "publisher",
+                    handler: {
+                        moduleName: "accessControl",
+                        functionName: "grantAccess",
+                        version: "0.1",
+                    } as EventHandler,
+                } as Event,
             ],
             dependencies: [],
             dependencyTimeoutFlags: [],
@@ -34,11 +48,31 @@ export default class Access extends TemplateBase {
                 {
                     name: "assetId",
                     type: "bytes32",
-                },
+                } as Parameter,
                 {
                     name: "documentKeyId",
                     type: "bytes32",
-                },
+                } as Parameter,
+            ],
+            events: [
+                {
+                    name: "AccessGranted",
+                    actorType: "consumer",
+                    handler: {
+                        moduleName: "asset",
+                        functionName: "consumeService",
+                        version: "0.1",
+                    } as EventHandler,
+                } as Event,
+                {
+                    name: "AccessGranted",
+                    actorType: "publisher",
+                    handler: {
+                        moduleName: "payment",
+                        functionName: "releasePayment",
+                        version: "0.1",
+                    } as EventHandler,
+                } as Event,
             ],
             dependencies: ["lockPayment"],
             dependencyTimeoutFlags: [0],
@@ -53,11 +87,22 @@ export default class Access extends TemplateBase {
                 {
                     name: "assetId",
                     type: "bytes32",
-                },
+                } as Parameter,
                 {
                     name: "price",
                     type: "uint256",
-                },
+                } as Parameter,
+            ],
+            events: [
+                {
+                    name: "PaymentReleased",
+                    actorType: "publisher",
+                    handler: {
+                        moduleName: "serviceAgreement",
+                        functionName: "fulfillAgreement",
+                        version: "0.1",
+                    } as EventHandler,
+                } as Event,
             ],
             dependencies: ["grantAccess"],
             dependencyTimeoutFlags: [0],
@@ -72,11 +117,22 @@ export default class Access extends TemplateBase {
                 {
                     name: "assetId",
                     type: "bytes32",
-                },
+                } as Parameter,
                 {
                     name: "price",
                     type: "uint256",
-                },
+                } as Parameter,
+            ],
+            events: [
+                {
+                    name: "PaymentRefund",
+                    actorType: "consumer",
+                    handler: {
+                        moduleName: "serviceAgreement",
+                        functionName: "fulfillAgreement",
+                        version: "0.1",
+                    } as EventHandler,
+                } as Event,
             ],
             dependencies: ["lockPayment", "grantAccess"],
             dependencyTimeoutFlags: [0, 1],
