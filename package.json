@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/oceanprotocol/squid-js#readme",
   "dependencies": {
-    "@oceanprotocol/keeper-contracts": "0.3.23",
+    "@oceanprotocol/keeper-contracts": "0.3.25",
     "@oceanprotocol/secret-store-client": "0.0.12",
     "bignumber.js": "^8.0.1",
     "eth-crypto": "^1.2.7",
@@ -64,7 +64,7 @@
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.7",
+    "@types/node": "^10.12.10",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",

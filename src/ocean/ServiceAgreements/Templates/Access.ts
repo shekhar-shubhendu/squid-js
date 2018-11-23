@@ -11,6 +11,16 @@ export default class Access extends TemplateBase {
             contractName: "PaymentConditions",
             methodName: "lockPayment",
             timeout: 0,
+            parameters: [
+                {
+                    name: "assetId",
+                    type: "bytes32",
+                },
+                {
+                    name: "price",
+                    type: "uint256",
+                },
+            ],
             dependencies: [],
             dependencyTimeoutFlags: [],
             isTerminalCondition: false,
@@ -20,6 +30,16 @@ export default class Access extends TemplateBase {
             contractName: "AccessConditions",
             methodName: "grantAccess",
             timeout: 10,
+            parameters: [
+                {
+                    name: "assetId",
+                    type: "bytes32",
+                },
+                {
+                    name: "documentKeyId",
+                    type: "bytes32",
+                },
+            ],
             dependencies: ["lockPayment"],
             dependencyTimeoutFlags: [0],
             isTerminalCondition: false,
@@ -29,6 +49,16 @@ export default class Access extends TemplateBase {
             contractName: "PaymentConditions",
             methodName: "releasePayment",
             timeout: 10,
+            parameters: [
+                {
+                    name: "assetId",
+                    type: "bytes32",
+                },
+                {
+                    name: "price",
+                    type: "uint256",
+                },
+            ],
             dependencies: ["grantAccess"],
             dependencyTimeoutFlags: [0],
             isTerminalCondition: true,
@@ -38,6 +68,16 @@ export default class Access extends TemplateBase {
             contractName: "PaymentConditions",
             methodName: "refundPayment",
             timeout: 10,
+            parameters: [
+                {
+                    name: "assetId",
+                    type: "bytes32",
+                },
+                {
+                    name: "price",
+                    type: "uint256",
+                },
+            ],
             dependencies: ["lockPayment", "grantAccess"],
             dependencyTimeoutFlags: [0, 1],
             isTerminalCondition: true,
