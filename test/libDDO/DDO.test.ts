@@ -93,12 +93,12 @@ describe("libDDO", () => {
             }
             const publicKey = ddo.getPublicKey(4)
             assert(publicKey)
-            
+
             const publicKeyId = ddo.getPublicKey(did + "#keys=5")
             assert(publicKeyId)
-            assert(publicKeyId.id == publicKey.id)
+            assert(publicKeyId.id === publicKey.id)
         })
-        
+
         it("should find a service in the ddo", async () => {
             const ddo = new DDO(jsonDDO)
             assert(ddo)
