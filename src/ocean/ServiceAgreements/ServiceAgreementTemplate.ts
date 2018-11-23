@@ -12,8 +12,8 @@ import TemplateBase from "./Templates/TemplateBase"
 
 export default class ServiceAgreementTemplate extends OceanBase {
 
-    private static generateConditionsKey(serviceAgreementTemplateId: string, methodReflection: MethodReflection)
-        : string {
+    private static generateConditionsKey(serviceAgreementTemplateId: string,
+                                         methodReflection: MethodReflection): string {
         const values = [
             {type: "bytes32", value: serviceAgreementTemplateId} as ValuePair,
             {type: "address", value: methodReflection.address} as ValuePair,
@@ -35,12 +35,10 @@ export default class ServiceAgreementTemplate extends OceanBase {
             }))
 
         const fulfillmentIndices: number[] = this.template.Methods
-            .map((method: Method, i: number) => method.isTerminalCondition ? i : undefined)
-            .filter((index: number) => index !== undefined)
+            .map((method: Method, i: number) => method.isTerminalCondition ? i : null)
+            .filter((index: number) => index !== null)
 
         const {serviceAgreement} = await Keeper.getInstance()
-
-        const methodReflections = await this.getMethodReflections()
 
         const owner = await this.getOwner()
 
@@ -58,7 +56,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
         const receipt = await serviceAgreement
             .setupAgreementTemplate(
                 this.template.id,
-                methodReflections,
+                await this.getMethodReflections(),
                 dependencyMatrix,
                 Web3Provider.getWeb3().utils.fromAscii(this.template.templateName),
                 fulfillmentIndices,
@@ -106,6 +104,7 @@ export default class ServiceAgreementTemplate extends OceanBase {
             return {
                 methodReflection,
                 timeout: method.timeout,
+                parameters: method.parameters,
                 dependencies: method.dependencies,
                 dependencyTimeoutFlags: method.dependencyTimeoutFlags,
                 isTerminalCondition: method.isTerminalCondition,
@@ -123,22 +122,31 @@ export default class ServiceAgreementTemplate extends OceanBase {
             throw new Error("Deps and timeouts need the same length")
         }
 
-        // map name to index
-        const mappedDependencies: number[] = dependencies.map((dep: string) => {
-            return this.template.Methods.findIndex((m) => m.name === dep)
+        const mappedDependencies: number[] = []
+        const mappedDependencyTimeoutFlags: number[] = []
+
+        this.template.Methods.forEach((m, i) => {
+            const di = dependencies.findIndex((d) => d === m.name)
+            mappedDependencies.push(di > -1 ? 1 : 0)
+            mappedDependencyTimeoutFlags.push((di > -1 && dependencyTimeoutFlags[di]) ? 1 : 0)
         })
 
-        let compressedDependencyValue = 0
-        const numBits = 2  // 1st for dependency, 2nd for timeout flag
-        for (let i = 0; i < mappedDependencies.length; i++) {
-            const dependencyIndex = mappedDependencies[i]
-            const timeout = dependencyTimeoutFlags[i]
-            const offset = i * numBits
-            // tslint:disable-next-line
-            compressedDependencyValue |= dependencyIndex * 2 ** (offset + 0)  // the dependency bit
-            // tslint:disable-next-line
-            compressedDependencyValue |= timeout * 2 ** (offset + 1) // the timeout bit
+        if (mappedDependencies.length !== mappedDependencyTimeoutFlags.length) {
+            throw new Error("Deps and timeouts need the same length")
         }
+
+        // Logger.log(dependencies, mappedDependencies, dependencyTimeoutFlags, mappedDependencyTimeoutFlags)
+
+        let compressedDependencyValue: number = 0
+        const numBits: number = 2  // 1st for dependency, 2nd for timeout flag
+        mappedDependencies.forEach((d: number, i: number) => {
+            const t: number = mappedDependencyTimeoutFlags[i]
+            const offset: number = i * numBits
+            // tslint:disable-next-line
+            compressedDependencyValue |= d * 2 ** (offset + 0) // the dependency bit
+            // tslint:disable-next-line
+            compressedDependencyValue |= t * 2 ** (offset + 1) // the timeout bit
+        })
 
         return compressedDependencyValue
     }

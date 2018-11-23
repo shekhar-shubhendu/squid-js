@@ -13,7 +13,6 @@ import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
 import Config from "../models/Config"
-import InputType from "../models/InputType"
 import ValueType from "../models/ValueType"
 import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
@@ -107,11 +106,11 @@ export default class Ocean {
                     return null
                 }
 
-                const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
+                const parameters: Parameter[] = condition.parameters.map((parameter: Parameter) => {
                     return {
-                        name: input.name,
-                        type: input.type,
-                        value: mapParameterValueToName(input.name),
+                        name: parameter.name,
+                        type: parameter.type,
+                        value: mapParameterValueToName(parameter.name),
                     } as Parameter
                 })
 
