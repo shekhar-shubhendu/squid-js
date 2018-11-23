@@ -7,7 +7,6 @@ import EventHandlers from "../../src/ddo/EventHandlers"
 import MetaData from "../../src/ddo/MetaData"
 import Parameter from "../../src/ddo/Parameter"
 import Service from "../../src/ddo/Service"
-import InputType from "../../src/models/InputType"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
@@ -49,57 +48,60 @@ describe("ServiceAgreement", () => {
         const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
 
         // create ddo conditions out of the keys
-        const ddoConditions: DDOCondition[] = conditions.map((condition, index): DDOCondition => {
+        const ddoConditions: DDOCondition[] = conditions
+            .map((condition: Condition, index): DDOCondition => {
 
-            const events: Event[] = [
-                {
-                    name: "PaymentReleased",
-                    actorType: [
-                        "consumer",
-                    ],
-                    handlers: {
-                        moduleName: "serviceAgreement",
-                        functionName: "fulfillAgreement",
-                        version: "0.1",
-                    } as EventHandlers,
-                } as Event,
-            ]
+                const events: Event[] = [
+                    {
+                        name: "PaymentReleased",
+                        actorType: [
+                            "consumer",
+                        ],
+                        handlers: {
+                            moduleName: "serviceAgreement",
+                            functionName: "fulfillAgreement",
+                            version: "0.1",
+                        } as EventHandlers,
+                    } as Event,
+                ]
 
-            const mapParameterValueToName = (name) => {
+                const mapParameterValueToName = (name) => {
 
-                switch (name) {
-                    case "price":
-                        return metadata.base.price
-                    case "assetId":
-                        return "0x" + assetId
-                    case "documentKeyId":
-                        return "0x1234"
+                    switch (name) {
+                        case "price":
+                            return metadata.base.price
+                        case "assetId":
+                            return "0x" + assetId
+                        case "documentKeyId":
+                            return "0x" + assetId
+
+                    }
+
+                    return null
                 }
 
-                return null
-            }
+                const parameters: Parameter[] = condition.parameters
+                    .map((parameter: Parameter) => {
+                        return {
+                            name: parameter.name,
+                            type: parameter.type,
+                            value: mapParameterValueToName(parameter.name),
+                        } as Parameter
+                    })
 
-            const parameters: Parameter[] = condition.methodReflection.inputs.map((input: InputType) => {
                 return {
-                    name: input.name,
-                    type: input.type,
-                    value: mapParameterValueToName(input.name),
-                } as Parameter
+                    contractName: condition.methodReflection.contractName,
+                    methodName: condition.methodReflection.methodName,
+                    timeout: condition.timeout,
+                    index,
+                    conditionKey: condition.condtionKey,
+                    parameters,
+                    events,
+                    dependencies: condition.dependencies,
+                    dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
+                    isTerminalCondition: condition.isTerminalCondition,
+                } as DDOCondition
             })
-
-            return {
-                contractName: condition.methodReflection.contractName,
-                methodName: condition.methodReflection.methodName,
-                timeout: condition.timeout,
-                index,
-                conditionKey: condition.condtionKey,
-                parameters,
-                events,
-                dependencies: condition.dependencies,
-                dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
-                isTerminalCondition: condition.isTerminalCondition,
-            } as DDOCondition
-        })
 
         accessService = {
             type: "Access",
@@ -117,8 +119,7 @@ describe("ServiceAgreement", () => {
     describe("#signServiceAgreement()", () => {
         it("should sign an service agreement", async () => {
 
-            const id: string = IdGenerator.generateId()
-            const did: string = `did:op:${id}`
+            const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -137,8 +138,7 @@ describe("ServiceAgreement", () => {
     describe("#executeServiceAgreement()", () => {
         it("should execute an service agreement", async () => {
 
-            const id: string = IdGenerator.generateId()
-            const did: string = `did:op:${id}`
+            const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -162,8 +162,7 @@ describe("ServiceAgreement", () => {
     describe("#getStatus()", () => {
         it("should get the status of a newly created service agreement", async () => {
 
-            const id: string = IdGenerator.generateId()
-            const did: string = `did:op:${id}`
+            const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -184,16 +183,16 @@ describe("ServiceAgreement", () => {
         })
     })
 
-    describe("#lockPayment()", () => {
-        xit("should lock the payment in that service agreement", async () => {
+    describe("#buyAsset()", () => {
+        it("should lock the payment in that service agreement", async () => {
 
-            const id: string = IdGenerator.generateId()
-            const did: string = `did:op:${id}`
+            const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService, metaDataService]})
             const serviceAgreementId: string = IdGenerator.generateId()
 
             // @ts-ignore
             WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
+
             const serviceAgreementSignature: string =
                 await ServiceAgreement.signServiceAgreement(assetId, ddo, accessService.serviceDefinitionId,
                     serviceAgreementId, consumerAccount)
@@ -204,17 +203,19 @@ describe("ServiceAgreement", () => {
                     serviceAgreementId, serviceAgreementSignature, consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
-            const paid: boolean = await serviceAgreement.lockPayment(assetId, metaDataService.metadata.base.price,
+            // get funds
+            await consumerAccount.requestTokens(metaDataService.metadata.base.price)
+
+            const paid: boolean = await serviceAgreement.buyAsset(assetId, metaDataService.metadata.base.price,
                 consumerAccount)
             assert(paid)
         })
     })
 
     describe("#grantAccess()", () => {
-        xit("should grant access in that service agreement", async () => {
+        it("should grant access in that service agreement", async () => {
 
-            const id: string = IdGenerator.generateId()
-            const did: string = `did:op:${id}`
+            const did: string = `did:op:${assetId}`
             const ddo = new DDO({id: did, service: [accessService]})
             const serviceAgreementId: string = IdGenerator.generateId()
 
@@ -230,11 +231,39 @@ describe("ServiceAgreement", () => {
                     serviceAgreementId, serviceAgreementSignature, consumerAccount, publisherAccount)
             assert(serviceAgreement)
 
-            const paid: boolean = await serviceAgreement.lockPayment(assetId, 10, consumerAccount)
+            // get funds
+            await consumerAccount.requestTokens(metaDataService.metadata.base.price)
+
+            const paid: boolean = await serviceAgreement.buyAsset(assetId, metaDataService.metadata.base.price,
+                consumerAccount)
             assert(paid)
 
-            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, IdGenerator.generateId())
+            // todo: use document id
+            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId)
             assert(accessGranted)
+        })
+
+        it("should fail to grant grant access if there is no payment", async () => {
+
+            const did: string = `did:op:${assetId}`
+            const ddo = new DDO({id: did, service: [accessService]})
+            const serviceAgreementId: string = IdGenerator.generateId()
+
+            // @ts-ignore
+            WebServiceConnectorProvider.setConnector(new WebServiceConnectorMock(ddo))
+            const serviceAgreementSignature: string =
+                await ServiceAgreement.signServiceAgreement(assetId, ddo, accessService.serviceDefinitionId,
+                    serviceAgreementId, consumerAccount)
+            assert(serviceAgreementSignature)
+
+            const serviceAgreement: ServiceAgreement =
+                await ServiceAgreement.executeServiceAgreement(assetId, ddo, accessService.serviceDefinitionId,
+                    serviceAgreementId, serviceAgreementSignature, consumerAccount, publisherAccount)
+            assert(serviceAgreement)
+
+            // todo: use document id
+            const accessGranted: boolean = await serviceAgreement.grantAccess(assetId, assetId)
+            assert(!accessGranted)
         })
     })
 })
