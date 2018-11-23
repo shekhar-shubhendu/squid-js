@@ -1,3 +1,4 @@
+import ValueType from "../models/ValueType"
 
 export default class DIDRecord {
     public didId: string
