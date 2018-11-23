@@ -3,6 +3,9 @@
   "version": "0.1.20",
   "description": "JavaScript client library for Ocean Protocol",
   "main": "dist/squid.js",
+  "module": "dist/esm/squid.js",
+  "browser": "dist/umd/squid.min.js",
+  "files": ["dist/umd"],
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha -w --watch-extensions js,ts,json",
