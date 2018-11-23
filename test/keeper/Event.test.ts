@@ -41,6 +41,7 @@ describe("EventListener", () => {
                 assert(events)
                 assert(events.length === 2)
                 done()
+                EventListener.unsubscribe(event)
             })
 
             const {market} = keeper

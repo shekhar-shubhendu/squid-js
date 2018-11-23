@@ -4,7 +4,7 @@ import Web3Provider from "./Web3Provider"
 
 export default class Event {
 
-    private poller
+    private poller = null
     private lastBlock: number = 0
     private interval: number = 200
 
@@ -15,7 +15,8 @@ export default class Event {
     }
 
     public stopListen() {
-        clearTimeout(this.poller)
+        clearInterval(this.poller)
+        this.poller = null
     }
 
     public async listen(callback: any) {

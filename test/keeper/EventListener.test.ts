@@ -41,6 +41,7 @@ describe("EventListener", () => {
             const countAfter = EventListener.count()
             assert(countBefore + 1 === countAfter, `${countBefore}${countAfter}`)
 
+            EventListener.unsubscribe(event)
             done()
         })
     })
