@@ -30,7 +30,7 @@ export default class DIDResolver {
     }
 
     public async resolve(did: string, maxHopCount?: number): Promise<DIDResolved> {
-        
+
         maxHopCount = maxHopCount ? maxHopCount : 0
 
         let didId = DIDTools.didToId(did)
@@ -45,7 +45,7 @@ export default class DIDResolver {
                 break
             }
             resolved.addData(data)
-            
+
             didId = null
             if (data.valueType === "URL" || data.valueType === "DDO" ) {
                 data = null
@@ -64,8 +64,7 @@ export default class DIDResolver {
                 // only look if we have another id to find
                 if ( didId ) {
                     data = await this.getDID(didId)
-                }
-                else {
+                } else {
                     data = null
                 }
             }
