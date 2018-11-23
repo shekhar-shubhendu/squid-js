@@ -47,9 +47,9 @@ interface IDIDParse {
  * The function didParse will parse all types of DID's including Ocean DID
  * If this is a Ocean DID the function will return record with the value
  * `idHex` set to a hex string ( without the leading 0x ).
- * 
+ *
  * :param did: did string to parse
- * 
+ *
  * :return ParseRecord
  *      method - method of DID
  *      id - id of the DID
@@ -83,7 +83,7 @@ export function didParse(did: string): IDIDParse {
  * Validate a Ocean DID, return true if valid, else false
  *
  * :param did: string to validate as an Ocean DID
- * 
+ *
  * :return true if the DID is valid
  */
 export function isDIDValid(did: string): boolean {
@@ -96,7 +96,7 @@ export function isDIDValid(did: string): boolean {
  *
  * :param id: can be a hex string with or without the leading '0x'
  * :param method: if empty, default to 'op'
- * 
+ *
  * :return a valid DID
  * :return '0' for a 0 DID
  */
@@ -132,9 +132,9 @@ export function didToId(did: string): string {
 
 /*
  * Convert an Ocean DID string to 32 bytes
- * 
+ *
  * :param did: string starting with "did:op:"
- * 
+ *
  * :return 32 byte array of the Id in the DID
  * :return null if the DID is a invalid Ocean DID
  */
