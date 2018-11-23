@@ -64,10 +64,12 @@ export default class Ocean {
 
         const assetId: string = IdGenerator.generateId()
         const did: string = `did:op:${assetId}`
-        const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
+        const accessServiceDefinitionId: string = "0"
+        const computeServiceDefintionId: string = "1"
+        const metadataServiceDefinitionId: string = "2"
 
         metadata.base.contentUrls =
-            await SecretStoreProvider.getSecretStore().encryptDocument(assetId, metadata.base.contentUrls)
+            [await SecretStoreProvider.getSecretStore().encryptDocument(assetId, metadata.base.contentUrls)]
 
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
@@ -159,9 +161,9 @@ export default class Ocean {
                     type: template.templateName,
                     purchaseEndpoint: brizo.getPurchaseEndpoint(),
                     serviceEndpoint: brizo.getConsumeEndpoint(publisher.getId(),
-                        serviceDefinitionId, metadata.base.contentUrls[0]),
+                        accessServiceDefinitionId, metadata.base.contentUrls[0]),
                     // the id of the service agreement?
-                    serviceDefinitionId,
+                    serviceDefinitionId: accessServiceDefinitionId,
                     // the id of the service agreement template
                     templateId: serviceAgreementTemplate.getId(),
                     conditions: ddoConditions,
@@ -169,11 +171,13 @@ export default class Ocean {
                 {
                     type: "Compute",
                     serviceEndpoint: brizo.getComputeEndpoint(publisher.getId(),
-                        serviceDefinitionId, "xxx", "xxx"),
+                        computeServiceDefintionId, "xxx", "xxx"),
+                    serviceDefinitionId: computeServiceDefintionId,
                 } as Service,
                 {
                     type: "Metadata",
                     serviceEndpoint,
+                    serviceDefinitionId: metadataServiceDefinitionId,
                     metadata,
                 } as Service,
             ],
