@@ -62,12 +62,12 @@ export default class Ocean {
         const aquarius = AquariusProvider.getAquarius()
         const brizo = BrizoProvider.getBrizo()
 
-        const id: string = IdGenerator.generateId()
-        const did: string = `did:op:${id}`
+        const assetId: string = IdGenerator.generateId()
+        const did: string = `did:op:${assetId}`
         const serviceDefinitionId: string = IdGenerator.generatePrefixedId()
 
         metadata.base.contentUrls =
-            await SecretStoreProvider.getSecretStore().encryptDocument(id, metadata.base.contentUrls)
+            await SecretStoreProvider.getSecretStore().encryptDocument(assetId, metadata.base.contentUrls)
 
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
@@ -98,9 +98,9 @@ export default class Ocean {
                         case "price":
                             return metadata.base.price
                         case "assetId":
-                            return "0x" + id
+                            return "0x" + assetId
                         case "documentKeyId":
-                            return "0x1234"
+                            return "0x" + assetId
                     }
 
                     return null
@@ -182,7 +182,7 @@ export default class Ocean {
         const storedDdo = await aquarius.storeDDO(ddo)
 
         await didRegistry.registerAttribute(
-            id,
+            assetId,
             ValueType.DID,
             "Metadata",
             serviceEndpoint,
