@@ -3,12 +3,9 @@ import SearchQuery from "../aquarius/query/SearchQuery"
 import BrizoProvider from "../brizo/BrizoProvider"
 import ConfigProvider from "../ConfigProvider"
 import Authentication from "../ddo/Authentication"
-import DDOCondition from "../ddo/Condition"
+import Condition from "../ddo/Condition"
 import DDO from "../ddo/DDO"
-import Event from "../ddo/Event"
-import EventHandlers from "../ddo/EventHandlers"
 import MetaData from "../ddo/MetaData"
-import Parameter from "../ddo/Parameter"
 import Service from "../ddo/Service"
 import Keeper from "../keeper/Keeper"
 import Web3Provider from "../keeper/Web3Provider"
@@ -18,7 +15,6 @@ import SecretStoreProvider from "../secretstore/SecretStoreProvider"
 import Logger from "../utils/Logger"
 import Account from "./Account"
 import IdGenerator from "./IdGenerator"
-import Condition from "./ServiceAgreements/Condition"
 import ServiceAgreement from "./ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "./ServiceAgreements/ServiceAgreementTemplate"
 import Access from "./ServiceAgreements/Templates/Access"
@@ -74,64 +70,7 @@ export default class Ocean {
         const template = new Access()
         const serviceAgreementTemplate = new ServiceAgreementTemplate(template)
 
-        // get condition keys from template
-        const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
-
-        // create ddo conditions out of the keys
-        const ddoConditions: DDOCondition[] = conditions
-            .map((condition: Condition, index: number): DDOCondition => {
-                const events: Event[] = [
-                    {
-                        name: "PaymentReleased",
-                        actorType: [
-                            "consumer",
-                        ],
-                        handlers: {
-                            moduleName: "serviceAgreement",
-                            functionName: "fulfillAgreement",
-                            version: "0.1",
-                        } as EventHandlers,
-                    } as Event,
-                ]
-
-                const mapParameterValueToName = (name) => {
-
-                    switch (name) {
-                        case "price":
-                            return metadata.base.price
-                        case "assetId":
-                            return "0x" + assetId
-                        case "documentKeyId":
-                            return "0x" + assetId
-                    }
-
-                    return null
-                }
-
-                const parameters: Parameter[] = condition.parameters.map((parameter: Parameter) => {
-                    return {
-                        name: parameter.name,
-                        type: parameter.type,
-                        value: mapParameterValueToName(parameter.name),
-                    } as Parameter
-                })
-
-                // Logger.log(`${condition.methodReflection.contractName}.${condition.methodReflection.methodName}`,
-                //    JSON.stringify(parameters, null, 2))
-
-                return {
-                    contractName: condition.methodReflection.contractName,
-                    methodName: condition.methodReflection.methodName,
-                    timeout: condition.timeout,
-                    index,
-                    conditionKey: condition.condtionKey,
-                    parameters,
-                    events,
-                    dependencies: condition.dependencies,
-                    dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
-                    isTerminalCondition: condition.isTerminalCondition,
-                } as DDOCondition
-            })
+        const conditions: Condition[] = await serviceAgreementTemplate.getConditions(metadata, assetId)
 
         const serviceEndpoint = aquarius.getServiceEndpoint(did)
 
@@ -166,7 +105,7 @@ export default class Ocean {
                     serviceDefinitionId: accessServiceDefinitionId,
                     // the id of the service agreement template
                     templateId: serviceAgreementTemplate.getId(),
-                    conditions: ddoConditions,
+                    conditions,
                 } as Service,
                 {
                     type: "Compute",
@@ -184,6 +123,8 @@ export default class Ocean {
         })
 
         const storedDdo = await aquarius.storeDDO(ddo)
+
+        Logger.log(JSON.stringify(storedDdo, null, 2))
 
         await didRegistry.registerAttribute(
             assetId,

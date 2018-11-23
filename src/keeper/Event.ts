@@ -1,5 +1,6 @@
 import GenericContract from "./contracts/GenericContract"
 import EventListener from "./EventListener"
+import Web3Provider from "./Web3Provider"
 
 export default class Event {
 
@@ -17,8 +18,10 @@ export default class Event {
         clearTimeout(this.poller)
     }
 
-    public listen(callback: any) {
-        this.poller = setTimeout(
+    public async listen(callback: any) {
+        this.lastBlock = await Web3Provider.getWeb3().eth.getBlockNumber() + 1
+
+        this.poller = setInterval(
             () => this.handler(callback),
             this.interval)
     }
@@ -31,16 +34,17 @@ export default class Event {
     }
 
     private async handler(callback: any) {
-        const contract = await
-            GenericContract.getInstance(this.contractName)
-        const events = await
-            contract.getEventData(this.eventName, {
-                filter: this.filter,
-                fromBlock: this.lastBlock,
-                toBlock: "latest",
-            })
+        const contract = await GenericContract.getInstance(this.contractName)
 
-        this.lastBlock = events[events.length - 1].blockNumber
-        callback(events)
+        const events = await contract.getEventData(this.eventName, {
+            filter: this.filter,
+            fromBlock: this.lastBlock,
+            toBlock: "latest",
+        })
+
+        if (events.length > 0) {
+            this.lastBlock = events[events.length - 1].blockNumber + 1
+            callback(events)
+        }
     }
 }

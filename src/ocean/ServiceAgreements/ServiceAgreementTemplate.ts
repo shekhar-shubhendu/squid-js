@@ -1,3 +1,9 @@
+import DDOCondition from "../../ddo/Condition"
+import Dependency from "../../ddo/Dependency"
+import Event from "../../ddo/Event"
+import EventHandlers from "../../ddo/EventHandlers"
+import MetaData from "../../ddo/MetaData"
+import Parameter from "../../ddo/Parameter"
 import ContractReflector from "../../keeper/ContractReflector"
 import Keeper from "../../keeper/Keeper"
 import Web3Provider from "../../keeper/Web3Provider"
@@ -96,7 +102,71 @@ export default class ServiceAgreementTemplate extends OceanBase {
         return new Account(await serviceAgreement.getTemplateOwner(this.id))
     }
 
-    public async getConditions(): Promise<Condition[]> {
+    public async getConditions(metadata: MetaData, assetId: string): Promise<DDOCondition[]> {
+        const conditions = await this.blendConditions()
+        return conditions.map((condition: Condition, index: number): DDOCondition => {
+            const events: Event[] = [
+                {
+                    name: "PaymentReleased",
+                    actorType: [
+                        "consumer",
+                    ],
+                    handlers: {
+                        moduleName: "serviceAgreement",
+                        functionName: "fulfillAgreement",
+                        version: "0.1",
+                    } as EventHandlers,
+                } as Event,
+            ]
+
+            const mapParameterValueToName = (name) => {
+
+                switch (name) {
+                    case "price":
+                        return metadata.base.price
+                    case "assetId":
+                        return "0x" + assetId
+                    case "documentKeyId":
+                        return "0x" + assetId
+                }
+
+                return null
+            }
+
+            const parameters: Parameter[] = condition.parameters.map((parameter: Parameter) => {
+                return {
+                    name: parameter.name,
+                    type: parameter.type,
+                    value: mapParameterValueToName(parameter.name),
+                } as Parameter
+            })
+
+            // Logger.log(`${condition.methodReflection.contractName}.${condition.methodReflection.methodName}`,
+            //    JSON.stringify(parameters, null, 2))
+
+            const dependencies: Dependency[] = condition.dependencies.map((dep, i) => {
+                return {
+                    name: dep,
+                    timeout: condition.dependencyTimeoutFlags[i],
+                } as Dependency
+            })
+
+            return {
+                name: condition.methodReflection.methodName,
+                dependencies,
+                timeout: condition.timeout,
+                isTerminalCondition: condition.isTerminalCondition,
+                conditionKey: condition.condtionKey,
+                contractName: condition.methodReflection.contractName,
+                functionName: condition.methodReflection.methodName,
+                index,
+                parameters,
+                events,
+            } as DDOCondition
+        })
+    }
+
+    private async blendConditions(): Promise<Condition[]> {
         const methodReflections = await this.getMethodReflections()
 
         const conditions: Condition[] = methodReflections.map((methodReflection, i) => {

@@ -1,16 +1,12 @@
 import {assert} from "chai"
 import ConfigProvider from "../../src/ConfigProvider"
-import DDOCondition from "../../src/ddo/Condition"
+import Condition from "../../src/ddo/Condition"
 import DDO from "../../src/ddo/DDO"
-import Event from "../../src/ddo/Event"
-import EventHandlers from "../../src/ddo/EventHandlers"
 import MetaData from "../../src/ddo/MetaData"
-import Parameter from "../../src/ddo/Parameter"
 import Service from "../../src/ddo/Service"
 import Account from "../../src/ocean/Account"
 import IdGenerator from "../../src/ocean/IdGenerator"
 import Ocean from "../../src/ocean/Ocean"
-import Condition from "../../src/ocean/ServiceAgreements/Condition"
 import ServiceAgreement from "../../src/ocean/ServiceAgreements/ServiceAgreement"
 import ServiceAgreementTemplate from "../../src/ocean/ServiceAgreements/ServiceAgreementTemplate"
 import Access from "../../src/ocean/ServiceAgreements/Templates/Access"
@@ -44,70 +40,13 @@ describe("ServiceAgreement", () => {
         const serviceAgreementTemplate: ServiceAgreementTemplate =
             new ServiceAgreementTemplate(new Access())
 
-        // get condition keys from template
-        const conditions: Condition[] = await serviceAgreementTemplate.getConditions()
-
-        // create ddo conditions out of the keys
-        const ddoConditions: DDOCondition[] = conditions
-            .map((condition: Condition, index): DDOCondition => {
-
-                const events: Event[] = [
-                    {
-                        name: "PaymentReleased",
-                        actorType: [
-                            "consumer",
-                        ],
-                        handlers: {
-                            moduleName: "serviceAgreement",
-                            functionName: "fulfillAgreement",
-                            version: "0.1",
-                        } as EventHandlers,
-                    } as Event,
-                ]
-
-                const mapParameterValueToName = (name) => {
-
-                    switch (name) {
-                        case "price":
-                            return metadata.base.price
-                        case "assetId":
-                            return "0x" + assetId
-                        case "documentKeyId":
-                            return "0x" + assetId
-
-                    }
-
-                    return null
-                }
-
-                const parameters: Parameter[] = condition.parameters
-                    .map((parameter: Parameter) => {
-                        return {
-                            name: parameter.name,
-                            type: parameter.type,
-                            value: mapParameterValueToName(parameter.name),
-                        } as Parameter
-                    })
-
-                return {
-                    contractName: condition.methodReflection.contractName,
-                    methodName: condition.methodReflection.methodName,
-                    timeout: condition.timeout,
-                    index,
-                    conditionKey: condition.condtionKey,
-                    parameters,
-                    events,
-                    dependencies: condition.dependencies,
-                    dependencyTimeoutFlags: condition.dependencyTimeoutFlags,
-                    isTerminalCondition: condition.isTerminalCondition,
-                } as DDOCondition
-            })
+        const conditions: Condition[] = await serviceAgreementTemplate.getConditions(metadata, assetId)
 
         accessService = {
             type: "Access",
             serviceDefinitionId: IdGenerator.generateId(),
             templateId: serviceAgreementTemplate.getId(),
-            conditions: ddoConditions,
+            conditions,
         } as Service
 
         metaDataService = {
