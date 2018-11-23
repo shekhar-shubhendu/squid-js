@@ -1,4 +1,5 @@
 import MethodReflection from "../../models/MethodReflection"
+import Parameter from "./Parameter"
 
 export default class Condition {
     public methodReflection: MethodReflection
@@ -7,4 +8,5 @@ export default class Condition {
     public dependencyTimeoutFlags: number[]
     public isTerminalCondition: boolean
     public timeout: number
+    public parameters: Parameter[]
 }
