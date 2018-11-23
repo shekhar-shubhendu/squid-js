@@ -73,6 +73,6 @@ import {Account, Logger, Ocean, ServiceAgreement} from "../squid"
 
     await consumer.requestTokens(metaData.base.price)
 
-    const paid = await serviceAgreement.buyAsset(assetId, metaData.base.price, consumer)
+    const paid = await serviceAgreement.payAsset(assetId, metaData.base.price, consumer)
     Logger.log(`Asset paid: ${paid}`)
 })()
