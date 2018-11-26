@@ -71,6 +71,7 @@ describe("ServiceAgreement", () => {
 
             assert(serviceAgreementSignature)
             assert(serviceAgreementSignature.startsWith("0x"))
+            assert(serviceAgreementSignature.length === 132)
         })
     })
 
