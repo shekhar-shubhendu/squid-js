@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="dist/umd/squid.js"></script>
+    <script>
+
+        const config = {
+            // web3Provider: web3 ? web3.currentProvider : null,
+            aquariusUri: "http://localhost:5000",
+            brizoUri: "http://localhost:8030",
+            parityUri: "http://localhost:9545",
+            secretStoreUri: "http://localhost:12001",
+            threshold: 0,
+            password: "unittest",
+            address: "0xed243adfb84a6626eba46178ccb567481c6e655d",
+        }
+        squid.Ocean
+            .getInstance(config)
+            .then(ocn => {
+                console.log(ocn)
+            })
+    </script>
+</head>
+<body>
+</body>
+</html>

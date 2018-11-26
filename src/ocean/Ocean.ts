@@ -216,7 +216,7 @@ export default class Ocean {
                 serviceAgreementId,
                 serviceDefinitionId,
                 serviceAgreementSignature,
-                await consumer.getPublicKey())
+                consumer.getId())
 
         Logger.log(result)
     }
