@@ -2,10 +2,12 @@
   "name": "@oceanprotocol/squid",
   "version": "0.1.25",
   "description": "JavaScript client library for Ocean Protocol",
-  "main": "dist/squid.js",
+  "main": "dist/cjs/squid.js",
   "module": "dist/esm/squid.js",
   "browser": "dist/umd/squid.min.js",
-  "files": ["dist/umd"],
+  "files": [
+    "dist/umd"
+  ],
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha -w --watch-extensions js,ts,json",
@@ -13,7 +15,7 @@
     "clean": "rm -rf ./dist/ ./doc/ ./coverage ./.nyc_output",
     "lint": "tslint -c tslint.json 'src/**/*.ts' 'test/**/*.ts'",
     "start": "npm link @oceanprotocol/keeper-contracts @oceanprotocol/secret-store-client && npm run build:watch",
-    "build": "npm run clean && npm run lint && tsc && npm run build:all && npm run doc",
+    "build": "npm run clean && npm run lint && npm run build:all && npm run doc",
     "build:all": "npm run build:es2015 && npm run build:esm && npm run build:cjs && npm run build:umd && npm run build:umd:min",
     "build:es2015": "tsc --module es2015 --target es2015 --outDir dist/es2015",
     "build:esm": "tsc --module es2015 --target es5 --outDir dist/esm",
