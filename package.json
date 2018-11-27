@@ -1,8 +1,9 @@
 {
   "name": "@oceanprotocol/squid",
-  "version": "0.1.22",
+  "version": "0.1.26",
   "description": "JavaScript client library for Ocean Protocol",
-  "main": "dist/squid.js",
+  "main": "./dist/node/squid.js",
+  "browser": "./dist/browser/squid.cjs2.min.js",
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha -w --watch-extensions js,ts,json",
@@ -10,7 +11,9 @@
     "clean": "rm -rf ./dist/ ./doc/ ./coverage ./.nyc_output",
     "lint": "tslint -c tslint.json 'src/**/*.ts' 'test/**/*.ts'",
     "start": "npm link @oceanprotocol/keeper-contracts @oceanprotocol/secret-store-client && npm run build:watch",
-    "build": "npm run clean && npm run lint && tsc && npm run doc",
+    "build": "npm run clean && npm run build:tsc && npm run build:dist",
+    "build:tsc": "tsc",
+    "build:dist": "cross-env NODE_ENV=production webpack",
     "build:watch": "tsc -w",
     "doc": "typedoc --mode modules --out ./doc/ ./src/",
     "run": "ts-node",
@@ -67,12 +70,20 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.10",
     "chai": "^4.2.0",
+    "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
+    "rollup": "^0.67.3",
     "source-map-support": "^0.5.9",
+    "ts-loader": "^5.3.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.1.6"
+    "typescript": "^3.1.6",
+    "uglify-js": "^3.4.9",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-concat-plugin": "^3.0.0",
+    "webpack-merge": "^4.1.4"
   }
 }
