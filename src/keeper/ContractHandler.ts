@@ -28,7 +28,7 @@ export default class ContractHandler {
     private static async load(what: string, where: string): Promise<Contract> {
         const web3 = Web3Provider.getWeb3()
         // Logger.log("Loading", what, "from", where)
-        const artifact = require(`@oceanprotocol/keeper-contracts/artifacts/${what}.${where}`)
+        const artifact = require(`@oceanprotocol/keeper-contracts/artifacts/${what}.${where}.json`)
         // Logger.log('Loaded artifact', artifact)
         const code = await web3.eth.getCode(artifact.address)
         if (code === "0x0") {
