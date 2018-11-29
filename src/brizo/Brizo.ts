@@ -1,4 +1,5 @@
 import Config from "../models/Config"
+import Logger from "../utils/Logger"
 import WebServiceConnectorProvider from "../utils/WebServiceConnectorProvider"
 
 const apiPath = "/api/v1/brizo/services"
@@ -31,17 +32,21 @@ export default class Brizo {
         signature: string,
         consumerAddress: string): Promise<any> {
 
+        const args = {
+            did,
+            serviceAgreementId,
+            serviceDefinitionId,
+            signature,
+            consumerAddress,
+        }
+
+        Logger.log(args)
+
         return WebServiceConnectorProvider
             .getConnector()
             .post(
                 `${this.url}${apiPath}/access/initialize`,
-                JSON.stringify({
-                    did,
-                    serviceAgreementId,
-                    serviceDefinitionId,
-                    signature,
-                    consumerAddress,
-                }),
+                decodeURI(JSON.stringify(args)),
             )
 
     }
