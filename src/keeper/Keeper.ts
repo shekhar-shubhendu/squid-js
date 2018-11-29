@@ -1,3 +1,4 @@
+// import Logger from "../utils/Logger"
 import OceanAuth from "./contracts/Auth"
 import AccessConditions from "./contracts/conditions/AccessConditions"
 import PaymentConditions from "./contracts/conditions/PaymentConditions"
@@ -53,6 +54,12 @@ export default class Keeper {
                     case 4:
                         network = "Rinkeby"
                         break
+                    case 77:
+                        network = "POA_Sokol"
+                        break
+                    case 99:
+                        network = "POA_Core"
+                        break
                     case 42:
                         network = "Kovan"
                         break
@@ -63,6 +70,7 @@ export default class Keeper {
                         network = "Ocean_POA_AWS"
                         break
                     default:
+                        // Logger.log(`NetworkId ${networkId} not found defaulting`)
                         network = "Development"
                 }
                 return network
