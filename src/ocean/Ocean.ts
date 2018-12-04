@@ -149,7 +149,7 @@ export default class Ocean {
 
         await didRegistry.registerAttribute(
             assetId,
-            ValueType.DID,
+            ValueType.URL,
             "Metadata",
             serviceEndpoint,
             publisher.getId())
