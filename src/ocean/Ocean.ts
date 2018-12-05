@@ -9,6 +9,7 @@ import DDO from "../ddo/DDO"
 import Event from "../ddo/Event"
 import EventHandlers from "../ddo/EventHandlers"
 import MetaData from "../ddo/MetaData"
+import PublicKey from "../ddo/PublicKey"
 import Service from "../ddo/Service"
 import ContractEvent from "../keeper/Event"
 import Keeper from "../keeper/Keeper"
@@ -90,16 +91,10 @@ export default class Ocean {
             publicKey: [
                 {
                     id: did + "#keys-1",
-                },
-                {
                     type: "Ed25519VerificationKey2018",
-                },
-                {
                     owner: did,
-                },
-                {
                     publicKeyBase58: await publisher.getPublicKey(),
-                },
+                } as PublicKey,
             ],
             service: [
                 {
