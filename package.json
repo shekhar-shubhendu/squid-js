@@ -80,7 +80,7 @@
     "typedoc": "^0.13.0",
     "typescript": "^3.1.6",
     "uglify-js": "^3.4.9",
-    "webpack": "^4.26.1",
+    "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2",
     "webpack-concat-plugin": "^3.0.0",
     "webpack-merge": "^4.1.4"
